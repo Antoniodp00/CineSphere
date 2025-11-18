@@ -1,5 +1,6 @@
 package org.dam2.adp.cinesphere.DAO;
 
+
 import org.dam2.adp.cinesphere.database.Conexion;
 import org.dam2.adp.cinesphere.model.Director;
 
@@ -10,12 +11,12 @@ import java.util.List;
 public class PeliculaDirectorDAO {
 
     private static final String SQL_INSERT =
-            "INSERT INTO PeliculaDirector(idPelicula, idDirector) VALUES(?, ?)";
+            "INSERT INTO peliculadirector(idpelicula, iddirector) VALUES(?, ?)";
 
     private static final String SQL_FIND_BY_PELICULA =
-            "SELECT d.idDirector, d.nombreDirector " +
-                    "FROM Director d JOIN PeliculaDirector pd ON d.idDirector = pd.idDirector " +
-                    "WHERE pd.idPelicula = ?";
+            "SELECT d.iddirector, d.nombredirector " +
+                    "FROM director d JOIN peliculadirector pd ON d.iddirector = pd.iddirector " +
+                    "WHERE pd.idpelicula = ?";
 
     private final Connection conn = Conexion.getConnection();
 
@@ -29,13 +30,9 @@ public class PeliculaDirectorDAO {
     public List<Director> findByPelicula(int idPelicula) throws SQLException {
         PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_PELICULA);
         st.setInt(1, idPelicula);
-
         ResultSet rs = st.executeQuery();
         List<Director> list = new ArrayList<>();
-
-        while (rs.next())
-            list.add(new Director(rs.getInt(1), rs.getString(2)));
-
+        while (rs.next()) list.add(new Director(rs.getInt(1), rs.getString(2)));
         return list;
     }
 }

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.dam2.adp.cinesphere.controller.RegisterController">
+
+    <VBox spacing="15" alignment="CENTER" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+        <Label text="Crear Cuenta" style="-fx-font-size: 28px; -fx-font-weight: bold;" />
+
+        <VBox spacing="10">
+            <TextField fx:id="txtUsuario" promptText="Usuario"/>
+            <TextField fx:id="txtEmail" promptText="Email"/>
+            <PasswordField fx:id="txtPassword" promptText="Contraseña"/>
+            <DatePicker fx:id="dpNacimiento" promptText="Fecha de nacimiento"/>
+        </VBox>
+
+        <Button fx:id="btnRegistrar" text="Registrar" prefWidth="200"/>
+        <Hyperlink fx:id="linkLogin" text="Volver al login"/>
+
+    </VBox>
+</AnchorPane>

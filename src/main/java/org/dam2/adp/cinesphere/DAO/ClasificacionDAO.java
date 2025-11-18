@@ -8,15 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClasificacionDAO {
+
     private static final String SQL_INSERT =
-            "INSERT INTO Clasificacion(nombreClasificacion) VALUES(?)";
+            "INSERT INTO clasificacion(nombreclasificacion) VALUES(?)";
 
     private static final String SQL_FIND_ALL =
-            "SELECT nombreClasificacion FROM Clasificacion";
+            "SELECT nombreclasificacion FROM clasificacion";
 
     private static final String SQL_FIND_BY_ID =
-            "SELECT nombreClasificacion FROM Clasificacion WHERE nombreClasificacion=?";
-
+            "SELECT nombreclasificacion FROM clasificacion WHERE nombreclasificacion=?";
 
     private final Connection conn = Conexion.getConnection();
 
@@ -30,21 +30,14 @@ public class ClasificacionDAO {
         PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_ID);
         st.setString(1, id);
         ResultSet rs = st.executeQuery();
-
-        if (rs.next())
-            return new Clasificacion(rs.getString("nombreClasificacion"));
-
+        if (rs.next()) return new Clasificacion(rs.getString(1));
         return null;
     }
 
     public List<Clasificacion> findAll() throws SQLException {
         ResultSet rs = conn.createStatement().executeQuery(SQL_FIND_ALL);
         List<Clasificacion> list = new ArrayList<>();
-
-        while (rs.next())
-            list.add(new Clasificacion(rs.getString("nombreClasificacion")));
-
+        while (rs.next()) list.add(new Clasificacion(rs.getString(1)));
         return list;
     }
 }
-

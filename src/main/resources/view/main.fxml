@@ -1,14 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
+<BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="org.dam2.adp.cinesphere.controller.MainController"
-            prefHeight="400.0" prefWidth="600.0">
+            stylesheets="@../style.css">
 
-</AnchorPane>
+    <!-- SIDEBAR -->
+    <left>
+        <VBox fx:id="sidebar" spacing="20" alignment="TOP_CENTER"
+              prefWidth="200">
+
+            <Label text="CineSphere" styleClass="title"/>
+
+            <Button fx:id="btnPeliculas" text="Películas" prefWidth="150"/>
+
+            <Button fx:id="btnMiLista" text="Mi Lista" prefWidth="150"/>
+
+            <Button fx:id="btnEstadisticas" text="Estadísticas" prefWidth="150"/>
+
+            <Button fx:id="btnSettings" text="Ajustes" prefWidth="150"/>
+
+            <!-- Separador flexible -->
+            <Pane VBox.vgrow="ALWAYS"/>
+
+            <Button fx:id="btnLogout" text="Cerrar Sesión"
+                    prefWidth="150" styleClass="logout-button"/>
+
+        </VBox>
+    </left>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <center>
+        <StackPane fx:id="contentArea" styleClass="content-area"/>
+    </center>
+
+</BorderPane>

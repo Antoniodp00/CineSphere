@@ -9,20 +9,17 @@ import java.time.LocalDateTime;
 public class MiListaDAO {
 
     private static final String SQL_INSERT =
-            "INSERT INTO MiLista(idUsuario, idPelicula, estado, puntuacion, urlImg, fecha_anadido) " +
+            "INSERT INTO milista(idusuario, idpelicula, estado, puntuacion, urlimg, fecha_anadido) " +
                     "VALUES (?, ?, ?, ?, ?, ?)";
 
     private static final String SQL_FIND =
-            "SELECT * FROM MiLista WHERE idUsuario=? AND idPelicula=?";
+            "SELECT * FROM milista WHERE idusuario=? AND idpelicula=?";
 
     private static final String SQL_UPDATE_ESTADO =
-            "UPDATE MiLista SET estado=? WHERE idUsuario=? AND idPelicula=?";
+            "UPDATE milista SET estado=? WHERE idusuario=? AND idpelicula=?";
 
     private static final String SQL_DELETE =
-            "DELETE FROM MiLista WHERE idUsuario=? AND idPelicula=?";
-
-    private static final String SQL_FIND_BY_USUARIO =
-            "SELECT idPelicula FROM MiLista WHERE idUsuario=?";
+            "DELETE FROM milista WHERE idusuario=? AND idpelicula=?";
 
     private final Connection conn = Conexion.getConnection();
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
@@ -43,19 +40,17 @@ public class MiListaDAO {
         PreparedStatement st = conn.prepareStatement(SQL_FIND);
         st.setInt(1, idUsuario);
         st.setInt(2, idPelicula);
-
         ResultSet rs = st.executeQuery();
 
         if (rs.next()) {
-            Usuario usuario = usuarioDAO.findById(idUsuario);
-            Pelicula pelicula = peliculaDAO.findByIdEager(idPelicula, idUsuario);
-
+            Usuario u = usuarioDAO.findById(idUsuario);
+            Pelicula p = peliculaDAO.findByIdEager(idPelicula, idUsuario);
             return new MiLista(
-                    pelicula,
-                    usuario,
+                    p,
+                    u,
                     PeliculaEstado.fromString(rs.getString("estado")),
                     rs.getObject("puntuacion") != null ? rs.getInt("puntuacion") : null,
-                    rs.getString("urlImg"),
+                    rs.getString("urlimg"),
                     LocalDateTime.parse(rs.getString("fecha_anadido"))
             );
         }

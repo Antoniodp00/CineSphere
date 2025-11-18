@@ -1,50 +1,47 @@
 package org.dam2.adp.cinesphere.database;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Properties;
 
-/**
- * Clase Singleton para gestionar la conexión dual (PostgreSQL o SQLite)
- * leyendo los parámetros desde un archivo de configuración externo (config.properties).
- * Cumple con el requisito de Patrón Singleton y Configuración Externa.
- */
 public class Conexion {
 
-    private static Connection conn = null;
+    private static Connection connection;
 
-    private Conexion() {}
+    public static void connect(String configFile) {
+        try {
+            InputStream is = Conexion.class.getResourceAsStream("/config/" + configFile);
 
-    public static void connect(String configPath) throws Exception {
-        if (conn != null && !conn.isClosed()) return;
+            if (is == null) {
+                throw new RuntimeException("No se encontró el archivo de configuración: " + configFile);
+            }
 
-        Properties props = new Properties();
-        props.load(new FileInputStream(configPath));
+            Properties properties = new Properties();
+            properties.load(is);
 
-        String driver = props.getProperty("db.driver");
-        String url = props.getProperty("db.url");
-        String user = props.getProperty("db.user", "");
-        String pass = props.getProperty("db.password", "");
+            String url = properties.getProperty("db.url");
+            String user = properties.getProperty("db.user");
+            String password = properties.getProperty("db.password");
+            String driver = properties.getProperty("db.driver");
 
-        Class.forName(driver);
+            Class.forName(driver);
 
-        if (user.isEmpty())
-            conn = DriverManager.getConnection(url);
-        else
-            conn = DriverManager.getConnection(url, user, pass);
+            if (url.startsWith("jdbc:sqlite")) {
+                connection = DriverManager.getConnection(url);
+            } else {
+                connection = DriverManager.getConnection(url, user, password);
+            }
 
-        // Activar FK en SQLite
-        if (url.contains("sqlite"))
-            conn.createStatement().execute("PRAGMA foreign_keys = ON");
+            System.out.println("Conectado a la BD: " + url);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al conectar a la base de datos");
+        }
     }
 
     public static Connection getConnection() {
-        return conn;
-    }
-
-    public static void close() throws SQLException {
-        if (conn != null) conn.close();
+        return connection;
     }
 }
