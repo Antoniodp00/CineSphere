@@ -1,0 +1,186 @@
+/*******************************************
+ *  PALETA DE COLORES
+ *******************************************/
+:root {
+    /* Colores base */
+    -fx-bg-dark: #1a1a1a;
+    -fx-bg-darker: #141414;
+    -fx-bg-light: #262626;
+    -fx-accent: #3fa9f5;
+    -fx-accent-hover: #5fb9ff;
+    -fx-red: #d33f3f;
+    -fx-red-hover: #ff5c5c;
+
+    /* Texto */
+    -fx-text-light: #f0f0f0;
+    -fx-text-muted: #cccccc;
+
+    /* Bordes */
+    -fx-border-color: #333;
+}
+
+/*******************************************
+ *  GENERAL
+ *******************************************/
+.root {
+    -fx-font-family: "Segoe UI", "Roboto", sans-serif;
+    -fx-background-color: -fx-bg-dark;
+    -fx-text-fill: -fx-text-light;
+}
+
+.label {
+    -fx-text-fill: -fx-text-light;
+}
+
+/*******************************************
+ *  SIDEBAR GENERAL
+ *******************************************/
+#sidebar {
+    -fx-background-color: -fx-bg-darker;
+    -fx-padding: 20;
+    -fx-spacing: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 15, 0.3, 0, 0);
+}
+
+/*******************************************
+ *  BOTONES GENERALES
+ *******************************************/
+.button {
+    -fx-background-color: -fx-bg-light;
+    -fx-text-fill: -fx-text-light;
+    -fx-font-size: 16px;
+    -fx-background-radius: 6;
+    -fx-padding: 10 15;
+    -fx-border-width: 0;
+}
+
+.button:hover {
+    -fx-background-color: -fx-accent;
+    -fx-text-fill: black;
+    -fx-cursor: hand;
+}
+
+.button:pressed {
+    -fx-background-color: derive(-fx-accent, -20%);
+}
+
+/*******************************************
+ *  BOTÓN CERRAR SESIÓN
+ *******************************************/
+#btnLogout {
+    -fx-background-color: -fx-red;
+    -fx-text-fill: white;
+}
+
+#btnLogout:hover {
+    -fx-background-color: -fx-red-hover;
+}
+
+/*******************************************
+ *  TEXTFIELD & PASSWORD FIELD
+ *******************************************/
+.text-field, .password-field {
+    -fx-background-color: -fx-bg-light;
+    -fx-text-fill: -fx-text-light;
+    -fx-prompt-text-fill: -fx-text-muted;
+    -fx-background-radius: 4;
+    -fx-padding: 8 12;
+    -fx-border-color: -fx-border-color;
+    -fx-border-radius: 4;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: -fx-accent;
+}
+
+/*******************************************
+ *  TABLEVIEW (ESTILO PLEX/LETTERBOXD)
+ *******************************************/
+.table-view {
+    -fx-background-color: -fx-bg-dark;
+    -fx-text-fill: -fx-text-light;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: -fx-bg-light;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: -fx-text-light;
+}
+
+.table-view .table-row-cell {
+    -fx-background-color: -fx-bg-dark;
+}
+
+.table-view .table-row-cell:filled:hover {
+    -fx-background-color: -fx-bg-light;
+}
+
+.table-view .table-row-cell:selected {
+    -fx-background-color: -fx-accent;
+    -fx-text-fill: black;
+}
+
+/*******************************************
+ *  SCROLLBAR
+ *******************************************/
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: -fx-bg-light;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: -fx-accent;
+}
+
+/*******************************************
+ *  CARDS DE PELÍCULA
+ *******************************************/
+.card {
+    -fx-background-color: -fx-bg-light;
+    -fx-background-radius: 8;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0.2, 0, 3);
+}
+
+.card:hover {
+    -fx-background-color: derive(-fx-bg-light, 10%);
+    -fx-cursor: hand;
+}
+
+/*******************************************
+ *  TITULOS
+ *******************************************/
+.title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-light;
+}
+
+.subtitle {
+    -fx-font-size: 18px;
+    -fx-text-fill: -fx-text-muted;
+}
+/* Sidebar */
+#sidebar {
+    -fx-background-color: -fx-bg-darker;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 15, 0.3, 0, 0);
+}
+
+/* Área de contenido */
+.content-area {
+    -fx-background-color: -fx-bg-dark;
+}
+
+/* Botón Logout */
+.logout-button {
+    -fx-background-color: -fx-red;
+    -fx-text-fill: white;
+}
+.logout-button:hover {
+    -fx-background-color: -fx-red-hover;
+}

@@ -10,12 +10,12 @@ import java.util.List;
 public class PeliculaGeneroDAO {
 
     private static final String SQL_INSERT =
-            "INSERT INTO PeliculaGenero(idPelicula, idGenero) VALUES(?, ?)";
+            "INSERT INTO peliculagenero(idpelicula, idgenero) VALUES(?, ?)";
 
     private static final String SQL_FIND_BY_PELICULA =
-            "SELECT g.idGenero, g.nombreGenero " +
-                    "FROM Genero g JOIN PeliculaGenero pg ON g.idGenero = pg.idGenero " +
-                    "WHERE pg.idPelicula = ?";
+            "SELECT g.idgenero, g.nombregenero " +
+                    "FROM genero g JOIN peliculagenero pg ON g.idgenero = pg.idgenero " +
+                    "WHERE pg.idpelicula = ?";
 
     private final Connection conn = Conexion.getConnection();
 
@@ -29,13 +29,9 @@ public class PeliculaGeneroDAO {
     public List<Genero> findByPelicula(int idPelicula) throws SQLException {
         PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_PELICULA);
         st.setInt(1, idPelicula);
-
         ResultSet rs = st.executeQuery();
         List<Genero> list = new ArrayList<>();
-
-        while (rs.next())
-            list.add(new Genero(rs.getInt(1), rs.getString(2)));
-
+        while (rs.next()) list.add(new Genero(rs.getInt(1), rs.getString(2)));
         return list;
     }
 }

@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.dam2.adp.cinesphere.controller.LoginController"
-            prefHeight="400.0" prefWidth="600.0">
+            fx:controller="org.dam2.adp.cinesphere.controller.LoginController">
 
+    <VBox spacing="15" alignment="CENTER" layoutX="0" layoutY="0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+        <Label text="CineSphere" style="-fx-font-size: 32px; -fx-font-weight: bold;" />
+
+        <VBox spacing="10">
+            <TextField fx:id="txtUsuario" promptText="Usuario" />
+            <PasswordField fx:id="txtPassword" promptText="Contraseña" />
+        </VBox>
+
+        <Button fx:id="btnLogin" text="Iniciar Sesión" prefWidth="200"/>
+        <Hyperlink fx:id="linkRegistro" text="Crear una cuenta"/>
+
+    </VBox>
 </AnchorPane>
