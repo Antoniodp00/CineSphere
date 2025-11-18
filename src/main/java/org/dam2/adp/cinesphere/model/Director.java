@@ -1,41 +1,39 @@
 package org.dam2.adp.cinesphere.model;
 
+
 public class Director {
-    private int id;
-    private String nombre;
+    private int idDirector;
+    private String nombreDirector;
 
-    public Director(int id, String nombre) {
-        this.id = id;
-        this.nombre = nombre;
+    public Director() {}
+
+    public Director(int idDirector, String nombreDirector) {
+        this.idDirector = idDirector;
+        this.nombreDirector = nombreDirector;
     }
 
-    public Director(String nombre) {
-        this.nombre = nombre;
+    public Director(String nombreDirector) {
+        this.nombreDirector = nombreDirector;
     }
 
-    // Getters y Setters
-    public int getId() {
-        return id;
+    public int getIdDirector() {
+        return idDirector;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setIdDirector(int idDirector) {
+        this.idDirector = idDirector;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getNombreDirector() {
+        return nombreDirector;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setNombreDirector(String nombreDirector) {
+        this.nombreDirector = nombreDirector;
     }
 
     @Override
     public String toString() {
-        return "Director{" +
-               "id=" + id +
-               ", nombre='" + nombre + '\'' +
-               '}';
+        return nombreDirector;
     }
-
 }

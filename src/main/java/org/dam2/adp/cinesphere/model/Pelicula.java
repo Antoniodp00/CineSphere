@@ -1,73 +1,107 @@
 package org.dam2.adp.cinesphere.model;
 
-import java.time.Duration;
 import java.util.List;
 
 public class Pelicula {
-        private int id; // idPelicula
-        private String titulo; // tituloPelicula
-        private int anioEstreno; // yearPelicula
-        private double ratingImdb; // ratingPelicula
-        private Duration duracion; // duracionPelicula (mapeado a minutos)
-        private Clasificacion clasificacion; // nombreClasificacion (POJO de la FK)
 
-        // Colecciones para Carga Eager (N:M). Serán null en Carga Lazy.
-        private List<Director> directores;
-        private List<Actor> actores;
-        private List<Genero> generos;
+    private int idPelicula;
+    private String tituloPelicula;
+    private Integer yearPelicula;
+    private Double ratingPelicula;
+    private Integer duracionPelicula;
+    private String nombreClasificacion;
 
-        // Constructor completo (incluyendo el objeto Clasificacion)
-        public Pelicula(int id, String titulo, int anioEstreno, double ratingImdb, Duration duracion, Clasificacion clasificacion) {
-            this.id = id;
-            this.titulo = titulo;
-            this.anioEstreno = anioEstreno;
-            this.ratingImdb = ratingImdb;
-            this.duracion = duracion;
-            this.clasificacion = clasificacion;
-        }
+    // EAGER opcional
+    private Clasificacion clasificacion;
+    private List<Director> directores;
+    private List<Actor> actores;
+    private List<Genero> generos;
+    private List<MiLista> usuariosQueLaTienen;
 
-        // Constructor para CREATE (sin ID)
-        // NOTA: Para la carga CSV, necesitamos un constructor que solo tome el nombre de la clasificación (String)
-        public Pelicula(String titulo, int anioEstreno, double ratingImdb, Duration duracion, String nombreClasificacion) {
-            this.titulo = titulo;
-            this.anioEstreno = anioEstreno;
-            this.ratingImdb = ratingImdb;
-            this.duracion = duracion;
-            this.clasificacion = new Clasificacion(nombreClasificacion); // Crear objeto Clasificacion
-        }
+    public Pelicula() {}
 
-        // Getters y Setters
-
-    public int getId() {
-        return id;
+    // LAZY
+    public Pelicula(int idPelicula, String tituloPelicula) {
+        this.idPelicula = idPelicula;
+        this.tituloPelicula = tituloPelicula;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    // EAGER
+    public Pelicula(int idPelicula,
+                    String tituloPelicula,
+                    Integer yearPelicula,
+                    Double ratingPelicula,
+                    Integer duracionPelicula,
+                    String nombreClasificacion,
+                    Clasificacion clasificacion,
+                    List<Director> directores,
+                    List<Actor> actores,
+                    List<Genero> generos,
+                    List<MiLista> usuariosQueLaTienen) {
 
-    public List<Genero> getGeneros() {
-        return generos;
-    }
+        this.idPelicula = idPelicula;
+        this.tituloPelicula = tituloPelicula;
+        this.yearPelicula = yearPelicula;
+        this.ratingPelicula = ratingPelicula;
+        this.duracionPelicula = duracionPelicula;
+        this.nombreClasificacion = nombreClasificacion;
 
-    public void setGeneros(List<Genero> generos) {
-        this.generos = generos;
-    }
-
-    public List<Actor> getActores() {
-        return actores;
-    }
-
-    public void setActores(List<Actor> actores) {
-        this.actores = actores;
-    }
-
-    public List<Director> getDirectores() {
-        return directores;
-    }
-
-    public void setDirectores(List<Director> directores) {
+        this.clasificacion = clasificacion;
         this.directores = directores;
+        this.actores = actores;
+        this.generos = generos;
+        this.usuariosQueLaTienen = usuariosQueLaTienen;
+    }
+
+    // Getters y setters
+
+
+    public int getIdPelicula() {
+        return idPelicula;
+    }
+
+    public void setIdPelicula(int idPelicula) {
+        this.idPelicula = idPelicula;
+    }
+
+    public String getTituloPelicula() {
+        return tituloPelicula;
+    }
+
+    public void setTituloPelicula(String tituloPelicula) {
+        this.tituloPelicula = tituloPelicula;
+    }
+
+    public Integer getYearPelicula() {
+        return yearPelicula;
+    }
+
+    public void setYearPelicula(Integer yearPelicula) {
+        this.yearPelicula = yearPelicula;
+    }
+
+    public Double getRatingPelicula() {
+        return ratingPelicula;
+    }
+
+    public void setRatingPelicula(Double ratingPelicula) {
+        this.ratingPelicula = ratingPelicula;
+    }
+
+    public Integer getDuracionPelicula() {
+        return duracionPelicula;
+    }
+
+    public void setDuracionPelicula(Integer duracionPelicula) {
+        this.duracionPelicula = duracionPelicula;
+    }
+
+    public String getNombreClasificacion() {
+        return nombreClasificacion;
+    }
+
+    public void setNombreClasificacion(String nombreClasificacion) {
+        this.nombreClasificacion = nombreClasificacion;
     }
 
     public Clasificacion getClasificacion() {
@@ -78,51 +112,40 @@ public class Pelicula {
         this.clasificacion = clasificacion;
     }
 
-    public Duration getDuracion() {
-        return duracion;
+    public List<Director> getDirectores() {
+        return directores;
     }
 
-    public void setDuracion(Duration duracion) {
-        this.duracion = duracion;
+    public void setDirectores(List<Director> directores) {
+        this.directores = directores;
     }
 
-    public double getRatingImdb() {
-        return ratingImdb;
+    public List<Actor> getActores() {
+        return actores;
     }
 
-    public void setRatingImdb(double ratingImdb) {
-        this.ratingImdb = ratingImdb;
+    public void setActores(List<Actor> actores) {
+        this.actores = actores;
     }
 
-    public int getAnioEstreno() {
-        return anioEstreno;
+    public List<Genero> getGeneros() {
+        return generos;
     }
 
-    public void setAnioEstreno(int anioEstreno) {
-        this.anioEstreno = anioEstreno;
+    public void setGeneros(List<Genero> generos) {
+        this.generos = generos;
     }
 
-    public String getTitulo() {
-        return titulo;
+    public List<MiLista> getUsuariosQueLaTienen() {
+        return usuariosQueLaTienen;
     }
 
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
+    public void setUsuariosQueLaTienen(List<MiLista> usuariosQueLaTienen) {
+        this.usuariosQueLaTienen = usuariosQueLaTienen;
     }
 
     @Override
     public String toString() {
-        return "Pelicula{" +
-                "id=" + id +
-                ", titulo='" + titulo + '\'' +
-                ", anioEstreno=" + anioEstreno +
-                ", ratingImdb=" + ratingImdb +
-                ", duracion=" + duracion +
-                ", clasificacion=" + clasificacion +
-                ", directores=" + directores +
-                ", actores=" + actores +
-                ", generos=" + generos +
-                '}';
+        return tituloPelicula;
     }
 }
-

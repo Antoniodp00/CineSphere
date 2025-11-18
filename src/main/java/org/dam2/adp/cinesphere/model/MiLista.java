@@ -1,85 +1,59 @@
 package org.dam2.adp.cinesphere.model;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class MiLista {
-    // Clave compuesta y FKs. Contienen las entidades completas.
-    private Usuario usuario;
+
     private Pelicula pelicula;
+    private Usuario usuario;
 
-    // Atributos de la relación N:M
-    private PeliculaEstado estado; // Usando el Enum
-    private int puntuacion;
-    private String urlImagen; // urlImg
-    private LocalDate fechaAnadido; // fecha_anadido
+    private PeliculaEstado estado;
+    private Integer puntuacion;
+    private String urlImg;
+    private LocalDateTime fechaAnadido;
 
-    // Constructor completo
-    public MiLista(Usuario usuario, Pelicula pelicula, PeliculaEstado estado, int puntuacion, String urlImagen, LocalDate fechaAnadido) {
-        this.usuario = usuario;
+    public MiLista() {}
+
+    // LAZY
+    public MiLista(Pelicula pelicula, Usuario usuario) {
         this.pelicula = pelicula;
+        this.usuario = usuario;
+        this.fechaAnadido = LocalDateTime.now();
+    }
+
+    // EAGER
+    public MiLista(Pelicula pelicula, Usuario usuario,
+                   PeliculaEstado estado, Integer puntuacion,
+                   String urlImg, LocalDateTime fechaAnadido) {
+
+        this.pelicula = pelicula;
+        this.usuario = usuario;
         this.estado = estado;
         this.puntuacion = puntuacion;
-        this.urlImagen = urlImagen;
+        this.urlImg = urlImg;
         this.fechaAnadido = fechaAnadido;
     }
 
-    // Constructor para CREATE (sin fechaAnadido, que es TIMESTAMP DEFAULT)
-    public MiLista(Usuario usuario, Pelicula pelicula, PeliculaEstado estado, int puntuacion, String urlImagen) {
-        this.usuario = usuario;
-        this.pelicula = pelicula;
-        this.estado = estado;
-        this.puntuacion = puntuacion;
-        this.urlImagen = urlImagen;
-    }
+    public Pelicula getPelicula() { return pelicula; }
+    public void setPelicula(Pelicula pelicula) { this.pelicula = pelicula; }
 
-    // Getters y Setters
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
 
-    public Usuario getUsuario() {
-        return usuario;
-    }
+    public PeliculaEstado getEstado() { return estado; }
+    public void setEstado(PeliculaEstado estado) { this.estado = estado; }
 
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
+    public Integer getPuntuacion() { return puntuacion; }
+    public void setPuntuacion(Integer puntuacion) { this.puntuacion = puntuacion; }
 
-    public Pelicula getPelicula() {
-        return pelicula;
-    }
+    public String getUrlImg() { return urlImg; }
+    public void setUrlImg(String urlImg) { this.urlImg = urlImg; }
 
-    public void setPelicula(Pelicula pelicula) {
-        this.pelicula = pelicula;
-    }
+    public LocalDateTime getFechaAnadido() { return fechaAnadido; }
+    public void setFechaAnadido(LocalDateTime fechaAnadido) { this.fechaAnadido = fechaAnadido; }
 
-    public PeliculaEstado getEstado() {
-        return estado;
-    }
-
-    public void setEstado(PeliculaEstado estado) {
-        this.estado = estado;
-    }
-
-    public int getPuntuacion() {
-        return puntuacion;
-    }
-
-    public void setPuntuacion(int puntuacion) {
-        this.puntuacion = puntuacion;
-    }
-
-    public String getUrlImagen() {
-        return urlImagen;
-    }
-
-    public void setUrlImagen(String urlImagen) {
-        this.urlImagen = urlImagen;
-    }
-
-    public LocalDate getFechaAnadido() {
-        return fechaAnadido;
-    }
-
-    public void setFechaAnadido(LocalDate fechaAnadido) {
-        this.fechaAnadido = fechaAnadido;
+    @Override
+    public String toString() {
+        return pelicula.getTituloPelicula() + " (" + (estado != null ? estado.getDisplayValue() : "Sin estado") + ")";
     }
 }
-

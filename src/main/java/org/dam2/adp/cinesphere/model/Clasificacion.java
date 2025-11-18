@@ -1,22 +1,25 @@
 package org.dam2.adp.cinesphere.model;
 
+
 public class Clasificacion {
-    private String nombre;
+    private String nombreClasificacion;
 
-    public Clasificacion(String nombre) {
-        this.nombre = nombre;
+    public Clasificacion() {}
+
+    public Clasificacion(String nombreClasificacion) {
+        this.nombreClasificacion = nombreClasificacion;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getNombreClasificacion() {
+        return nombreClasificacion;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setNombreClasificacion(String nombreClasificacion) {
+        this.nombreClasificacion = nombreClasificacion;
     }
 
     @Override
     public String toString() {
-        return nombre;
+        return nombreClasificacion;
     }
 }

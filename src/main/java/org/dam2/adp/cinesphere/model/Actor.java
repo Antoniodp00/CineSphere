@@ -1,41 +1,39 @@
 package org.dam2.adp.cinesphere.model;
 
+
 public class Actor {
-    private int id;
-    private String nombre;
+    private int idActor;
+    private String nombreActor;
 
-    public Actor(int id, String nombre) {
-        this.id = id;
-        this.nombre = nombre;
+    public Actor() {}
+
+    public Actor(int idActor, String nombreActor) {
+        this.idActor = idActor;
+        this.nombreActor = nombreActor;
     }
 
-    public Actor(String nombre) {
-        this.nombre = nombre;
+    public Actor(String nombreActor) {
+        this.nombreActor = nombreActor;
     }
 
-    // Getters y Setters
-    public int getId() {
-        return id;
+    public int getIdActor() {
+        return idActor;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setIdActor(int idActor) {
+        this.idActor = idActor;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getNombreActor() {
+        return nombreActor;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setNombreActor(String nombreActor) {
+        this.nombreActor = nombreActor;
     }
 
     @Override
     public String toString() {
-        return "Actor{" +
-               "id=" + id +
-               ", nombre='" + nombre + '\'' +
-               '}';
+        return nombreActor;
     }
-
 }

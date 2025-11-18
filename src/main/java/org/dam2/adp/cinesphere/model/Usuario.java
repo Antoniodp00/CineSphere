@@ -1,92 +1,60 @@
 package org.dam2.adp.cinesphere.model;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 public class Usuario {
-    private int id;
-    private String username;
+
+    private int idUsuario;
+    private String nombreUsuario;
     private String email;
-    private String passwordHash;
-    private LocalDate fechaNacimiento;
+    private String passw;
+    private LocalDate bornDate;
 
-    private List<MiLista> listaPerosnal;
+    // RELACIÓN EAGER opcional
+    private List<MiLista> misPeliculas;
 
-    // Constructor completo
-    public Usuario(int id, String username, String email, String passwordHash, LocalDate fechaNacimiento) {
-        this.id = id;
-        this.username = username;
+    public Usuario() {}
+
+    // Constructor LAZY
+    public Usuario(int idUsuario, String nombreUsuario) {
+        this.idUsuario = idUsuario;
+        this.nombreUsuario = nombreUsuario;
+    }
+
+    // Constructor EAGER
+    public Usuario(int idUsuario, String nombreUsuario, String email, String passw,
+                   LocalDate bornDate, List<MiLista> misPeliculas) {
+
+        this.idUsuario = idUsuario;
+        this.nombreUsuario = nombreUsuario;
         this.email = email;
-        this.passwordHash = passwordHash;
-        this.fechaNacimiento = fechaNacimiento;
+        this.passw = passw;
+        this.bornDate = bornDate;
+        this.misPeliculas = misPeliculas;
     }
 
-    // Constructor para CREATE (sin ID)
-    public Usuario(String username, String email, String passwordHash, LocalDate fechaNacimiento) {
-        this.username = username;
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.fechaNacimiento = fechaNacimiento;
-    }
+    // getters + setters
+    public int getIdUsuario() { return idUsuario; }
+    public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }
 
-    public int getId() {
-        return id;
-    }
+    public String getNombreUsuario() { return nombreUsuario; }
+    public void setNombreUsuario(String nombreUsuario) { this.nombreUsuario = nombreUsuario; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public String getUsername() {
-        return username;
-    }
+    public String getPassw() { return passw; }
+    public void setPassw(String passw) { this.passw = passw; }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    public LocalDate getBornDate() { return bornDate; }
+    public void setBornDate(LocalDate bornDate) { this.bornDate = bornDate; }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-    public LocalDate getFechaNacimiento() {
-        return fechaNacimiento;
-    }
-
-    public void setFechaNacimiento(LocalDate fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
-    }
-
-    public List<MiLista> getListaPerosnal() {
-        return listaPerosnal;
-    }
-
-    public void setListaPerosnal(List<MiLista> listaPerosnal) {
-        this.listaPerosnal = listaPerosnal;
-    }
+    public List<MiLista> getMisPeliculas() { return misPeliculas; }
+    public void setMisPeliculas(List<MiLista> misPeliculas) { this.misPeliculas = misPeliculas; }
 
     @Override
     public String toString() {
-        return "Usuario{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", passwordHash='" + passwordHash + '\'' +
-                ", fechaNacimiento=" + fechaNacimiento +
-                ", listaPerosnal=" + listaPerosnal +
-                '}';
+        return nombreUsuario;
     }
 }
