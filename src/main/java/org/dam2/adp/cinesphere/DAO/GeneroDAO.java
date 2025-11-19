@@ -18,6 +18,8 @@ public class GeneroDAO {
     private static final String SQL_FIND_ALL =
             "SELECT idgenero, nombregenero FROM genero";
 
+    private static final String SQL_FIND_BY_NAME = "SELECT idgenero, nombregenero FROM genero WHERE nombregenero=?";
+
     private final Connection conn = Conexion.getConnection();
 
     public Genero insert(Genero g) throws SQLException {
@@ -42,5 +44,13 @@ public class GeneroDAO {
         List<Genero> list = new ArrayList<>();
         while (rs.next()) list.add(new Genero(rs.getInt(1), rs.getString(2)));
         return list;
+    }
+
+    public Genero findByName(String name) throws SQLException {
+        PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_NAME);
+        st.setString(1, name);
+        ResultSet rs = st.executeQuery();
+        if (rs.next()) return new Genero(rs.getInt(1), rs.getString(2));
+        return null;
     }
 }

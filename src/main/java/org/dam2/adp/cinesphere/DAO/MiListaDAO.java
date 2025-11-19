@@ -25,6 +25,7 @@ public class MiListaDAO {
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
     private final PeliculaDAO peliculaDAO = new PeliculaDAO();
 
+
     public void insert(MiLista ml) throws SQLException {
         PreparedStatement st = conn.prepareStatement(SQL_INSERT);
         st.setInt(1, ml.getUsuario().getIdUsuario());
@@ -36,6 +37,10 @@ public class MiListaDAO {
         st.executeUpdate();
     }
 
+    /**
+     * Ahora recibe PeliculaDAO por parámetro,
+     * evitando completamente la recursión.
+     */
     public MiLista find(int idUsuario, int idPelicula) throws SQLException {
         PreparedStatement st = conn.prepareStatement(SQL_FIND);
         st.setInt(1, idUsuario);
@@ -44,7 +49,8 @@ public class MiListaDAO {
 
         if (rs.next()) {
             Usuario u = usuarioDAO.findById(idUsuario);
-            Pelicula p = peliculaDAO.findByIdEager(idPelicula, idUsuario);
+            Pelicula p = peliculaDAO.findByIdLazy(idPelicula);
+
             return new MiLista(
                     p,
                     u,

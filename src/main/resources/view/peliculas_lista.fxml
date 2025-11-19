@@ -1,14 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="org.dam2.adp.cinesphere.controller.PeliculaListaController"
-            prefHeight="400.0" prefWidth="600.0">
+            stylesheets="@../style.css">
+
+    <!-- Barra de Búsqueda y Filtros -->
+    <HBox spacing="15" alignment="CENTER_LEFT" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+        <padding>
+            <Insets top="15" right="15" bottom="15" left="15"/>
+        </padding>
+
+        <!-- Búsqueda -->
+        <TextField fx:id="txtBuscar" promptText="Buscar título..." prefWidth="250"/>
+        <Button fx:id="btnBuscar" text="Buscar"/>
+
+        <!-- Separador -->
+        <Separator orientation="VERTICAL" prefHeight="30"/>
+
+        <!-- Filtros -->
+        <ComboBox fx:id="cbYear" promptText="Año" prefWidth="100"/>
+        <ComboBox fx:id="cbRating" promptText="Rating" prefWidth="100"/>
+        <ComboBox fx:id="cbGenero" promptText="Género" prefWidth="120"/>
+
+        <Button fx:id="btnFiltrar" text="Filtrar"/>
+        <Button fx:id="btnLimpiar" text="Limpiar"/>
+    </HBox>
+
+    <!-- Grid de películas -->
+    <ScrollPane fx:id="scroll" fitToWidth="true"
+                AnchorPane.topAnchor="80" AnchorPane.bottomAnchor="60"
+                AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
+                styleClass="no-border">
+        <FlowPane fx:id="flowPeliculas"
+                  hgap="20" vgap="25"
+                  prefWrapLength="800">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+        </FlowPane>
+    </ScrollPane>
+
+    <!-- Barra de paginación -->
+    <HBox fx:id="paginationBar" spacing="10" alignment="CENTER"
+          AnchorPane.bottomAnchor="10" AnchorPane.leftAnchor="0">
+        <padding>
+            <Insets top="10" bottom="10"/>
+        </padding>
+
+        <Button fx:id="btnFirst" text="&lt;&lt;"/>
+        <Button fx:id="btnPrev" text="&lt;"/>
+        <Label fx:id="lblPage" text="1" style="-fx-font-size: 16px; -fx-text-fill: white;"/>
+        <Button fx:id="btnNext" text="&gt;"/>
+        <Button fx:id="btnLast" text="&gt;&gt;"/>
+    </HBox>
 
 </AnchorPane>

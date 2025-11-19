@@ -9,7 +9,8 @@
             fx:controller="org.dam2.adp.cinesphere.controller.RegisterController">
 
     <VBox spacing="15" alignment="CENTER" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
-          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
+          stylesheets="@../style.css">
 
         <Label text="Crear Cuenta" style="-fx-font-size: 28px; -fx-font-weight: bold;" />
 

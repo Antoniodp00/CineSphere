@@ -21,16 +21,17 @@ public class PeliculaDAO {
             "SELECT idpelicula, titulopelicula, yearpelicula, ratingpelicula, duracionpelicula, nombreclasificacion " +
                     "FROM pelicula WHERE idpelicula=?";
 
-    private final Connection conn = Conexion.getConnection();
+    private static final String SQL_FIND_PAGE = """
+        SELECT idpelicula, titulopelicula, yearpelicula, ratingpelicula, duracionpelicula, nombreclasificacion
+        FROM pelicula
+        ORDER BY idpelicula
+        LIMIT ? OFFSET ?
+        """;
 
-    private final DirectorDAO directorDAO = new DirectorDAO();
-    private final ActorDAO actorDAO = new ActorDAO();
-    private final GeneroDAO generoDAO = new GeneroDAO();
-    private final ClasificacionDAO clasificacionDAO = new ClasificacionDAO();
-    private final PeliculaDirectorDAO peliculaDirectorDAO = new PeliculaDirectorDAO();
-    private final PeliculaActorDAO peliculaActorDAO = new PeliculaActorDAO();
-    private final PeliculaGeneroDAO peliculaGeneroDAO = new PeliculaGeneroDAO();
-    private final MiListaDAO miListaDAO = new MiListaDAO();
+    private static final String SQL_COUNT = "SELECT COUNT(*) FROM pelicula";
+
+
+    private final Connection conn = Conexion.getConnection();
 
     public Pelicula insert(Pelicula p) throws SQLException {
         PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS);
@@ -40,6 +41,7 @@ public class PeliculaDAO {
         st.setObject(4, p.getDuracionPelicula());
         st.setString(5, p.getNombreClasificacion());
         st.executeUpdate();
+
         ResultSet keys = st.getGeneratedKeys();
         if (keys.next()) p.setIdPelicula(keys.getInt(1));
         return p;
@@ -54,7 +56,7 @@ public class PeliculaDAO {
             p.setIdPelicula(rs.getInt("idpelicula"));
             p.setTituloPelicula(rs.getString("titulopelicula"));
             p.setYearPelicula(rs.getObject("yearpelicula", Integer.class));
-            p.setRatingPelicula(rs.getObject("ratingpelicula", Double.class));
+            p.setRatingPelicula(rs.getDouble("ratingpelicula"));
             p.setDuracionPelicula(rs.getObject("duracionpelicula", Integer.class));
             p.setNombreClasificacion(rs.getString("nombreclasificacion"));
             list.add(p);
@@ -73,28 +75,110 @@ public class PeliculaDAO {
         p.setIdPelicula(rs.getInt("idpelicula"));
         p.setTituloPelicula(rs.getString("titulopelicula"));
         p.setYearPelicula(rs.getObject("yearpelicula", Integer.class));
-        p.setRatingPelicula(rs.getObject("ratingpelicula", Double.class));
+        p.setRatingPelicula(rs.getDouble("ratingpelicula"));
         p.setDuracionPelicula(rs.getObject("duracionpelicula", Integer.class));
         p.setNombreClasificacion(rs.getString("nombreclasificacion"));
 
         return p;
     }
 
-    public Pelicula findByIdEager(int idPelicula, int idUsuarioActual) throws SQLException {
-        Pelicula p = findByIdLazy(idPelicula);
-        if (p == null) return null;
+    public List<Pelicula> findPage(int page, int pageSize) throws SQLException {
+        int offset = (page - 1) * pageSize;
 
-        if (p.getNombreClasificacion() != null)
-            p.setClasificacion(clasificacionDAO.findById(p.getNombreClasificacion()));
+        PreparedStatement st = conn.prepareStatement(SQL_FIND_PAGE);
+        st.setInt(1, pageSize);
+        st.setInt(2, offset);
 
-        p.setDirectores(peliculaDirectorDAO.findByPelicula(idPelicula));
-        p.setActores(peliculaActorDAO.findByPelicula(idPelicula));
-        p.setGeneros(peliculaGeneroDAO.findByPelicula(idPelicula));
+        ResultSet rs = st.executeQuery();
+        List<Pelicula> lista = new ArrayList<>();
 
-        MiLista ml = miListaDAO.find(idUsuarioActual, idPelicula);
-        p.setUsuariosQueLaTienen((List<MiLista>) ml);
+        while (rs.next()) {
+            Pelicula p = new Pelicula();
+            p.setIdPelicula(rs.getInt(1));
+            p.setTituloPelicula(rs.getString(2));
+            p.setYearPelicula(rs.getObject(3, Integer.class));
+            p.setRatingPelicula(rs.getDouble(4));
+            p.setDuracionPelicula(rs.getObject(5, Integer.class));
+            p.setNombreClasificacion(rs.getString(6));
+            lista.add(p);
+        }
 
+        return lista;
+    }
 
-        return p;
+    public int countPeliculas(Integer year, Double ratingMin, Integer idGenero) throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(DISTINCT p.idpelicula) FROM pelicula p ");
+        if (idGenero != null) {
+            sql.append("LEFT JOIN peliculaGenero pg ON p.idpelicula = pg.idpelicula ");
+        }
+        sql.append("WHERE 1=1 ");
+
+        List<Object> params = new ArrayList<>();
+        if (year != null) {
+            sql.append("AND p.yearpelicula = ? ");
+            params.add(year);
+        }
+        if (ratingMin != null) {
+            sql.append("AND p.ratingpelicula >= ? ");
+            params.add(ratingMin);
+        }
+        if (idGenero != null) {
+            sql.append("AND pg.idgenero = ? ");
+            params.add(idGenero);
+        }
+
+        PreparedStatement st = conn.prepareStatement(sql.toString());
+        for (int i = 0; i < params.size(); i++) {
+            st.setObject(i + 1, params.get(i));
+        }
+
+        ResultSet rs = st.executeQuery();
+        rs.next();
+        return rs.getInt(1);
+    }
+
+    public List<Pelicula> findFiltered(Integer year, Double ratingMin, Integer idGenero, int page, int pageSize) throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT DISTINCT p.* FROM pelicula p ");
+        if (idGenero != null) {
+            sql.append("LEFT JOIN peliculaGenero pg ON p.idpelicula = pg.idpelicula ");
+        }
+        sql.append("WHERE 1=1 ");
+
+        List<Object> params = new ArrayList<>();
+        if (year != null) {
+            sql.append("AND p.yearpelicula = ? ");
+            params.add(year);
+        }
+        if (ratingMin != null) {
+            sql.append("AND p.ratingpelicula >= ? ");
+            params.add(ratingMin);
+        }
+        if (idGenero != null) {
+            sql.append("AND pg.idgenero = ? ");
+            params.add(idGenero);
+        }
+
+        sql.append("ORDER BY p.idpelicula LIMIT ? OFFSET ?");
+        params.add(pageSize);
+        params.add((page - 1) * pageSize);
+
+        PreparedStatement st = conn.prepareStatement(sql.toString());
+        for (int i = 0; i < params.size(); i++) {
+            st.setObject(i + 1, params.get(i));
+        }
+
+        ResultSet rs = st.executeQuery();
+        List<Pelicula> lista = new ArrayList<>();
+        while (rs.next()) {
+            Pelicula p = new Pelicula();
+            p.setIdPelicula(rs.getInt("idpelicula"));
+            p.setTituloPelicula(rs.getString("titulopelicula"));
+            p.setYearPelicula(rs.getObject("yearpelicula", Integer.class));
+            p.setRatingPelicula(rs.getDouble("ratingpelicula"));
+            p.setDuracionPelicula(rs.getObject("duracionpelicula", Integer.class));
+            p.setNombreClasificacion(rs.getString("nombreclasificacion"));
+            lista.add(p);
+        }
+        return lista;
     }
 }
