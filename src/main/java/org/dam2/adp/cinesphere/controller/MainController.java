@@ -20,24 +20,22 @@ public class MainController {
 
     @FXML
     public void initialize() {
+        Navigation.setMainController(this);
 
         btnPeliculas.setOnAction(e -> loadView("peliculas_lista.fxml"));
-
         btnMiLista.setOnAction(e -> loadView("milista.fxml"));
-
         btnEstadisticas.setOnAction(e -> loadView("estadisticas.fxml"));
-
         btnSettings.setOnAction(e -> loadView("settings.fxml"));
 
         btnLogout.setOnAction(e -> {
             SessionManager.getInstance().cerrarSesion();
-            Navigation.navigate("login.fxml");
+            Navigation.switchScene("login.fxml");
         });
 
         loadView("peliculas_lista.fxml");
     }
 
-    private void loadView(String fxml) {
+    public void loadView(String fxml) {
         try {
             Node view = FXMLLoader.load(getClass().getResource("/view/" + fxml));
             contentArea.getChildren().setAll(view);

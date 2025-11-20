@@ -22,13 +22,17 @@ public class PeliculaDAO {
                     "FROM pelicula WHERE idpelicula=?";
 
     private static final String SQL_FIND_PAGE = """
-        SELECT idpelicula, titulopelicula, yearpelicula, ratingpelicula, duracionpelicula, nombreclasificacion
-        FROM pelicula
-        ORDER BY idpelicula
-        LIMIT ? OFFSET ?
-        """;
+            SELECT idpelicula, titulopelicula, yearpelicula, ratingpelicula, duracionpelicula, nombreclasificacion
+            FROM pelicula
+            ORDER BY idpelicula
+            LIMIT ? OFFSET ?
+            """;
 
     private static final String SQL_COUNT = "SELECT COUNT(*) FROM pelicula";
+
+    private PeliculaGeneroDAO peliculaGeneroDAO = new PeliculaGeneroDAO();
+    private PeliculaActorDAO peliculaActorDAO = new PeliculaActorDAO();
+    private PeliculaDirectorDAO peliculaDirectorDAO = new PeliculaDirectorDAO();
 
 
     private final Connection conn = Conexion.getConnection();
@@ -78,6 +82,17 @@ public class PeliculaDAO {
         p.setRatingPelicula(rs.getDouble("ratingpelicula"));
         p.setDuracionPelicula(rs.getObject("duracionpelicula", Integer.class));
         p.setNombreClasificacion(rs.getString("nombreclasificacion"));
+
+        return p;
+    }
+
+    public Pelicula findByIdEager(int idPelicula) throws SQLException {
+        Pelicula p = findByIdLazy(idPelicula);
+        if (p == null) return null;
+
+        p.setGeneros(peliculaGeneroDAO.findByPelicula(idPelicula));
+        p.setActores(peliculaActorDAO.findByPelicula(idPelicula));
+        p.setDirectores(peliculaDirectorDAO.findByPelicula(idPelicula));
 
         return p;
     }

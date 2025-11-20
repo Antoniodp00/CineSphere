@@ -28,7 +28,7 @@ public class LoginController {
     @FXML
     private void initialize() {
         btnLogin.setOnAction(e -> login());
-        linkRegistro.setOnAction(e -> Navigation.navigate("register.fxml"));
+        linkRegistro.setOnAction(e -> Navigation.switchScene("register.fxml"));
     }
 
     private void login() {
@@ -55,7 +55,7 @@ public class LoginController {
 
             SessionManager.getInstance().setUsuarioActual(u);
 
-            Navigation.navigate("main.fxml");
+            Navigation.switchScene("main.fxml");
 
 
         } catch (Exception ex) {

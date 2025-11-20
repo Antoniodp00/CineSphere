@@ -1,41 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.dam2.adp.cinesphere.controller.MainController"
-            stylesheets="@../style.css">
+<BorderPane stylesheets="@../style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dam2.adp.cinesphere.controller.MainController">
+
+    <!-- TOPBAR / HEADER -->
+    <top>
+        <HBox styleClass="topbar" spacing="12" alignment="CENTER_LEFT">
+            <Label text="CineSphere" styleClass="brand" />
+            <Region HBox.hgrow="ALWAYS" />
+        </HBox>
+    </top>
 
     <!-- SIDEBAR -->
     <left>
-        <VBox fx:id="sidebar" spacing="20" alignment="TOP_CENTER"
-              prefWidth="200">
+        <VBox fx:id="sidebar" alignment="TOP_LEFT" prefWidth="200" spacing="12">
 
-            <Label text="CineSphere" styleClass="title"/>
+            <Label styleClass="title" text="Menú" />
 
-            <Button fx:id="btnPeliculas" text="Películas" prefWidth="150"/>
+            <Button fx:id="btnPeliculas" prefWidth="180" text="Explorar" styleClass="sidebar-button" />
 
-            <Button fx:id="btnMiLista" text="Mi Lista" prefWidth="150"/>
+            <Button fx:id="btnMiLista" prefWidth="180" text="Mi Lista" styleClass="sidebar-button" />
 
-            <Button fx:id="btnEstadisticas" text="Estadísticas" prefWidth="150"/>
+            <Button fx:id="btnEstadisticas" prefWidth="180" text="Estadísticas" styleClass="sidebar-button" />
 
-            <Button fx:id="btnSettings" text="Ajustes" prefWidth="150"/>
+            <Button fx:id="btnSettings" prefWidth="180" text="Ajustes" styleClass="sidebar-button" />
 
             <!-- Separador flexible -->
-            <Pane VBox.vgrow="ALWAYS"/>
+            <Pane VBox.vgrow="ALWAYS" />
 
-            <Button fx:id="btnLogout" text="Cerrar Sesión"
-                    prefWidth="150" styleClass="logout-button"/>
+            <Button fx:id="btnLogout" prefWidth="180" styleClass="logout-button" text="Cerrar Sesión" />
 
         </VBox>
     </left>
 
     <!-- CONTENIDO PRINCIPAL -->
     <center>
-        <StackPane fx:id="contentArea" styleClass="content-area"/>
+        <StackPane fx:id="contentArea" styleClass="content-area" />
+
+
     </center>
 
 </BorderPane>

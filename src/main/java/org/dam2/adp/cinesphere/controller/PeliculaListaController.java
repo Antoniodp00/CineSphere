@@ -11,6 +11,8 @@ import org.dam2.adp.cinesphere.DAO.GeneroDAO;
 import org.dam2.adp.cinesphere.DAO.PeliculaDAO;
 import org.dam2.adp.cinesphere.DAO.PeliculaGeneroDAO;
 import org.dam2.adp.cinesphere.model.Pelicula;
+import org.dam2.adp.cinesphere.util.Navigation;
+import org.dam2.adp.cinesphere.util.SessionManager;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -97,6 +99,8 @@ public class PeliculaListaController {
             }
         });
 
+
+
         // Carga inicial
         actualizarTotalPaginas();
         cargarPagina(1);
@@ -161,9 +165,10 @@ public class PeliculaListaController {
     private VBox crearCardPelicula(Pelicula p) {
         VBox card = new VBox();
         card.getStyleClass().add("movie-card");
-        card.setPadding(new Insets(10));
-        card.setSpacing(8);
-        card.setPrefWidth(160);
+        // estilos y tamaños definidos en style.css (.movie-card)
+
+        // Evento de clic
+        card.setOnMouseClicked(event -> verDetalle(p.getIdPelicula()));
 
         ImageView img = new ImageView();
         img.setFitWidth(150);
@@ -199,7 +204,16 @@ public class PeliculaListaController {
 
 
         card.getChildren().addAll(img, lblTitulo, lblGeneros, lblYear, lblRating);
+
+        
         return card;
+    }
+
+    private void verDetalle(int idPelicula) {
+        SessionManager.getInstance().set("selectedPeliculaId", idPelicula);
+        Navigation.navigate("peliculas_detalle.fxml");
+
+
     }
 
     private void aplicarFiltros() {

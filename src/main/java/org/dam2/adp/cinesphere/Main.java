@@ -11,7 +11,8 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
         Conexion.connect("config-postgres.properties");
         Navigation.setStage(stage);
-        Navigation.navigate("login.fxml");
+        stage.setTitle("CineSphere");
+        Navigation.switchScene("login.fxml");
     }
 
     public static void main(String[] args) {

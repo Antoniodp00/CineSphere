@@ -18,6 +18,8 @@ public class GeneroDAO {
     private static final String SQL_FIND_ALL =
             "SELECT idgenero, nombregenero FROM genero";
 
+
+
     private static final String SQL_FIND_BY_NAME = "SELECT idgenero, nombregenero FROM genero WHERE nombregenero=?";
 
     private final Connection conn = Conexion.getConnection();
