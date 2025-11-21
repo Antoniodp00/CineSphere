@@ -1,6 +1,5 @@
 package org.dam2.adp.cinesphere.DAO;
 
-
 import org.dam2.adp.cinesphere.database.Conexion;
 import org.dam2.adp.cinesphere.model.Director;
 
@@ -18,7 +17,7 @@ public class PeliculaDirectorDAO {
                     "FROM director d JOIN peliculadirector pd ON d.iddirector = pd.iddirector " +
                     "WHERE pd.idpelicula = ?";
 
-    private final Connection conn = Conexion.getConnection();
+    private final Connection conn = Conexion.getInstance().getConnection();
 
     public void add(int idPelicula, int idDirector) throws SQLException {
         PreparedStatement st = conn.prepareStatement(SQL_INSERT);

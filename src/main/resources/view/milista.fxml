@@ -1,14 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.dam2.adp.cinesphere.controller.MiListaController"
-            prefHeight="400.0" prefWidth="600.0">
+<AnchorPane stylesheets="@../style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.dam2.adp.cinesphere.controller.MiListaController">
+
+    <!-- Barra de Búsqueda y Filtros -->
+    <HBox styleClass="toolbar" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+        <padding>
+            <Insets bottom="15" left="15" right="15" top="15"/>
+        </padding>
+
+        <!-- Búsqueda -->
+        <TextField fx:id="txtBuscar" promptText="Buscar título..." HBox.hgrow="ALWAYS"/>
+        <Button fx:id="btnBuscar" text="Buscar"/>
+
+        <!-- Separador -->
+        <Separator orientation="VERTICAL" prefHeight="30"/>
+
+        <!-- Filtros -->
+        <ComboBox fx:id="cbYear" promptText="Año"/>
+        <ComboBox fx:id="cbRating" promptText="Rating"/>
+        <ComboBox fx:id="cbGenero" promptText="Género"/>
+
+        <Button fx:id="btnFiltrar" text="Filtrar" styleClass="accent-button"/>
+        <Button fx:id="btnLimpiar" text="Limpiar"/>
+    </HBox>
+
+    <ScrollPane fx:id="scroll"
+                fitToWidth="true"
+                AnchorPane.topAnchor="60"
+                AnchorPane.leftAnchor="0"
+                AnchorPane.rightAnchor="0"
+                AnchorPane.bottomAnchor="50"
+                styleClass="no-border">
+
+        <FlowPane fx:id="flowPeliculas"
+                  hgap="20" vgap="25"
+                  prefWrapLength="1360" styleClass="cards-container">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+        </FlowPane>
+
+    </ScrollPane>
+
+    <!-- Paginación -->
+    <HBox fx:id="paginationBar" styleClass="pagination-bar"
+          AnchorPane.bottomAnchor="5"
+          AnchorPane.leftAnchor="0"
+          AnchorPane.rightAnchor="0">
+        <padding>
+            <Insets bottom="10" top="10"/>
+        </padding>
+
+        <Button fx:id="btnFirst" text="&lt;&lt;"/>
+        <Button fx:id="btnPrev" text="&lt;"/>
+        <Label fx:id="lblPage" text="1"/>
+        <Button fx:id="btnNext" text="&gt;"/>
+        <Button fx:id="btnLast" text="&gt;&gt;"/>
+    </HBox>
 
 </AnchorPane>

@@ -1,14 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.dam2.adp.cinesphere.controller.PeliculaListaController"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox stylesheets="@../style.css" spacing="15" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.dam2.adp.cinesphere.controller.PeliculaListaController">
+    <padding>
+        <Insets top="15" right="25" bottom="15" left="25"/>
+    </padding>
 
-</AnchorPane>
+    <!-- Barra de Búsqueda y Filtros -->
+    <HBox styleClass="toolbar">
+        <TextField fx:id="txtBuscar" promptText="Buscar título..." HBox.hgrow="ALWAYS"/>
+        <Button fx:id="btnBuscar" text="Buscar"/>
+        <Separator orientation="VERTICAL" prefHeight="30"/>
+        <ComboBox fx:id="cbYear" promptText="Año"/>
+        <ComboBox fx:id="cbRating" promptText="Rating"/>
+        <ComboBox fx:id="cbGenero" promptText="Género"/>
+        <Button fx:id="btnFiltrar" text="Filtrar" styleClass="accent-button"/>
+        <Button fx:id="btnLimpiar" text="Limpiar"/>
+    </HBox>
+
+    <ScrollPane fx:id="scroll"
+                fitToWidth="true"
+                AnchorPane.topAnchor="60"
+                AnchorPane.leftAnchor="0"
+                AnchorPane.rightAnchor="0"
+                AnchorPane.bottomAnchor="50"
+                styleClass="no-border">
+
+        <FlowPane fx:id="flowPeliculas"
+                  hgap="20" vgap="25"
+                  prefWrapLength="1360" styleClass="cards-container">
+            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+        </FlowPane>
+
+    </ScrollPane>
+
+    <!-- Paginación -->
+    <HBox fx:id="paginationBar" styleClass="pagination-bar"
+          AnchorPane.bottomAnchor="5"
+          AnchorPane.leftAnchor="0"
+          AnchorPane.rightAnchor="0">
+        <Button fx:id="btnFirst" text="&lt;&lt;"/>
+        <Button fx:id="btnPrev" text="&lt;"/>
+        <Label fx:id="lblPage" text="1 / 10"/>
+        <Button fx:id="btnNext" text="&gt;"/>
+        <Button fx:id="btnLast" text="&gt;&gt;"/>
+    </HBox>
+
+</VBox>

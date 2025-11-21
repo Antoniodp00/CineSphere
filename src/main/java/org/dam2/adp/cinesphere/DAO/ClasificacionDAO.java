@@ -18,7 +18,7 @@ public class ClasificacionDAO {
     private static final String SQL_FIND_BY_ID =
             "SELECT nombreclasificacion FROM clasificacion WHERE nombreclasificacion=?";
 
-    private final Connection conn = Conexion.getConnection();
+    private final Connection conn = Conexion.getInstance().getConnection();
 
     public void insert(Clasificacion c) throws SQLException {
         PreparedStatement st = conn.prepareStatement(SQL_INSERT);

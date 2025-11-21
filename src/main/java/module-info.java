@@ -7,6 +7,8 @@ module org.dam2.adp.cinesphere {
     requires org.slf4j;
     requires org.apache.commons.csv;
     requires jbcrypt;
+    requires org.controlsfx.controls;
+    requires java.desktop;
 
     opens org.dam2.adp.cinesphere to javafx.fxml;
     opens org.dam2.adp.cinesphere.controller to javafx.fxml;

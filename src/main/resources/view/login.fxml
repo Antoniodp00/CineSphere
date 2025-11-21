@@ -6,12 +6,13 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.dam2.adp.cinesphere.controller.LoginController">
+            fx:controller="org.dam2.adp.cinesphere.controller.LoginController"
+            stylesheets="@../style.css">
 
     <VBox spacing="15" alignment="CENTER" layoutX="0" layoutY="0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
           AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
 
-        <Label text="CineSphere" style="-fx-font-size: 32px; -fx-font-weight: bold;" />
+        <Label text="CineSphere" styleClass="title" />
 
         <VBox spacing="10">
             <TextField fx:id="txtUsuario" promptText="Usuario" />

@@ -17,7 +17,7 @@ public class PeliculaGeneroDAO {
                     "FROM genero g JOIN peliculagenero pg ON g.idgenero = pg.idgenero " +
                     "WHERE pg.idpelicula = ?";
 
-    private final Connection conn = Conexion.getConnection();
+    private final Connection conn = Conexion.getInstance().getConnection();
 
     public void add(int idPelicula, int idGenero) throws SQLException {
         PreparedStatement st = conn.prepareStatement(SQL_INSERT);

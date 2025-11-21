@@ -19,7 +19,7 @@ public class UsuarioDAO {
     private static final String SQL_FIND_BY_EMAIL =
             "SELECT * FROM usuario WHERE email=?";
 
-    private final Connection conn = Conexion.getConnection();
+    private final Connection conn = Conexion.getInstance().getConnection();
 
     public Usuario insert(Usuario u) throws SQLException {
         PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS);
