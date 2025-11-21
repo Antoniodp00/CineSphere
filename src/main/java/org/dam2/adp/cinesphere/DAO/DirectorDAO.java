@@ -18,7 +18,7 @@ public class DirectorDAO {
     private static final String SQL_FIND_ALL =
             "SELECT iddirector, nombredirector FROM director";
 
-    private final Connection conn = Conexion.getConnection();
+    private final Connection conn = Conexion.getInstance().getConnection();
 
     public Director insert(Director d) throws SQLException {
         PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS);

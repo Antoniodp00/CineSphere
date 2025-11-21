@@ -7,14 +7,27 @@ import java.util.Properties;
 
 public class Conexion {
 
-    private static Connection connection;
+    private static Conexion instance;
+    private Connection connection;
 
-    public static void connect(String configFile) {
+    private Conexion() {
+    }
+
+    public static Conexion getInstance() {
+        if (instance == null) {
+            instance = new Conexion();
+        }
+        return instance;
+    }
+
+    public void connect(String configFile) {
+        if (connection != null) {
+            return;
+        }
         try {
-            InputStream is = Conexion.class.getResourceAsStream("/config/" + configFile);
-
+            InputStream is = getClass().getResourceAsStream("/config/" + configFile);
             if (is == null) {
-                throw new RuntimeException("No se encontró el archivo de configuración: " + configFile);
+                throw new RuntimeException("Configuration file not found: " + configFile);
             }
 
             Properties properties = new Properties();
@@ -33,15 +46,18 @@ public class Conexion {
                 connection = DriverManager.getConnection(url, user, password);
             }
 
-            System.out.println("Conectado a la BD: " + url);
+            System.out.println("Connected to the database: " + url);
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Error al conectar a la base de datos");
+            throw new RuntimeException("Error connecting to the database", e);
         }
     }
 
-    public static Connection getConnection() {
+    public Connection getConnection() {
+        if (connection == null) {
+            throw new IllegalStateException("Database is not connected. Call connect() first.");
+        }
         return connection;
     }
 }

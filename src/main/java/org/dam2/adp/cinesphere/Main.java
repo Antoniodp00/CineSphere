@@ -9,7 +9,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        Conexion.connect("config-postgres.properties");
+        Conexion.getInstance().connect("config-postgres.properties");
         Navigation.setStage(stage);
         stage.setTitle("CineSphere");
         Navigation.switchScene("login.fxml");

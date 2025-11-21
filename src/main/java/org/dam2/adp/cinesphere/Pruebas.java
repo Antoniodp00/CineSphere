@@ -8,6 +8,7 @@ import org.dam2.adp.cinesphere.util.CsvImporter;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.helpers.Util;
 
+import java.sql.Connection;
 import java.time.LocalDate;
 
 public class Pruebas {
@@ -69,7 +70,7 @@ public class Pruebas {
     public static void pruebaImportarCSV() {
         try {
             System.out.println("Iniciando conexión...");
-            Conexion.connect("config-postgres.properties");
+            Connection conn = Conexion.getInstance().getConnection();
 
             CsvImporter importer = new CsvImporter();
 

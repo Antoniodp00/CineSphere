@@ -27,7 +27,7 @@ public class MiListaDAO {
     private static final String SQL_DELETE =
             "DELETE FROM milista WHERE idusuario=? AND idpelicula=?";
 
-    private final Connection conn = Conexion.getConnection();
+    private final Connection conn = Conexion.getInstance().getConnection();
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
     private final PeliculaDAO peliculaDAO = new PeliculaDAO();
 

@@ -35,7 +35,7 @@ public class PeliculaDAO {
     private PeliculaDirectorDAO peliculaDirectorDAO = new PeliculaDirectorDAO();
 
 
-    private final Connection conn = Conexion.getConnection();
+    private final Connection conn = Conexion.getInstance().getConnection();
 
     public Pelicula insert(Pelicula p) throws SQLException {
         PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS);

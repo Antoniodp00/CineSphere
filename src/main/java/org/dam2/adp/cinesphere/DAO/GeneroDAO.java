@@ -18,11 +18,9 @@ public class GeneroDAO {
     private static final String SQL_FIND_ALL =
             "SELECT idgenero, nombregenero FROM genero";
 
-
-
     private static final String SQL_FIND_BY_NAME = "SELECT idgenero, nombregenero FROM genero WHERE nombregenero=?";
 
-    private final Connection conn = Conexion.getConnection();
+    private final Connection conn = Conexion.getInstance().getConnection();
 
     public Genero insert(Genero g) throws SQLException {
         PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS);
