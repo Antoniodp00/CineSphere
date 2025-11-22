@@ -55,7 +55,7 @@ public class PeliculaListaController {
     private final GeneroDAO generoDAO = new GeneroDAO();
 
     private int page = 1;
-    private final int pageSize = 20;
+    private final int pageSize = 18;
     private int totalPages = 1;
 
     @FXML
@@ -165,9 +165,6 @@ public class PeliculaListaController {
     private VBox crearCardPelicula(Pelicula p) {
         VBox card = new VBox();
         card.getStyleClass().add("movie-card");
-        // estilos y tamaños definidos en style.css (.movie-card)
-
-        // Evento de clic
         card.setOnMouseClicked(event -> verDetalle(p.getIdPelicula()));
 
         ImageView img = new ImageView();
