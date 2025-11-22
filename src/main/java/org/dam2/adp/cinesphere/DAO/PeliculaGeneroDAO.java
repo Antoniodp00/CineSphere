@@ -7,31 +7,49 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * DAO para la tabla de relación PeliculaGenero.
+ */
 public class PeliculaGeneroDAO {
 
-    private static final String SQL_INSERT =
-            "INSERT INTO peliculagenero(idpelicula, idgenero) VALUES(?, ?)";
-
+    private static final String SQL_INSERT = "INSERT INTO peliculagenero(idpelicula, idgenero) VALUES(?, ?)";
     private static final String SQL_FIND_BY_PELICULA =
             "SELECT g.idgenero, g.nombregenero " +
-                    "FROM genero g JOIN peliculagenero pg ON g.idgenero = pg.idgenero " +
-                    "WHERE pg.idpelicula = ?";
+            "FROM genero g JOIN peliculagenero pg ON g.idgenero = pg.idgenero " +
+            "WHERE pg.idpelicula = ?";
 
     private final Connection conn = Conexion.getInstance().getConnection();
 
+    /**
+     * Asocia un género a una película.
+     * @param idPelicula el ID de la película.
+     * @param idGenero el ID del género.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
     public void add(int idPelicula, int idGenero) throws SQLException {
-        PreparedStatement st = conn.prepareStatement(SQL_INSERT);
-        st.setInt(1, idPelicula);
-        st.setInt(2, idGenero);
-        st.executeUpdate();
+        try (PreparedStatement st = conn.prepareStatement(SQL_INSERT)) {
+            st.setInt(1, idPelicula);
+            st.setInt(2, idGenero);
+            st.executeUpdate();
+        }
     }
 
+    /**
+     * Obtiene todos los géneros de una película.
+     * @param idPelicula el ID de la película.
+     * @return una lista de los géneros de la película.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
     public List<Genero> findByPelicula(int idPelicula) throws SQLException {
-        PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_PELICULA);
-        st.setInt(1, idPelicula);
-        ResultSet rs = st.executeQuery();
         List<Genero> list = new ArrayList<>();
-        while (rs.next()) list.add(new Genero(rs.getInt(1), rs.getString(2)));
+        try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_PELICULA)) {
+            st.setInt(1, idPelicula);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new Genero(rs.getInt(1), rs.getString(2)));
+                }
+            }
+        }
         return list;
     }
 }

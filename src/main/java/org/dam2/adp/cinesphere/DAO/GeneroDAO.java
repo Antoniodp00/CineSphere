@@ -7,50 +7,86 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * DAO para la entidad Genero.
+ */
 public class GeneroDAO {
 
-    private static final String SQL_INSERT =
-            "INSERT INTO genero(nombregenero) VALUES(?)";
-
-    private static final String SQL_FIND_BY_ID =
-            "SELECT idgenero, nombregenero FROM genero WHERE idgenero=?";
-
-    private static final String SQL_FIND_ALL =
-            "SELECT idgenero, nombregenero FROM genero";
-
+    private static final String SQL_INSERT = "INSERT INTO genero(nombregenero) VALUES(?)";
+    private static final String SQL_FIND_BY_ID = "SELECT idgenero, nombregenero FROM genero WHERE idgenero=?";
+    private static final String SQL_FIND_ALL = "SELECT idgenero, nombregenero FROM genero";
     private static final String SQL_FIND_BY_NAME = "SELECT idgenero, nombregenero FROM genero WHERE nombregenero=?";
 
     private final Connection conn = Conexion.getInstance().getConnection();
 
+    /**
+     * Inserta un nuevo género en la base de datos.
+     * @param g el género a insertar.
+     * @return el género insertado con su ID generado.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
     public Genero insert(Genero g) throws SQLException {
-        PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS);
-        st.setString(1, g.getNombreGenero());
-        st.executeUpdate();
-        ResultSet keys = st.getGeneratedKeys();
-        if (keys.next()) g.setIdGenero(keys.getInt(1));
+        try (PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+            st.setString(1, g.getNombreGenero());
+            st.executeUpdate();
+            try (ResultSet keys = st.getGeneratedKeys()) {
+                if (keys.next()) {
+                    g.setIdGenero(keys.getInt(1));
+                }
+            }
+        }
         return g;
     }
 
+    /**
+     * Busca un género por su ID.
+     * @param id el ID del género a buscar.
+     * @return el género encontrado, o null si no se encuentra.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
     public Genero findById(int id) throws SQLException {
-        PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_ID);
-        st.setInt(1, id);
-        ResultSet rs = st.executeQuery();
-        if (rs.next()) return new Genero(rs.getInt(1), rs.getString(2));
+        try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_ID)) {
+            st.setInt(1, id);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return new Genero(rs.getInt(1), rs.getString(2));
+                }
+            }
+        }
         return null;
     }
 
+    /**
+     * Obtiene todos los géneros de la base de datos.
+     * @return una lista de todos los géneros.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
     public List<Genero> findAll() throws SQLException {
-        ResultSet rs = conn.createStatement().executeQuery(SQL_FIND_ALL);
         List<Genero> list = new ArrayList<>();
-        while (rs.next()) list.add(new Genero(rs.getInt(1), rs.getString(2)));
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
+            while (rs.next()) {
+                list.add(new Genero(rs.getInt(1), rs.getString(2)));
+            }
+        }
         return list;
     }
 
+    /**
+     * Busca un género por su nombre.
+     * @param name el nombre del género a buscar.
+     * @return el género encontrado, o null si no se encuentra.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
     public Genero findByName(String name) throws SQLException {
-        PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_NAME);
-        st.setString(1, name);
-        ResultSet rs = st.executeQuery();
-        if (rs.next()) return new Genero(rs.getInt(1), rs.getString(2));
+        try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_NAME)) {
+            st.setString(1, name);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return new Genero(rs.getInt(1), rs.getString(2));
+                }
+            }
+        }
         return null;
     }
 }

@@ -12,6 +12,9 @@ import org.dam2.adp.cinesphere.util.Navigation;
 import org.dam2.adp.cinesphere.util.SessionManager;
 import org.mindrot.jbcrypt.BCrypt;
 
+/**
+ * Controlador para la vista de login.
+ */
 public class LoginController {
 
     @FXML
@@ -25,12 +28,19 @@ public class LoginController {
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
+    /**
+     * Inicializa el controlador, configurando los listeners para el botón de login y el enlace de registro.
+     */
     @FXML
     private void initialize() {
         btnLogin.setOnAction(e -> login());
         linkRegistro.setOnAction(e -> Navigation.switchScene("register.fxml"));
     }
 
+    /**
+     * Gestiona el proceso de login. Valida las credenciales del usuario y, si son correctas,
+     * navega a la pantalla principal de la aplicación.
+     */
     private void login() {
         String nombreUsuario = txtUsuario.getText();
         String password = txtPassword.getText();

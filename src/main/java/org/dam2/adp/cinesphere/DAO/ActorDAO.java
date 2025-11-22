@@ -7,40 +7,86 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * DAO para la entidad Actor.
+ */
 public class ActorDAO {
 
-    private static final String SQL_INSERT =
-            "INSERT INTO actor(nombreactor) VALUES(?)";
-
-    private static final String SQL_FIND_BY_ID =
-            "SELECT idactor, nombreactor FROM actor WHERE idactor=?";
-
-    private static final String SQL_FIND_ALL =
-            "SELECT idactor, nombreactor FROM actor";
+    private static final String SQL_INSERT = "INSERT INTO actor(nombreactor) VALUES(?)";
+    private static final String SQL_FIND_BY_ID = "SELECT idactor, nombreactor FROM actor WHERE idactor=?";
+    private static final String SQL_FIND_ALL = "SELECT idactor, nombreactor FROM actor";
+    private static final String SQL_FIND_BY_NAME = "SELECT idactor, nombreactor FROM actor WHERE nombreactor=?";
 
     private final Connection conn = Conexion.getInstance().getConnection();
 
+    /**
+     * Inserta un nuevo actor en la base de datos.
+     * @param a el actor a insertar.
+     * @return el actor insertado con su ID generado.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
     public Actor insert(Actor a) throws SQLException {
-        PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS);
-        st.setString(1, a.getNombreActor());
-        st.executeUpdate();
-        ResultSet keys = st.getGeneratedKeys();
-        if (keys.next()) a.setIdActor(keys.getInt(1));
+        try (PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+            st.setString(1, a.getNombreActor());
+            st.executeUpdate();
+            try (ResultSet keys = st.getGeneratedKeys()) {
+                if (keys.next()) {
+                    a.setIdActor(keys.getInt(1));
+                }
+            }
+        }
         return a;
     }
 
+    /**
+     * Busca un actor por su ID.
+     * @param id el ID del actor a buscar.
+     * @return el actor encontrado, o null si no se encuentra.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
     public Actor findById(int id) throws SQLException {
-        PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_ID);
-        st.setInt(1, id);
-        ResultSet rs = st.executeQuery();
-        if (rs.next()) return new Actor(rs.getInt(1), rs.getString(2));
+        try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_ID)) {
+            st.setInt(1, id);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return new Actor(rs.getInt(1), rs.getString(2));
+                }
+            }
+        }
         return null;
     }
 
+    /**
+     * Obtiene todos los actores de la base de datos.
+     * @return una lista de todos los actores.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
     public List<Actor> findAll() throws SQLException {
-        ResultSet rs = conn.createStatement().executeQuery(SQL_FIND_ALL);
         List<Actor> list = new ArrayList<>();
-        while (rs.next()) list.add(new Actor(rs.getInt(1), rs.getString(2)));
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
+            while (rs.next()) {
+                list.add(new Actor(rs.getInt(1), rs.getString(2)));
+            }
+        }
         return list;
+    }
+
+    /**
+     * Busca un actor por su nombre.
+     * @param name el nombre del actor a buscar.
+     * @return el actor encontrado, o null si no se encuentra.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
+    public Actor findByName(String name) throws SQLException {
+        try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_NAME)) {
+            st.setString(1, name);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return new Actor(rs.getInt(1), rs.getString(2));
+                }
+            }
+        }
+        return null;
     }
 }

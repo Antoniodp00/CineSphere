@@ -8,6 +8,9 @@ import org.dam2.adp.cinesphere.model.Usuario;
 import org.dam2.adp.cinesphere.util.Navigation;
 import org.dam2.adp.cinesphere.util.AlertUtils;
 
+/**
+ * Controlador para la vista de registro de nuevos usuarios.
+ */
 public class RegisterController {
     @FXML private TextField txtUsuario;
     @FXML private TextField txtEmail;
@@ -18,13 +21,19 @@ public class RegisterController {
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
+    /**
+     * Inicializa el controlador, configurando los listeners para el botón de registro y el enlace de login.
+     */
     @FXML
     private void initialize() {
-    btnRegistrar.setOnAction(e->registrar());
-    linkLogin.setOnAction(e->Navigation.navigate("login.fxml"));
-
+        btnRegistrar.setOnAction(e -> registrar());
+        linkLogin.setOnAction(e -> Navigation.navigate("login.fxml"));
     }
 
+    /**
+     * Gestiona el proceso de registro de un nuevo usuario. Valida los datos introducidos,
+     * crea el usuario en la base de datos y navega a la pantalla de login.
+     */
     private void registrar(){
         String nombreUsuario = txtUsuario.getText();
         String email = txtEmail.getText();
@@ -60,6 +69,4 @@ public class RegisterController {
             AlertUtils.error("Error al registrar usuario.");
         }
     }
-
-
 }

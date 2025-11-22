@@ -12,15 +12,28 @@ public enum PeliculaEstado {
 
     private final String displayValue;
 
+    /**
+     * Constructor del enum.
+     * @param displayValue el valor a mostrar en la interfaz.
+     */
     PeliculaEstado(String displayValue) {
         this.displayValue = displayValue;
     }
 
+    /**
+     * Obtiene el valor a mostrar en la interfaz.
+     * @return el valor a mostrar.
+     */
     public String getDisplayValue() {
         return displayValue;
     }
 
-    // Método estático útil para mapeo DAO (de String a Enum)
+    /**
+     * Convierte una cadena a su correspondiente valor de PeliculaEstado.
+     * @param text la cadena a convertir.
+     * @return el valor de PeliculaEstado correspondiente.
+     * @throws IllegalArgumentException si la cadena no corresponde a ningún estado.
+     */
     public static PeliculaEstado fromString(String text) {
         if (text == null) return null;
         for (PeliculaEstado estado : PeliculaEstado.values()) {

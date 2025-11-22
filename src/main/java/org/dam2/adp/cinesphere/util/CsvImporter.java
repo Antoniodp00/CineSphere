@@ -35,61 +35,71 @@ public class CsvImporter {
         );
 
         for (CSVRecord row : parser) {
+            try {
+                String titulo = row.get("Title").trim();
+                int year = Integer.parseInt(row.get("ReleaseYear").trim());
 
-            String titulo = row.get("Title").trim();
-            int year = Integer.parseInt(row.get("ReleaseYear").trim());
+                // Evitar duplicados
+                if (peliculaDAO.findByTituloAndYear(titulo, year) != null) {
+                    System.out.println("Película ya existe, saltando: " + titulo + " (" + year + ")");
+                    continue;
+                }
 
-            String ratingStr = row.get("IMDb-Rating").trim();
-            Double rating = ratingStr.isEmpty() ? null : Double.parseDouble(ratingStr);
+                String ratingStr = row.get("IMDb-Rating").trim();
+                Double rating = ratingStr.isEmpty() ? null : Double.parseDouble(ratingStr);
 
-            String duracionStr = row.get("Duration").trim().replace("min", "");
-            Integer duracion = duracionStr.isEmpty() ? null : Integer.parseInt(duracionStr);
+                String duracionStr = row.get("Duration").trim().replace("min", "");
+                Integer duracion = duracionStr.isEmpty() ? null : Integer.parseInt(duracionStr);
 
-            String clasifStr = row.get("Censor-board-rating").trim();
-            Clasificacion clasificacion = obtenerClasificacion(clasifStr);
+                String clasifStr = row.get("Censor-board-rating").trim();
+                Clasificacion clasificacion = obtenerClasificacion(clasifStr);
 
-            Pelicula p = new Pelicula();
-            p.setTituloPelicula(titulo);
-            p.setYearPelicula(year);
-            p.setRatingPelicula(rating);
-            p.setDuracionPelicula(duracion);
-            p.setNombreClasificacion(clasificacion.getNombreClasificacion());
+                Pelicula p = new Pelicula();
+                p.setTituloPelicula(titulo);
+                p.setYearPelicula(year);
+                p.setRatingPelicula(rating);
+                p.setDuracionPelicula(duracion);
+                p.setNombreClasificacion(clasificacion.getNombreClasificacion());
 
-            peliculaDAO.insert(p);
+                peliculaDAO.insert(p);
 
-            String directoresCSV = row.get("Director");
-            if (directoresCSV != null && !directoresCSV.isBlank()) {
-                for (String nombre : dividir(directoresCSV)) {
+                String directoresCSV = row.get("Director");
+                for (String nombre : splitAndClean(directoresCSV)) {
                     Director d = obtenerDirector(nombre);
                     peliculaDirectorDAO.add(p.getIdPelicula(), d.getIdDirector());
                 }
-            }
 
-            String actoresCSV = row.get("Stars");
-            if (actoresCSV != null && !actoresCSV.isBlank()) {
-                for (String nombre : dividir(actoresCSV)) {
+                String actoresCSV = row.get("Stars");
+                for (String nombre : splitAndClean(actoresCSV)) {
                     Actor a = obtenerActor(nombre);
                     peliculaActorDAO.add(p.getIdPelicula(), a.getIdActor());
                 }
-            }
 
-            String generosCSV = row.get("Category");
-            if (generosCSV != null && !generosCSV.isBlank()) {
-                for (String nombre : dividir(generosCSV)) {
+                String generosCSV = row.get("Category");
+                for (String nombre : splitAndClean(generosCSV)) {
                     Genero g = obtenerGenero(nombre);
                     peliculaGeneroDAO.add(p.getIdPelicula(), g.getIdGenero());
                 }
+            } catch (NumberFormatException e) {
+                System.err.println("Error de formato en la fila " + row.getRecordNumber() + ": " + e.getMessage());
+            } catch (Exception e) {
+                System.err.println("Error procesando la fila " + row.getRecordNumber() + ": " + e.getMessage());
             }
         }
     }
 
-    private List<String> dividir(String cadena) {
-        List<String> lista = new ArrayList<>();
-        for (String tok : cadena.split(",")) {
-            String limpio = tok.replaceAll("\\s+", "").trim();
-            if (!limpio.isBlank()) lista.add(limpio);
+    private Set<String> splitAndClean(String cadena) {
+        if (cadena == null || cadena.isBlank()) {
+            return Collections.emptySet();
         }
-        return lista;
+        Set<String> set = new HashSet<>();
+        for (String tok : cadena.split(",")) {
+            String limpio = tok.trim();
+            if (!limpio.isBlank()) {
+                set.add(limpio);
+            }
+        }
+        return set;
     }
 
     private Clasificacion obtenerClasificacion(String nombre) throws SQLException {
@@ -107,45 +117,33 @@ public class CsvImporter {
     private Director obtenerDirector(String nombre) throws SQLException {
         if (cacheDirectores.containsKey(nombre)) return cacheDirectores.get(nombre);
 
-        for (Director d : directorDAO.findAll()) {
-            if (d.getNombreDirector().equalsIgnoreCase(nombre)) {
-                cacheDirectores.put(nombre, d);
-                return d;
-            }
+        Director d = directorDAO.findByName(nombre);
+        if (d == null) {
+            d = directorDAO.insert(new Director(nombre));
         }
-
-        Director nuevo = directorDAO.insert(new Director(nombre));
-        cacheDirectores.put(nombre, nuevo);
-        return nuevo;
+        cacheDirectores.put(nombre, d);
+        return d;
     }
 
     private Actor obtenerActor(String nombre) throws SQLException {
         if (cacheActores.containsKey(nombre)) return cacheActores.get(nombre);
 
-        for (Actor a : actorDAO.findAll()) {
-            if (a.getNombreActor().equalsIgnoreCase(nombre)) {
-                cacheActores.put(nombre, a);
-                return a;
-            }
+        Actor a = actorDAO.findByName(nombre);
+        if (a == null) {
+            a = actorDAO.insert(new Actor(nombre));
         }
-
-        Actor nuevo = actorDAO.insert(new Actor(nombre));
-        cacheActores.put(nombre, nuevo);
-        return nuevo;
+        cacheActores.put(nombre, a);
+        return a;
     }
 
     private Genero obtenerGenero(String nombre) throws SQLException {
         if (cacheGeneros.containsKey(nombre)) return cacheGeneros.get(nombre);
 
-        for (Genero g : generoDAO.findAll()) {
-            if (g.getNombreGenero().equalsIgnoreCase(nombre)) {
-                cacheGeneros.put(nombre, g);
-                return g;
-            }
+        Genero g = generoDAO.findByName(nombre);
+        if (g == null) {
+            g = generoDAO.insert(new Genero(nombre));
         }
-
-        Genero nuevo = generoDAO.insert(new Genero(nombre));
-        cacheGeneros.put(nombre, nuevo);
-        return nuevo;
+        cacheGeneros.put(nombre, g);
+        return g;
     }
 }
