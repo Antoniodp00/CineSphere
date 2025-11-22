@@ -226,6 +226,75 @@
 }
 
 /*******************************************
+ *  ESTADÍSTICAS: TARJETAS Y HEADINGS
+ *******************************************/
+.title { /* título genérico reutilizable */
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+
+.kpi-value {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #3fa9f5;
+}
+
+/*******************************************
+ *  CHARTS – TEMA OSCURO
+ *******************************************/
+.chart-legend {
+    -fx-background-color: transparent;
+}
+
+.chart-legend .label {
+    -fx-text-fill: #ffffff; /* Texto de la leyenda en blanco para mejor contraste */
+}
+
+.chart-title, .axis-label {
+    -fx-text-fill: #f0f0f0;
+}
+
+.axis {
+    -fx-tick-label-fill: #cccccc;
+}
+
+.chart {
+    -fx-background-color: transparent;
+}
+
+/* Etiquetas de los sectores del PieChart */
+.chart-pie-label {
+    -fx-fill: #ffffff; /* Texto de etiquetas del pastel en blanco */
+}
+
+/* PieChart sectores */
+.default-color0.chart-pie { -fx-pie-color: #3fa9f5; }
+.default-color1.chart-pie { -fx-pie-color: #7bd389; }
+.default-color2.chart-pie { -fx-pie-color: #f7b267; }
+.default-color3.chart-pie { -fx-pie-color: #f4845f; }
+.default-color4.chart-pie { -fx-pie-color: #9b6ef3; }
+.default-color5.chart-pie { -fx-pie-color: #56cfe1; }
+.default-color6.chart-pie { -fx-pie-color: #e76f51; }
+
+/* Barras del BarChart */
+.default-color0.chart-bar { -fx-bar-fill: #3fa9f5; }
+.default-color1.chart-bar { -fx-bar-fill: #7bd389; }
+.default-color2.chart-bar { -fx-bar-fill: #f7b267; }
+.default-color3.chart-bar { -fx-bar-fill: #f4845f; }
+.default-color4.chart-bar { -fx-bar-fill: #9b6ef3; }
+.default-color5.chart-bar { -fx-bar-fill: #56cfe1; }
+.default-color6.chart-bar { -fx-bar-fill: #e76f51; }
+
+.chart-plot-background {
+    -fx-background-color: #141414;
+}
+
+.chart-vertical-grid-lines, .chart-horizontal-grid-lines {
+    -fx-stroke: #2a2a2a;
+}
+
+/*******************************************
  *  TOPBAR (HEADER)
  *******************************************/
 .topbar {

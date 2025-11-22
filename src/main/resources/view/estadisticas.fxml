@@ -1,15 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.dam2.adp.cinesphere.controller.EstadisticasController"
-            stylesheets="@../style.css"
-            prefHeight="400.0" prefWidth="600.0">
+<AnchorPane prefHeight="720.0" prefWidth="1080.0" stylesheets="@../style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dam2.adp.cinesphere.controller.EstadisticasController">
+    <children>
+        <VBox fillWidth="true" spacing="16.0" AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="16.0" AnchorPane.topAnchor="16.0">
+            <children>
+                <!-- Título -->
+                <Label styleClass="page-title" text="Estadísticas" />
 
+                <!-- KPIs -->
+                <HBox spacing="16.0">
+                    <children>
+                        <VBox prefHeight="87.0" prefWidth="549.0" spacing="6.0" styleClass="card" VBox.vgrow="NEVER">
+                            <children>
+                                <Label minWidth="280.0" styleClass="title" text="Total Guardadas" />
+                                <Label fx:id="lblTotalGuardadas" styleClass="kpi-value" text="0" />
+                            </children>
+                            <padding>
+                                <Insets bottom="14" left="18" right="18" top="14" />
+                            </padding>
+                        </VBox>
+                        <VBox minWidth="289.0" prefHeight="87.0" prefWidth="504.0" spacing="6.0" styleClass="card">
+                            <children>
+                                <Label styleClass="title" text="Películas Vistas" />
+                                <Label fx:id="lblPeliculasVistas" styleClass="kpi-value" text="0" />
+                            </children>
+                            <padding>
+                                <Insets bottom="14" left="18" right="18" top="14" />
+                            </padding>
+                        </VBox>
+                        <VBox minWidth="350.0" prefHeight="87.0" prefWidth="604.0" spacing="6.0" styleClass="card">
+                            <children>
+                                <Label styleClass="title" text="Tiempo Total Visto" />
+                                <Label fx:id="lblTiempoTotal" styleClass="kpi-value" text="0 h 0 min" />
+                            </children>
+                            <padding>
+                                <Insets bottom="14" left="18" right="18" top="14" />
+                            </padding>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <!-- Gráficos -->
+                <GridPane hgap="16.0" vgap="16.0">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50" />
+                        <ColumnConstraints percentWidth="50" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints percentHeight="100" />
+                    </rowConstraints>
+                    <children>
+                        <VBox spacing="8.0" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <children>
+                                <Label styleClass="title" text="Distribución por Estado" />
+                                <PieChart fx:id="pieEstados" legendVisible="true" title="Estados" />
+                            </children>
+                            <padding>
+                                <Insets bottom="14" left="18" right="18" top="14" />
+                            </padding>
+                        </VBox>
+                        <VBox spacing="8.0" styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <children>
+                                <Label styleClass="title" text="Géneros Favoritos" />
+                                <BarChart fx:id="barGeneros">
+                                    <xAxis>
+                                        <CategoryAxis label="Género" />
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="Cantidad" />
+                                    </yAxis>
+                                </BarChart>
+                            </children>
+                            <padding>
+                                <Insets bottom="14" left="18" right="18" top="14" />
+                            </padding>
+                        </VBox>
+                    </children>
+                </GridPane>
+            </children>
+        </VBox>
+    </children>
 </AnchorPane>
