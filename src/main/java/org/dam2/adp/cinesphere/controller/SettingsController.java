@@ -23,6 +23,7 @@ import java.sql.SQLException;
  */
 public class SettingsController {
 
+    @FXML private Button btnEliminarCuenta;
     @FXML
     private TextField txtUsuario;
     @FXML
@@ -54,7 +55,7 @@ public class SettingsController {
         configurarImportacion();
     }
 
-    private void CargarDatosUsuario() {
+    private void cargarDatosUsuario() {
         Usuario u = SessionManager.getInstance().getUsuarioActual();
         if (u != null) {
             txtUsuario.setText(u.getNombreUsuario());
@@ -62,7 +63,7 @@ public class SettingsController {
         }
     }
 
-    private void GuardarPerfil() throws SQLException {
+    private void guardarPerfil() {
         Usuario u = SessionManager.getInstance().getUsuarioActual();
         u.setNombreUsuario(txtUsuario.getText());
         u.setEmail(txtEmail.getText());
@@ -72,7 +73,11 @@ public class SettingsController {
             AlertUtils.error("Rellene todos los campos");
             return;
         }
-        usuarioDAO.update(u);
+        try {
+            usuarioDAO.update(u);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         AlertUtils.info("Perfil actualizado correctamente");
         txtPassword.clear();
     }
@@ -100,7 +105,7 @@ public class SettingsController {
 
         if (file != null) {
             lblEstadoLocal.setText(file.getName());
-            ejecutarImportacion(importer -> importer.impotar(file.getAbsolutePath()));
+            ejecutarImportacion(importer -> importer.importar(file.getAbsolutePath()));
         }
     }
 
@@ -109,14 +114,14 @@ public class SettingsController {
         if (seleccion != null) {
             String rutaRecurso = switch (seleccion) {
                 case "IMDb Top Movies (Completo)" -> "/csv/IMDb_Data_final.csv";
-                case "Estrenos 2023" -> "/csv/estrenos_2023.csv";
-                case "Selección Cine Español" -> "/csv/cine_espanol.csv";
-                case "Animación Clásica" -> "/csv/animacion_clasica.csv";
+                case "Estrenos 2023" -> "src/main/resources/csv/estrenos_2023.csv";
+                case "Selección Cine Español" -> "src/main/resources/csv/cine_espanol.csv";
+                case "Animación Clásica" -> "src/main/resources/csv/animacion_clasica.csv";
                 default -> null;
             };
 
             if (rutaRecurso != null) {
-                ejecutarImportacion(importer -> importer.importar(getClass().getResourceAsStream(rutaRecurso)));
+                ejecutarImportacion(importer -> importer.importar(rutaRecurso));
             } else {
                 AlertUtils.error("No se ha encontrado el archivo CSV");
             }

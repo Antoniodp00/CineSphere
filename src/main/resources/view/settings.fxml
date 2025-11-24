@@ -37,7 +37,7 @@
                                 </columnConstraints>
 
                                 <Label text="Usuario:" styleClass="text-normal" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                                <TextField fx:id="txtUsuario" disable="true" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                <TextField fx:id="txtUsuario" disable="flase" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
                                 <Label text="Email:" styleClass="text-normal" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                                 <TextField fx:id="txtEmail" promptText="correo@ejemplo.com" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
@@ -57,7 +57,7 @@
                             </padding>
                             <Label styleClass="section-title" text="Zona de Peligro" textFill="#d33f3f"/>
                             <Label text="Una vez elimines tu cuenta, no hay vuelta atrás. Por favor, ten cuidado." wrapText="true" styleClass="muted"/>
-                            <Button text="Eliminar Cuenta" styleClass="danger-button"/>
+                            <Button fx:id="btnEliminarCuenta" text="Eliminar Cuenta" styleClass="danger-button"/>
                         </VBox>
 
                     </VBox>

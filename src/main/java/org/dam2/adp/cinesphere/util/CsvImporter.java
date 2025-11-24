@@ -6,105 +6,212 @@ import org.apache.commons.csv.CSVRecord;
 import org.dam2.adp.cinesphere.DAO.*;
 import org.dam2.adp.cinesphere.model.*;
 
-import java.io.FileReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.*;
 
+/**
+ * Clase utilitaria encargada de importar películas y sus datos relacionados
+ * desde archivos CSV a la base de datos.
+ * <p>
+ * Soporta la importación desde el sistema de archivos local y desde los recursos
+ * empaquetados en la aplicación. Gestiona la creación de entidades relacionadas
+ * (Actores, Directores, Géneros) evitando duplicados mediante cachés y verificaciones.
+ * </p>
+ */
 public class CsvImporter {
 
+    /**
+     * Lista de cabeceras obligatorias que debe contener el archivo CSV para ser válido.
+     */
+    private static final List<String> CABECERAS_ESPERADAS = List.of(
+            "Title", "Director", "Stars", "IMDb-Rating", "Category",
+            "Duration", "Censor-board-rating", "ReleaseYear"
+    );
+
+    // Instancias de los DAOs para interactuar con la base de datos
     private final PeliculaDAO peliculaDAO = new PeliculaDAO();
     private final DirectorDAO directorDAO = new DirectorDAO();
     private final ActorDAO actorDAO = new ActorDAO();
     private final GeneroDAO generoDAO = new GeneroDAO();
     private final ClasificacionDAO clasificacionDAO = new ClasificacionDAO();
+
+    // DAOs para tablas intermedias (relaciones N:M)
     private final PeliculaDirectorDAO peliculaDirectorDAO = new PeliculaDirectorDAO();
     private final PeliculaActorDAO peliculaActorDAO = new PeliculaActorDAO();
     private final PeliculaGeneroDAO peliculaGeneroDAO = new PeliculaGeneroDAO();
 
+    // Cachés en memoria para reducir el número de consultas SELECT a la base de datos
+    // Clave: Nombre de la entidad -> Valor: Objeto entidad con su ID
     private final Map<String, Director> cacheDirectores = new HashMap<>();
     private final Map<String, Actor> cacheActores = new HashMap<>();
     private final Map<String, Genero> cacheGeneros = new HashMap<>();
     private final Map<String, Clasificacion> cacheClasificaciones = new HashMap<>();
 
+    /**
+     * Importa películas desde un archivo ubicado en el sistema de archivos local.
+     * Este método es útil cuando el usuario selecciona un archivo mediante un FileChooser.
+     *
+     * @param csvPath La ruta absoluta del archivo CSV en el disco.
+     * @throws Exception Si ocurre un error de lectura (IO) o de base de datos (SQL).
+     */
     public void importar(String csvPath) throws Exception {
+        // Utilizamos try-with-resources para asegurar el cierre del Reader
+        try (Reader reader = new FileReader(csvPath, StandardCharsets.UTF_8)) {
+            importar(reader);
+        }
+    }
 
-        CSVParser parser = CSVParser.parse(
-                new FileReader(csvPath, StandardCharsets.UTF_8),
-                CSVFormat.DEFAULT.withFirstRecordAsHeader()
-        );
+    /**
+     * Importa películas desde un archivo ubicado en los recursos de la aplicación (classpath).
+     * Este método es ideal para cargar datasets de ejemplo predeterminados.
+     *
+     * @param resourcePath La ruta relativa del recurso (ej. "/csv/archivo.csv").
+     * @throws Exception Si el recurso no existe o hay errores de lectura/BD.
+     */
+    public void importarDesdeRecurso(String resourcePath) throws Exception {
+        InputStream is = getClass().getResourceAsStream(resourcePath);
+        if (is == null) {
+            throw new IllegalArgumentException("No se encontró el recurso interno: " + resourcePath);
+        }
+        try (Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+            importar(reader);
+        }
+    }
 
+    /**
+     * Lógica central del proceso de importación. Es agnóstica al origen de los datos.
+     * Parsea el contenido, valida la estructura y procesa fila por fila.
+     *
+     * @param reader Un objeto Reader (FileReader o InputStreamReader) con el contenido CSV.
+     * @throws Exception Si el formato es inválido o hay errores graves.
+     */
+    public void importar(Reader reader) throws Exception {
+        // Configuración del parser: detecta cabeceras, ignora espacios extra y mayúsculas/minúsculas en cabeceras
+        CSVParser parser = CSVFormat.DEFAULT
+                .builder()
+                .setHeader()
+                .setSkipHeaderRecord(true)
+                .setIgnoreHeaderCase(true)
+                .setTrim(true)
+                .build()
+                .parse(reader);
+
+        // 1. Validación de Estructura: Comprobar que existen las columnas necesarias
+        Map<String, Integer> headerMap = parser.getHeaderMap();
+        if (headerMap == null || headerMap.isEmpty()) {
+            throw new IllegalArgumentException("El archivo CSV está vacío o no tiene cabeceras reconocibles.");
+        }
+
+        for (String columna : CABECERAS_ESPERADAS) {
+            if (!headerMap.containsKey(columna)) {
+                throw new IllegalArgumentException("Formato inválido. Falta la columna obligatoria: " + columna);
+            }
+        }
+
+        // 2. Procesamiento Iterativo: Leer cada fila
         for (CSVRecord row : parser) {
             try {
-                String titulo = row.get("Title").trim();
-                int year = Integer.parseInt(row.get("ReleaseYear").trim());
-
-                // Evitar duplicados
-                if (peliculaDAO.findByTituloAndYear(titulo, year) != null) {
-                    System.out.println("Película ya existe, saltando: " + titulo + " (" + year + ")");
+                // Validación básica: Si la fila no es consistente o no tiene título, se salta
+                if (!row.isConsistent() || row.get("Title").isBlank()) {
                     continue;
                 }
+                procesarFila(row);
 
-                String ratingStr = row.get("IMDb-Rating").trim();
-                Double rating = ratingStr.isEmpty() ? null : Double.parseDouble(ratingStr);
-
-                String duracionStr = row.get("Duration").trim().replace("min", "");
-                Integer duracion = duracionStr.isEmpty() ? null : Integer.parseInt(duracionStr);
-
-                String clasifStr = row.get("Censor-board-rating").trim();
-                Clasificacion clasificacion = obtenerClasificacion(clasifStr);
-
-                Pelicula p = new Pelicula();
-                p.setTituloPelicula(titulo);
-                p.setYearPelicula(year);
-                p.setRatingPelicula(rating);
-                p.setDuracionPelicula(duracion);
-                p.setNombreClasificacion(clasificacion.getNombreClasificacion());
-
-                peliculaDAO.insert(p);
-
-                String directoresCSV = row.get("Director");
-                for (String nombre : splitAndClean(directoresCSV)) {
-                    Director d = obtenerDirector(nombre);
-                    peliculaDirectorDAO.add(p.getIdPelicula(), d.getIdDirector());
-                }
-
-                String actoresCSV = row.get("Stars");
-                for (String nombre : splitAndClean(actoresCSV)) {
-                    Actor a = obtenerActor(nombre);
-                    peliculaActorDAO.add(p.getIdPelicula(), a.getIdActor());
-                }
-
-                String generosCSV = row.get("Category");
-                for (String nombre : splitAndClean(generosCSV)) {
-                    Genero g = obtenerGenero(nombre);
-                    peliculaGeneroDAO.add(p.getIdPelicula(), g.getIdGenero());
-                }
-            } catch (NumberFormatException e) {
-                System.err.println("Error de formato en la fila " + row.getRecordNumber() + ": " + e.getMessage());
             } catch (Exception e) {
-                System.err.println("Error procesando la fila " + row.getRecordNumber() + ": " + e.getMessage());
+                // Estrategia de tolerancia a fallos: Si una fila falla, se loguea y se continúa con la siguiente
+                System.err.println("Error importando fila " + row.getRecordNumber() + ": " + e.getMessage());
             }
         }
     }
 
-    private Set<String> splitAndClean(String cadena) {
-        if (cadena == null || cadena.isBlank()) {
-            return Collections.emptySet();
+    /**
+     * Procesa una única fila del CSV, mapea los datos a objetos y los persiste.
+     * Realiza la comprobación de duplicados antes de insertar.
+     *
+     * @param row El registro CSV actual.
+     * @throws SQLException Si falla alguna operación de base de datos.
+     */
+    private void procesarFila(CSVRecord row) throws SQLException {
+        String titulo = row.get("Title").trim();
+
+        // Parseo seguro de enteros (si falla el formato, devuelve null)
+        Integer year = tryParseInt(row.get("ReleaseYear"));
+
+        // Si no hay año, consideramos el dato inválido para nuestro sistema y saltamos la fila
+        if (year == null) return;
+
+        // --- CONTROL DE DUPLICADOS ---
+        // Verificamos si la película ya existe en la BD (por Título y Año)
+        if (peliculaDAO.findByTituloAndYear(titulo, year) != null) {
+            // Ya existe, no hacemos nada (o podríamos actualizar datos si fuera necesario)
+            return;
         }
-        Set<String> set = new HashSet<>();
-        for (String tok : cadena.split(",")) {
-            String limpio = tok.trim();
-            if (!limpio.isBlank()) {
-                set.add(limpio);
-            }
-        }
-        return set;
+
+        Double rating = tryParseDouble(row.get("IMDb-Rating"));
+
+        // Limpieza del campo duración (ej: de "130min" a "130")
+        String duracionStr = row.get("Duration").replace("min", "").trim();
+        Integer duracion = tryParseInt(duracionStr);
+
+        // Gestión de la clasificación (ej: "PG-13")
+        String clasifStr = row.get("Censor-board-rating");
+        Clasificacion clasificacion = obtenerClasificacion(clasifStr);
+
+        // Creación del objeto Película
+        Pelicula p = new Pelicula();
+        p.setTituloPelicula(titulo);
+        p.setYearPelicula(year);
+        p.setRatingPelicula(rating);
+        p.setDuracionPelicula(duracion);
+        p.setNombreClasificacion(clasificacion.getNombreClasificacion());
+
+        // Inserción principal (obtiene el ID generado automáticamente)
+        peliculaDAO.insert(p);
+
+        // Procesamiento de relaciones Many-to-Many (Directores, Actores, Géneros)
+        // Se pasan las cadenas crudas del CSV (ej: "Steven Spielberg, George Lucas")
+        procesarDirectores(p, row.get("Director"));
+        procesarActores(p, row.get("Stars"));
+        procesarGeneros(p, row.get("Category"));
     }
 
+    // --- MÉTODOS AUXILIARES DE PROCESAMIENTO ---
+
+    private void procesarDirectores(Pelicula p, String rawData) throws SQLException {
+        for (String nombre : splitAndClean(rawData)) {
+            Director d = obtenerDirector(nombre);
+            peliculaDirectorDAO.add(p.getIdPelicula(), d.getIdDirector());
+        }
+    }
+
+    private void procesarActores(Pelicula p, String rawData) throws SQLException {
+        for (String nombre : splitAndClean(rawData)) {
+            Actor a = obtenerActor(nombre);
+            peliculaActorDAO.add(p.getIdPelicula(), a.getIdActor());
+        }
+    }
+
+    private void procesarGeneros(Pelicula p, String rawData) throws SQLException {
+        for (String nombre : splitAndClean(rawData)) {
+            Genero g = obtenerGenero(nombre);
+            peliculaGeneroDAO.add(p.getIdPelicula(), g.getIdGenero());
+        }
+    }
+
+    // --- GESTIÓN DE CACHÉ Y BÚSQUEDA EN BD ---
+    // Estos métodos buscan primero en el mapa local, luego en la BD, y si no existe, insertan.
+
+    /**
+     * Obtiene o crea una Clasificación.
+     */
     private Clasificacion obtenerClasificacion(String nombre) throws SQLException {
+        if (nombre == null || nombre.isBlank()) nombre = "Not Rated"; // Valor por defecto
+
         if (cacheClasificaciones.containsKey(nombre)) return cacheClasificaciones.get(nombre);
 
+        // En tu DAO, findById busca por nombre (clave primaria string)
         Clasificacion c = clasificacionDAO.findById(nombre);
         if (c == null) {
             c = new Clasificacion(nombre);
@@ -114,36 +221,94 @@ public class CsvImporter {
         return c;
     }
 
+    /**
+     * Obtiene o crea un Director.
+     */
     private Director obtenerDirector(String nombre) throws SQLException {
         if (cacheDirectores.containsKey(nombre)) return cacheDirectores.get(nombre);
 
         Director d = directorDAO.findByName(nombre);
         if (d == null) {
-            d = directorDAO.insert(new Director(nombre));
+            d = new Director(nombre);
+            // El insert actualiza el ID del objeto 'd'
+            directorDAO.insert(d);
         }
         cacheDirectores.put(nombre, d);
         return d;
     }
 
+    /**
+     * Obtiene o crea un Actor.
+     */
     private Actor obtenerActor(String nombre) throws SQLException {
         if (cacheActores.containsKey(nombre)) return cacheActores.get(nombre);
 
         Actor a = actorDAO.findByName(nombre);
         if (a == null) {
-            a = actorDAO.insert(new Actor(nombre));
+            a = new Actor(nombre);
+            actorDAO.insert(a);
         }
         cacheActores.put(nombre, a);
         return a;
     }
 
+    /**
+     * Obtiene o crea un Género.
+     */
     private Genero obtenerGenero(String nombre) throws SQLException {
         if (cacheGeneros.containsKey(nombre)) return cacheGeneros.get(nombre);
 
         Genero g = generoDAO.findByName(nombre);
         if (g == null) {
-            g = generoDAO.insert(new Genero(nombre));
+            g = new Genero(nombre);
+            generoDAO.insert(g);
         }
         cacheGeneros.put(nombre, g);
         return g;
+    }
+
+    // --- UTILIDADES DE PARSEO Y LIMPIEZA ---
+
+    /**
+     * Divide una cadena por comas, limpia espacios y elimina duplicados o vacíos.
+     * Ej: "Action, Drama, Action" -> ["Action", "Drama"]
+     */
+    private Set<String> splitAndClean(String cadena) {
+        if (cadena == null || cadena.isBlank()) return Collections.emptySet();
+
+        Set<String> resultado = new HashSet<>();
+        for (String parte : cadena.split(",")) {
+            String limpio = parte.trim();
+            if (!limpio.isEmpty()) {
+                resultado.add(limpio);
+            }
+        }
+        return resultado;
+    }
+
+    /**
+     * Intenta parsear un entero de forma segura.
+     * @return el número o null si el formato es incorrecto.
+     */
+    private Integer tryParseInt(String value) {
+        try {
+            if (value == null) return null;
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Intenta parsear un double de forma segura.
+     * @return el número o null si el formato es incorrecto.
+     */
+    private Double tryParseDouble(String value) {
+        try {
+            if (value == null) return null;
+            return Double.parseDouble(value.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }
