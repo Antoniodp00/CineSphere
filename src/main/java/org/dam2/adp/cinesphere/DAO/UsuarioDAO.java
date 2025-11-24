@@ -5,6 +5,8 @@ import org.dam2.adp.cinesphere.model.Rol;
 import org.dam2.adp.cinesphere.model.Usuario;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DAO para la entidad Usuario.
@@ -28,6 +30,11 @@ public class UsuarioDAO {
 
     private static final String SQL_FIND_BY_EMAIL =
             "SELECT * FROM usuario WHERE email=?";
+
+    private static final String SQL_FIND_ALL =
+            "SELECT * FROM usuario ORDER BY idusuario";
+    private static final String SQL_UPDATE_ROL =
+            "UPDATE usuario SET rol=? WHERE idusuario=?";
 
     private final Connection conn = Conexion.getInstance().getConnection();
 
@@ -67,15 +74,24 @@ public class UsuarioDAO {
         return u;
     }
 
+    // ... (resto de la clase igual)
+
+    /**
+     * Elimina un usuario de la base de datos.
+     * @param u El objeto Usuario a eliminar.
+     * @return true si se eliminó correctamente, false si no se encontró.
+     */
     public Boolean delete(Usuario u) throws SQLException {
         boolean eliminado = false;
         try (PreparedStatement st = conn.prepareStatement(SQL_DELETE)) {
             st.setInt(1, u.getIdUsuario());
-            st.executeUpdate();
-            eliminado = true;
+            // Si devuelve > 0, significa que borró al menos una fila
+            eliminado = st.executeUpdate() > 0;
         }
         return eliminado;
     }
+
+// ... (resto de la clase igual)
 
     /**
      * Busca un usuario por su ID.
@@ -154,4 +170,39 @@ public class UsuarioDAO {
         }
         return null;
     }
+
+    /**
+     * Obtiene la lista completa de usuarios registrados.
+     */
+    public List<Usuario> findAll() throws SQLException {
+        List<Usuario> usuarios = new ArrayList<>();
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
+
+            while (rs.next()) {
+                Usuario u = new Usuario();
+                u.setIdUsuario(rs.getInt("idusuario"));
+                u.setNombreUsuario(rs.getString("nombreusuario"));
+                u.setEmail(rs.getString("email"));
+                // No necesitamos la contraseña para el listado, por seguridad la dejamos null o vacía
+                u.setBornDate(rs.getDate("borndate") != null ? rs.getDate("borndate").toLocalDate() : null);
+                u.setRol(Rol.fromString(rs.getString("rol"))); // Convierte String DB -> Enum
+                usuarios.add(u);
+            }
+        }
+        return usuarios;
+    }
+
+    /**
+     * Actualiza el rol de un usuario por su ID.
+     */
+    public void updateRol(int idUsuario, Rol nuevoRol) throws SQLException {
+        try (PreparedStatement st = conn.prepareStatement(SQL_UPDATE_ROL)) {
+            st.setString(1, nuevoRol.name());
+            st.setInt(2, idUsuario);
+            st.executeUpdate();
+        }
+    }
+
 }
+

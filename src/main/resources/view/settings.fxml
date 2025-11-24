@@ -97,11 +97,50 @@
                                 <Button fx:id="btnCargarPredeterminado" text="Cargar Dataset" styleClass="accent-button" />
                             </HBox>
                         </VBox>
+                        <VBox spacing="15.0" styleClass="card">
+                            <padding>
+                                <Insets top="20" right="20" bottom="20" left="20"/>
+                            </padding>
+
+                            <Label styleClass="section-title" text="Gestión Manual" />
+                            <Label styleClass="text-normal" text="Añade una nueva película al catálogo rellenando el formulario manualmente." wrapText="true"/>
+
+                            <Button fx:id="btnNuevaPelicula" text="Nueva Película" styleClass="accent-button" />
+                        </VBox>
+                    </VBox>
+                </AnchorPane>
+            </Tab>
+            <Tab fx:id="tabUsuarios" text="Gestión de Usuarios">
+                <AnchorPane minHeight="0.0" minWidth="0.0">
+                    <VBox spacing="20.0" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0">
+                        <padding>
+                            <Insets top="20" right="30" bottom="30" left="30"/>
+                        </padding>
+
+                        <Label styleClass="section-title" text="Directorio de Usuarios" />
+                        <Label styleClass="text-normal" text="Administra los permisos de los usuarios registrados en la plataforma." />
+
+                        <TableView fx:id="tablaUsuarios" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="colId" text="ID" prefWidth="50" />
+                                <TableColumn fx:id="colNombre" text="Usuario" prefWidth="150" />
+                                <TableColumn fx:id="colEmail" text="Email" prefWidth="250" />
+                                <TableColumn fx:id="colRol" text="Rol" prefWidth="100" />
+                            </columns>
+                            <columnResizePolicy>
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                            </columnResizePolicy>
+                        </TableView>
+
+                        <HBox spacing="15.0" alignment="CENTER_LEFT">
+                            <Button fx:id="btnHacerAdmin" text="⬆ Ascender a Admin" styleClass="accent-button"/>
+                            <Button fx:id="btnHacerUser" text="⬇ Degradar a User" styleClass="button"/>
+                            <Region HBox.hgrow="ALWAYS" /> <Button fx:id="btnEliminarUsuario" text="Eliminar Usuario" styleClass="danger-button"/>
+                        </HBox>
 
                     </VBox>
                 </AnchorPane>
             </Tab>
-
         </TabPane>
     </VBox>
 </AnchorPane>
