@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Controlador para la vista "Mi Lista", que muestra las películas guardadas por el usuario.
+ */
 public class MiListaController {
 
     @FXML
@@ -71,6 +74,10 @@ public class MiListaController {
     private final int pageSize = 18;
     private int totalPages = 1;
 
+    /**
+     * Inicializa el controlador, configurando los componentes de la interfaz,
+     * cargando los datos iniciales y asignando los manejadores de eventos.
+     */
     @FXML
     private void initialize() {
         usuario = SessionManager.getInstance().getUsuarioActual();
@@ -124,6 +131,9 @@ public class MiListaController {
         cargarPagina(1);
     }
 
+    /**
+     * Recarga la caché de películas del usuario desde la base de datos.
+     */
     private void recargarCacheDesdeDAO() {
         try {
             cacheMisPeliculas = miListaDAO.findPeliculasByUsuario(usuario.getIdUsuario());
@@ -135,6 +145,10 @@ public class MiListaController {
         }
     }
 
+    /**
+     * Aplica los filtros seleccionados a la lista de películas en memoria.
+     * @return una lista de películas que coinciden con los criterios de filtrado.
+     */
     private List<Pelicula> aplicarFiltrosEnMemoria() {
         return cacheMisPeliculas.stream()
                 .filter(p -> filtroYear == null || Objects.equals(p.getYearPelicula(), filtroYear))
@@ -156,12 +170,19 @@ public class MiListaController {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Actualiza el número total de páginas basándose en los filtros aplicados.
+     */
     private void actualizarTotalPaginas() {
         int total = aplicarFiltrosEnMemoria().size();
         totalPages = (int) Math.ceil((double) total / pageSize);
         if (totalPages == 0) totalPages = 1;
     }
 
+    /**
+     * Inicia una búsqueda por título de película.
+     * @param filtro el texto a buscar en los títulos de las películas.
+     */
     private void buscar(String filtro) {
         this.filtroBusqueda = filtro;
         page = 1;
@@ -169,6 +190,10 @@ public class MiListaController {
         cargarPagina(page);
     }
 
+    /**
+     * Carga y muestra una página específica de películas.
+     * @param pagina el número de página a cargar.
+     */
     private void cargarPagina(int pagina) {
         try {
             flowPeliculas.getChildren().clear();
@@ -192,6 +217,11 @@ public class MiListaController {
         }
     }
 
+    /**
+     * Crea una tarjeta de película (VBox) para mostrar en la lista.
+     * @param p la película para la que se creará la tarjeta.
+     * @return un VBox que representa la tarjeta de la película.
+     */
     private VBox crearCardPelicula(Pelicula p) {
         VBox card = new VBox();
         card.getStyleClass().add("movie-card");
@@ -238,6 +268,9 @@ public class MiListaController {
         return card;
     }
 
+    /**
+     * Aplica los filtros seleccionados en los ComboBox y recarga la vista.
+     */
     private void aplicarFiltros() {
         filtroYear = cbYear.getValue();
         filtroRating = cbRating.getValue();
@@ -247,6 +280,9 @@ public class MiListaController {
         cargarPagina(page);
     }
 
+    /**
+     * Limpia todos los filtros aplicados y recarga la vista.
+     */
     private void limpiarFiltros() {
         cbYear.setValue(null);
         cbRating.setValue(null);

@@ -15,6 +15,9 @@ import org.dam2.adp.cinesphere.util.SessionManager;
 import java.sql.SQLException;
 import java.util.Map;
 
+/**
+ * Controlador para la vista de estadísticas, que muestra datos sobre la actividad del usuario.
+ */
 public class EstadisticasController {
 
     @FXML private Label lblTotalGuardadas;
@@ -26,6 +29,9 @@ public class EstadisticasController {
 
     private final MiListaDAO miListaDAO = new MiListaDAO();
 
+    /**
+     * Inicializa el controlador, cargando las estadísticas del usuario actual.
+     */
     @FXML
     private void initialize() {
         Usuario usuario = SessionManager.getInstance().getUsuarioActual();
@@ -48,6 +54,11 @@ public class EstadisticasController {
         }
     }
 
+    /**
+     * Carga los indicadores clave de rendimiento (KPIs) del usuario.
+     * @param idUsuario el ID del usuario.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
     private void cargarKPIs(int idUsuario) throws SQLException {
         int total = miListaDAO.countGuardadas(idUsuario);
         int vistas = miListaDAO.countByEstado(idUsuario, PeliculaEstado.TERMINADA);
@@ -55,18 +66,34 @@ public class EstadisticasController {
         setKPIs(total, vistas, minutosVistos);
     }
 
+    /**
+     * Establece los valores de los KPIs en las etiquetas de la interfaz.
+     * @param total el número total de películas guardadas.
+     * @param vistas el número de películas vistas.
+     * @param minutosVistos el total de minutos de películas vistas.
+     */
     private void setKPIs(int total, int vistas, int minutosVistos) {
         lblTotalGuardadas.setText(String.valueOf(total));
         lblPeliculasVistas.setText(String.valueOf(vistas));
         lblTiempoTotal.setText(formatearMinutos(minutosVistos));
     }
 
+    /**
+     * Formatea un número de minutos a un formato de horas y minutos.
+     * @param minutos el número de minutos a formatear.
+     * @return una cadena con el formato "X h Y min".
+     */
     private String formatearMinutos(int minutos) {
         int horas = minutos / 60;
         int mins = minutos % 60;
         return horas + " h " + mins + " min";
     }
 
+    /**
+     * Carga el gráfico de tarta con las estadísticas de estados de las películas del usuario.
+     * @param idUsuario el ID del usuario.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
     private void cargarPieEstados(int idUsuario) throws SQLException {
         Map<PeliculaEstado, Integer> mapa = miListaDAO.getEstadisticasEstados(idUsuario);
         ObservableList<PieChart.Data> datos = FXCollections.observableArrayList();
@@ -82,6 +109,11 @@ public class EstadisticasController {
         pieEstados.setTitle("Estados (" + suma + ")");
     }
 
+    /**
+     * Carga el gráfico de barras con las estadísticas de géneros de las películas del usuario.
+     * @param idUsuario el ID del usuario.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
     private void cargarBarGeneros(int idUsuario) throws SQLException {
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName("Cantidad por género");

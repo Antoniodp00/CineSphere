@@ -20,6 +20,9 @@ import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * Controlador para la vista de detalle de una película.
+ */
 public class PeliculaDetalleController {
 
     @FXML private ImageView imgPoster;
@@ -42,6 +45,9 @@ public class PeliculaDetalleController {
     private Pelicula pelicula;
     private Usuario usuario;
 
+    /**
+     * Inicializa el controlador, cargando los datos de la película seleccionada.
+     */
     @FXML
     private void initialize() {
         usuario = SessionManager.getInstance().getUsuarioActual();
@@ -56,6 +62,9 @@ public class PeliculaDetalleController {
         cargarDatos(idPelicula);
     }
 
+    /**
+     * Configura los ComboBox de estado y puntuación.
+     */
     private void setupComboBoxes() {
         cbEstado.getItems().setAll(PeliculaEstado.values());
         cbPuntuacion.getItems().setAll(
@@ -70,6 +79,10 @@ public class PeliculaDetalleController {
         });
     }
 
+    /**
+     * Carga los datos de la película y los muestra en la interfaz.
+     * @param idPelicula el ID de la película a cargar.
+     */
     private void cargarDatos(int idPelicula) {
         try {
             pelicula = peliculaDAO.findByIdEager(idPelicula);
@@ -97,6 +110,10 @@ public class PeliculaDetalleController {
         }
     }
 
+    /**
+     * Actualiza el estado de la interfaz relacionado con "Mi Lista" (botones, ComboBoxes).
+     * @throws Exception si ocurre un error al acceder a la base de datos.
+     */
     private void actualizarEstadoMiLista() throws Exception {
         MiLista ml = miListaDAO.find(usuario.getIdUsuario(), pelicula.getIdPelicula());
         boolean enLista = ml != null;
@@ -115,12 +132,20 @@ public class PeliculaDetalleController {
         cbPuntuacion.setDisable(!enLista);
     }
 
+    /**
+     * Crea una etiqueta con estilo de "chip".
+     * @param text el texto de la etiqueta.
+     * @return una etiqueta con el estilo aplicado.
+     */
     private Label chip(String text) {
         Label l = new Label(text);
         l.getStyleClass().add("chip");
         return l;
     }
 
+    /**
+     * Añade o elimina la película de "Mi Lista".
+     */
     private void toggleMiLista() {
         try {
             MiLista ml = miListaDAO.find(usuario.getIdUsuario(), pelicula.getIdPelicula());
@@ -137,6 +162,10 @@ public class PeliculaDetalleController {
         }
     }
 
+    /**
+     * Cambia el estado de la película en "Mi Lista".
+     * @param estado el nuevo estado de la película.
+     */
     private void cambiarEstado(PeliculaEstado estado) {
         try {
             miListaDAO.updateEstado(usuario.getIdUsuario(), pelicula.getIdPelicula(), estado);
@@ -145,6 +174,10 @@ public class PeliculaDetalleController {
         }
     }
 
+    /**
+     * Cambia la puntuación de la película en "Mi Lista".
+     * @param puntuacion la nueva puntuación de la película.
+     */
     private void cambiarPuntuacion(int puntuacion) {
         try {
             miListaDAO.updatePuntuacion(usuario.getIdUsuario(), pelicula.getIdPelicula(), puntuacion);
@@ -153,6 +186,9 @@ public class PeliculaDetalleController {
         }
     }
 
+    /**
+     * Abre una búsqueda en YouTube con el trailer de la película.
+     */
     private void abrirTrailer() {
         try {
             String url = "https://www.youtube.com/results?search_query=" +

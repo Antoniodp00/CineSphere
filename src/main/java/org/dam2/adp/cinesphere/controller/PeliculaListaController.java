@@ -17,6 +17,9 @@ import org.dam2.adp.cinesphere.util.SessionManager;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Controlador para la vista de lista de películas.
+ */
 public class PeliculaListaController {
 
     @FXML
@@ -58,6 +61,10 @@ public class PeliculaListaController {
     private final int pageSize = 18;
     private int totalPages = 1;
 
+    /**
+     * Inicializa el controlador, configurando los componentes de la interfaz,
+     * cargando los datos iniciales y asignando los manejadores de eventos.
+     */
     @FXML
     private void initialize() {
         // Rellenar ComboBoxes
@@ -106,6 +113,9 @@ public class PeliculaListaController {
         cargarPagina(1);
     }
 
+    /**
+     * Actualiza el número total de páginas basándose en los filtros aplicados.
+     */
     private void actualizarTotalPaginas() {
         try {
             int total = peliculaDAO.countPeliculas(filtroYear, filtroRating, filtroGeneroId);
@@ -117,6 +127,10 @@ public class PeliculaListaController {
         }
     }
 
+    /**
+     * Inicia una búsqueda por título de película.
+     * @param filtro el texto a buscar en los títulos de las películas.
+     */
     private void buscar(String filtro) {
         try {
             List<Pelicula> todas = peliculaDAO.findAllLazy();
@@ -133,6 +147,10 @@ public class PeliculaListaController {
         }
     }
 
+    /**
+     * Carga y muestra una página específica de películas.
+     * @param pagina el número de página a cargar.
+     */
     private void cargarPagina(int pagina) {
         try {
             flowPeliculas.getChildren().clear();
@@ -162,6 +180,11 @@ public class PeliculaListaController {
         }
     }
 
+    /**
+     * Crea una tarjeta de película (VBox) para mostrar en la lista.
+     * @param p la película para la que se creará la tarjeta.
+     * @return un VBox que representa la tarjeta de la película.
+     */
     private VBox crearCardPelicula(Pelicula p) {
         VBox card = new VBox();
         card.getStyleClass().add("movie-card");
@@ -206,6 +229,10 @@ public class PeliculaListaController {
         return card;
     }
 
+    /**
+     * Navega a la vista de detalle de la película seleccionada.
+     * @param idPelicula el ID de la película a mostrar.
+     */
     private void verDetalle(int idPelicula) {
         SessionManager.getInstance().set("selectedPeliculaId", idPelicula);
         Navigation.navigate("peliculas_detalle.fxml");
@@ -213,6 +240,9 @@ public class PeliculaListaController {
 
     }
 
+    /**
+     * Aplica los filtros seleccionados en los ComboBox y recarga la vista.
+     */
     private void aplicarFiltros() {
         filtroYear = cbYear.getValue();
         filtroRating = cbRating.getValue();
@@ -230,6 +260,9 @@ public class PeliculaListaController {
         cargarPagina(page);
     }
 
+    /**
+     * Limpia todos los filtros aplicados y recarga la vista.
+     */
     private void limpiarFiltros() {
         cbYear.setValue(null);
         cbRating.setValue(null);
