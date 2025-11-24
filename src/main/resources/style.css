@@ -414,3 +414,45 @@
 .danger-button:hover {
     -fx-background-color: #ff5c5c;
 }
+
+/*******************************************
+ * TABPANE (Ajustes)
+ *******************************************/
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: transparent;
+}
+
+.tab-pane {
+    -fx-tab-min-width: 100px;
+}
+
+.tab {
+    -fx-background-color: #262626;
+    -fx-background-insets: 0 1 0 0;
+    -fx-background-radius: 5 5 0 0;
+    -fx-padding: 10 20;
+}
+
+.tab:selected {
+    -fx-background-color: #3fa9f5; /* Tu color de acento */
+}
+
+.tab:selected .tab-label {
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+}
+
+.tab .tab-label {
+    -fx-text-fill: #b0b0b0;
+    -fx-font-size: 14px;
+}
+
+.tab:hover {
+    -fx-background-color: #333333;
+    -fx-cursor: hand;
+}
+
+.tab-content-area {
+    -fx-background-color: transparent;
+    -fx-padding: 10 0 0 0;
+}

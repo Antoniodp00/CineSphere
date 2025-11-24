@@ -13,6 +13,9 @@ public class UsuarioDAO {
     private static final String SQL_INSERT =
             "INSERT INTO usuario(nombreusuario, email, passw, borndate) VALUES(?, ?, ?, ?)";
 
+    private static final String SQL_UPDATE =
+            "UPDATE usuario SET nombreusuario=?, email=?, passw=?, borndate=? WHERE idusuario=?";
+
     private static final String SQL_FIND_BY_ID =
             "SELECT * FROM usuario WHERE idusuario=?";
 
@@ -37,9 +40,27 @@ public class UsuarioDAO {
             st.setString(3, u.getPassw());
             st.setDate(4, u.getBornDate() != null ? Date.valueOf(u.getBornDate()) : null);
             st.executeUpdate();
-            try (ResultSet keys = st.getGeneratedKeys()) {
-                if (keys.next()) {
-                    u.setIdUsuario(keys.getInt(1));
+            try (ResultSet rs = st.getGeneratedKeys()) {
+                if (rs.next()) {
+                    u.setIdUsuario(rs.getInt(1));
+                }
+            }
+        }
+        return u;
+    }
+
+    public Usuario update(Usuario u) throws SQLException {
+        try (PreparedStatement st = conn.prepareStatement(SQL_UPDATE)) {
+            st.setString(1, u.getNombreUsuario());
+            st.setString(2, u.getEmail());
+            st.setString(3, u.getPassw());
+            st.setDate(4, u.getBornDate() != null ? Date.valueOf(u.getBornDate()) : null);
+            st.setInt(5, u.getIdUsuario());
+            st.executeUpdate();
+
+            try(ResultSet rs = st.getGeneratedKeys()){
+                if(rs.next()){
+                    u.setIdUsuario(rs.getInt(1));
                 }
             }
         }

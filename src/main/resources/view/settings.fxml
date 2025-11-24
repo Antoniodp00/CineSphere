@@ -1,15 +1,105 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.dam2.adp.cinesphere.controller.SettingsController"
-            stylesheets="@../style.css"
-            prefHeight="400.0" prefWidth="600.0">
+<AnchorPane prefHeight="600.0" prefWidth="800.0" stylesheets="@../style.css"
+            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.dam2.adp.cinesphere.controller.SettingsController">
 
+    <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+
+        <padding>
+            <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+        </padding>
+
+        <Label styleClass="page-title" text="Ajustes" />
+
+        <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS" styleClass="settings-tabs">
+
+            <Tab text="Mi Perfil">
+                <AnchorPane minHeight="0.0" minWidth="0.0">
+                    <VBox spacing="20.0" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+
+                        <VBox spacing="15.0" styleClass="card">
+                            <padding>
+                                <Insets top="20" right="20" bottom="20" left="20"/>
+                            </padding>
+
+                            <Label styleClass="section-title" text="Información de la Cuenta" />
+
+                            <GridPane hgap="15" vgap="15">
+                                <columnConstraints>
+                                    <ColumnConstraints minWidth="120" />
+                                    <ColumnConstraints hgrow="ALWAYS" />
+                                </columnConstraints>
+
+                                <Label text="Usuario:" styleClass="text-normal" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtUsuario" disable="true" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                                <Label text="Email:" styleClass="text-normal" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtEmail" promptText="correo@ejemplo.com" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                                <Label text="Nueva Clave:" styleClass="text-normal" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                <PasswordField fx:id="txtPassword" promptText="Dejar vacío para mantener la actual" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                            </GridPane>
+
+                            <HBox alignment="CENTER_RIGHT">
+                                <Button fx:id="btnGuardarPerfil" text="Guardar Cambios" styleClass="accent-button"/>
+                            </HBox>
+                        </VBox>
+
+                        <VBox spacing="10.0" styleClass="card" style="-fx-border-color: #d33f3f; -fx-border-width: 1;">
+                            <padding>
+                                <Insets top="15" right="15" bottom="15" left="15"/>
+                            </padding>
+                            <Label styleClass="section-title" text="Zona de Peligro" textFill="#d33f3f"/>
+                            <Label text="Una vez elimines tu cuenta, no hay vuelta atrás. Por favor, ten cuidado." wrapText="true" styleClass="muted"/>
+                            <Button text="Eliminar Cuenta" styleClass="danger-button"/>
+                        </VBox>
+
+                    </VBox>
+                </AnchorPane>
+            </Tab>
+
+            <Tab text="Importación de Datos">
+                <AnchorPane minHeight="0.0" minWidth="0.0">
+                    <VBox spacing="20.0" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+
+                        <VBox spacing="15.0" styleClass="card">
+                            <padding>
+                                <Insets top="20" right="20" bottom="20" left="20"/>
+                            </padding>
+
+                            <Label styleClass="section-title" text="Cargar desde archivo" />
+                            <Label styleClass="text-normal" text="Importa películas desde un archivo CSV local (.csv) a tu base de datos." wrapText="true"/>
+
+                            <HBox spacing="15.0" alignment="CENTER_LEFT">
+                                <Button fx:id="btnImportarLocal" text="Buscar archivo CSV..." />
+                                <Label text="No se ha seleccionado archivo" fx:id="lblEstadoLocal" styleClass="muted"/>
+                            </HBox>
+                        </VBox>
+
+                        <VBox spacing="15.0" styleClass="card">
+                            <padding>
+                                <Insets top="20" right="20" bottom="20" left="20"/>
+                            </padding>
+
+                            <Label styleClass="section-title" text="Datasets de Ejemplo" />
+                            <Label styleClass="text-normal" text="Si no tienes un archivo, puedes cargar uno de nuestros catálogos predeterminados." wrapText="true"/>
+
+                            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                                <ComboBox fx:id="cbPredeterminados" promptText="Seleccionar catálogo..." prefWidth="250.0" />
+                                <Button fx:id="btnCargarPredeterminado" text="Cargar Dataset" styleClass="accent-button" />
+                            </HBox>
+                        </VBox>
+
+                    </VBox>
+                </AnchorPane>
+            </Tab>
+
+        </TabPane>
+    </VBox>
 </AnchorPane>
