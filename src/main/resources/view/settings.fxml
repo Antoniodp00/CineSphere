@@ -37,7 +37,7 @@
                                 </columnConstraints>
 
                                 <Label text="Usuario:" styleClass="text-normal" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                                <TextField fx:id="txtUsuario" disable="flase" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                <TextField fx:id="txtUsuario" disable="true" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
                                 <Label text="Email:" styleClass="text-normal" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                                 <TextField fx:id="txtEmail" promptText="correo@ejemplo.com" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
@@ -64,7 +64,7 @@
                 </AnchorPane>
             </Tab>
 
-            <Tab text="Importación de Datos">
+            <Tab fx:id="tabImportacion" text="Importación de Datos">
                 <AnchorPane minHeight="0.0" minWidth="0.0">
                     <VBox spacing="20.0" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
 
@@ -78,6 +78,8 @@
 
                             <HBox spacing="15.0" alignment="CENTER_LEFT">
                                 <Button fx:id="btnImportarLocal" text="Buscar archivo CSV..." />
+                                <Button fx:id="btnDescargarPlantilla" text="Descargar Plantilla" />
+
                                 <Label text="No se ha seleccionado archivo" fx:id="lblEstadoLocal" styleClass="muted"/>
                             </HBox>
                         </VBox>

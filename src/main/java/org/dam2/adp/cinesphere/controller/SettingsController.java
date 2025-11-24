@@ -10,8 +10,11 @@ import javafx.stage.FileChooser;
 import org.dam2.adp.cinesphere.DAO.UsuarioDAO;
 import org.dam2.adp.cinesphere.util.AlertUtils;
 import org.dam2.adp.cinesphere.util.CsvImporter;
+import org.dam2.adp.cinesphere.util.Navigation;
 import org.dam2.adp.cinesphere.util.SessionManager;
 import org.dam2.adp.cinesphere.model.Usuario;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 
 import java.awt.*;
 import java.io.File;
@@ -23,7 +26,11 @@ import java.sql.SQLException;
  */
 public class SettingsController {
 
-    @FXML private Button btnEliminarCuenta;
+    @FXML private Button btnDescargarPlantilla;
+    @FXML private TabPane tabPane;
+    @FXML private Tab tabImportacion;
+    @FXML
+    private Button btnEliminarCuenta;
     @FXML
     private TextField txtUsuario;
     @FXML
@@ -50,9 +57,26 @@ public class SettingsController {
 
         // Eventos Usuario
         btnGuardarPerfil.setOnAction(e -> guardarPerfil());
-
+        btnEliminarCuenta.setOnAction(e -> eliminarUsuario());
         // Eventos Importación
         configurarImportacion();
+
+        gestionarPermisos();
+    }
+
+    /**
+     * Comprueba si el usuario tiene rol de ADMIN.
+     * Si no lo es, elimina la pestaña de importación de la vista.
+     */
+    private void gestionarPermisos() {
+        Usuario u = SessionManager.getInstance().getUsuarioActual();
+
+        // Si el usuario no existe o NO es administrador
+        if (u != null && !u.isAdmin()) {
+            // Eliminamos la pestaña del panel.
+            // Es mejor eliminarla que deshabilitarla para que no la vean.
+            tabPane.getTabs().remove(tabImportacion);
+        }
     }
 
     private void cargarDatosUsuario() {
@@ -80,6 +104,21 @@ public class SettingsController {
         }
         AlertUtils.info("Perfil actualizado correctamente");
         txtPassword.clear();
+    }
+
+    private void eliminarUsuario() {
+        Usuario u = SessionManager.getInstance().getUsuarioActual();
+        try {
+            if (usuarioDAO.delete(u)) {
+                AlertUtils.info("Usuario eliminado correctamente");
+                SessionManager.getInstance().cerrarSesion();
+                Navigation.navigate("login.fxml");
+            } else {
+                AlertUtils.error("Error al eliminar usuario");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void configurarImportacion() {

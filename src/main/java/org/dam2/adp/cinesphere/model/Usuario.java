@@ -13,6 +13,7 @@ public class Usuario {
     private String email;
     private String passw;
     private LocalDate bornDate;
+    private Rol rol;
 
     // RELACIÓN EAGER opcional
     private List<MiLista> misPeliculas;
@@ -42,7 +43,7 @@ public class Usuario {
      * @param misPeliculas la lista de películas del usuario.
      */
     public Usuario(int idUsuario, String nombreUsuario, String email, String passw,
-                   LocalDate bornDate, List<MiLista> misPeliculas) {
+                   LocalDate bornDate, List<MiLista> misPeliculas, Rol rol) {
 
         this.idUsuario = idUsuario;
         this.nombreUsuario = nombreUsuario;
@@ -50,6 +51,7 @@ public class Usuario {
         this.passw = passw;
         this.bornDate = bornDate;
         this.misPeliculas = misPeliculas;
+        this.rol = rol;
     }
 
     // getters + setters
@@ -114,10 +116,19 @@ public class Usuario {
      */
     public void setBornDate(LocalDate bornDate) { this.bornDate = bornDate; }
 
+    public Rol getRol() {
+        return rol;
+    }
+
+    public void setRol(Rol rol) {
+        this.rol = rol;
+    }
+
     /**
      * Obtiene la lista de películas del usuario.
      * @return la lista de películas del usuario.
      */
+
     public List<MiLista> getMisPeliculas() { return misPeliculas; }
 
     /**
@@ -133,5 +144,13 @@ public class Usuario {
     @Override
     public String toString() {
         return nombreUsuario;
+    }
+
+    public boolean isAdmin() {
+        // Si usas Enum:
+        return this.rol == Rol.ADMIN;
+
+        // O si sigues usando String temporalmente:
+        // return "ADMIN".equalsIgnoreCase(this.rol);
     }
 }

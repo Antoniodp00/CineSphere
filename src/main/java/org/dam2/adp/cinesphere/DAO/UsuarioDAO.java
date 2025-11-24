@@ -1,6 +1,7 @@
 package org.dam2.adp.cinesphere.DAO;
 
 import org.dam2.adp.cinesphere.database.Conexion;
+import org.dam2.adp.cinesphere.model.Rol;
 import org.dam2.adp.cinesphere.model.Usuario;
 
 import java.sql.*;
@@ -11,10 +12,13 @@ import java.sql.*;
 public class UsuarioDAO {
 
     private static final String SQL_INSERT =
-            "INSERT INTO usuario(nombreusuario, email, passw, borndate) VALUES(?, ?, ?, ?)";
+            "INSERT INTO usuario(nombreusuario, email, passw, borndate, rol) VALUES(?, ?, ?, ?, ?)";
 
     private static final String SQL_UPDATE =
-            "UPDATE usuario SET nombreusuario=?, email=?, passw=?, borndate=? WHERE idusuario=?";
+            "UPDATE usuario SET nombreusuario=?, email=?, passw=?, borndate=?, rol=? WHERE idusuario=?";
+
+    private static final String SQL_DELETE =
+            "DELETE FROM usuario WHERE idusuario=?";
 
     private static final String SQL_FIND_BY_ID =
             "SELECT * FROM usuario WHERE idusuario=?";
@@ -39,10 +43,11 @@ public class UsuarioDAO {
             st.setString(2, u.getEmail());
             st.setString(3, u.getPassw());
             st.setDate(4, u.getBornDate() != null ? Date.valueOf(u.getBornDate()) : null);
+            st.setString(5, u.getRol().name());
             st.executeUpdate();
-            try (ResultSet rs = st.getGeneratedKeys()) {
-                if (rs.next()) {
-                    u.setIdUsuario(rs.getInt(1));
+            try (ResultSet keys = st.getGeneratedKeys()) {
+                if (keys.next()) {
+                    u.setIdUsuario(keys.getInt(1));
                 }
             }
         }
@@ -55,16 +60,21 @@ public class UsuarioDAO {
             st.setString(2, u.getEmail());
             st.setString(3, u.getPassw());
             st.setDate(4, u.getBornDate() != null ? Date.valueOf(u.getBornDate()) : null);
-            st.setInt(5, u.getIdUsuario());
+            st.setString(5, u.getRol().name());
+            st.setInt(6, u.getIdUsuario());
             st.executeUpdate();
-
-            try(ResultSet rs = st.getGeneratedKeys()){
-                if(rs.next()){
-                    u.setIdUsuario(rs.getInt(1));
-                }
-            }
         }
         return u;
+    }
+
+    public Boolean delete(Usuario u) throws SQLException {
+        boolean eliminado = false;
+        try (PreparedStatement st = conn.prepareStatement(SQL_DELETE)) {
+            st.setInt(1, u.getIdUsuario());
+            st.executeUpdate();
+            eliminado = true;
+        }
+        return eliminado;
     }
 
     /**
@@ -84,7 +94,8 @@ public class UsuarioDAO {
                             rs.getString("email"),
                             rs.getString("passw"),
                             rs.getDate("borndate") != null ? rs.getDate("borndate").toLocalDate() : null,
-                            null
+                            null,
+                            Rol.fromString(rs.getString("rol"))
                     );
                 }
             }
@@ -109,7 +120,8 @@ public class UsuarioDAO {
                             rs.getString("email"),
                             rs.getString("passw"),
                             rs.getDate("borndate") != null ? rs.getDate("borndate").toLocalDate() : null,
-                            null
+                            null,
+                            Rol.fromString(rs.getString("rol"))
                     );
                 }
             }
@@ -134,7 +146,8 @@ public class UsuarioDAO {
                             rs.getString("email"),
                             rs.getString("passw"),
                             rs.getDate("borndate") != null ? rs.getDate("borndate").toLocalDate() : null,
-                            null
+                            null,
+                            Rol.fromString(rs.getString("rol"))
                     );
                 }
             }
