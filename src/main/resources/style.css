@@ -97,7 +97,7 @@
 /*******************************************
  *  TEXTFIELD & PASSWORD FIELD
  *******************************************/
-.text-field, .password-field {
+.text-field, .password-field, .text-area {
     -fx-background-color: #262626;
     -fx-text-fill: #f0f0f0;
     -fx-prompt-text-fill: #cccccc;
@@ -455,4 +455,95 @@
 .tab-content-area {
     -fx-background-color: transparent;
     -fx-padding: 10 0 0 0;
+}
+
+/*******************************************
+ * TEXTAREA
+ *******************************************/
+.text-area {
+    -fx-background-color: #262626; /* Mismo fondo gris oscuro */
+    -fx-text-fill: #f0f0f0;        /* Texto blanco */
+    -fx-prompt-text-fill: #cccccc;
+    -fx-background-radius: 4;
+    -fx-border-color: #333333;     /* Borde sutil */
+    -fx-border-radius: 4;
+}
+
+/* Importante: El área de contenido interna del TextArea */
+.text-area .content {
+    -fx-background-color: #262626;
+}
+
+/* Estado Foco (cuando escribes) */
+.text-area:focused {
+    -fx-border-color: #3fa9f5; /* Tu azul de acento */
+}
+
+/*******************************************
+ * TABLEVIEW Y CABECERAS (Modo Oscuro)
+ *******************************************/
+
+/* 1. Contenedor principal de la tabla */
+.table-view {
+    -fx-background-color: #262626;     /* Fondo general */
+    -fx-table-cell-border-color: transparent; /* Quitar líneas verticales por defecto */
+    -fx-border-color: #333333;         /* Borde exterior */
+    -fx-border-width: 1;
+}
+
+/* 2. Fondo de la fila de cabeceras (track completo) */
+.table-view .column-header-background {
+    -fx-background-color: #1f1f1f;     /* Gris más oscuro para diferenciar */
+    -fx-border-color: transparent transparent #3fa9f5 transparent; /* Línea azul abajo */
+    -fx-border-width: 0 0 2 0;         /* Grosor de la línea separadora */
+}
+
+/* 3. Relleno del espacio vacío a la derecha de las columnas */
+.table-view .filler {
+    -fx-background-color: #1f1f1f;
+    -fx-border-color: transparent transparent #3fa9f5 transparent;
+    -fx-border-width: 0 0 2 0;
+}
+
+/* 4. Cada celda de cabecera individual */
+.table-view .column-header {
+    -fx-background-color: transparent; /* Hereda del background */
+    -fx-border-color: transparent #333333 transparent transparent; /* Separador vertical sutil */
+    -fx-border-width: 0 1 0 0;
+    -fx-padding: 10 5;                 /* Espaciado interno */
+}
+
+/* 5. Texto dentro de la cabecera */
+.table-view .column-header .label {
+    -fx-text-fill: #ffffff;            /* Texto blanco brillante */
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* 6. Filas de datos (Cuerpo) */
+.table-row-cell {
+    -fx-background-color: #262626;
+    -fx-border-color: transparent transparent #333333 transparent; /* Línea separadora entre filas */
+    -fx-border-width: 0 0 1 0;
+}
+
+/* Texto de las celdas de datos */
+.table-cell {
+    -fx-text-fill: #e0e0e0;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 5 10;
+}
+
+/* Efectos: Hover y Selección */
+.table-row-cell:hover {
+    -fx-background-color: #333333;     /* Ligeramente más claro al pasar el ratón */
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #3fa9f5;     /* Azul al seleccionar */
+    -fx-background-insets: 0;
+}
+
+.table-row-cell:selected .table-cell {
+    -fx-text-fill: black;              /* Texto negro para contraste con el azul */
 }
