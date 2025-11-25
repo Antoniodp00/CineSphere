@@ -39,7 +39,7 @@ public class Main extends Application {
         UsuarioDAO usuarioDAO = new UsuarioDAO();
 
         try {
-            // Buscamos si ya existe un usuario llamado "admin"
+
             Usuario adminExistente = usuarioDAO.findByName("admin");
 
             if (adminExistente == null) {
@@ -47,15 +47,14 @@ public class Main extends Application {
 
                 Usuario admin = new Usuario();
                 admin.setNombreUsuario("admin");
-                admin.setEmail("admin@cinesphere.com"); // Email dummy
+                admin.setEmail("admin@cinesphere.com");
 
-                // IMPORTANTE: Hashear la contraseña, igual que en el registro
+
                 String passHasheada = BCrypt.hashpw("admin", BCrypt.gensalt());
                 admin.setPassw(passHasheada);
 
                 admin.setBornDate(LocalDate.now());
 
-                // Asignamos el ROL DE ADMINISTRADOR
                 admin.setRol(Rol.ADMIN);
 
                 usuarioDAO.insert(admin);
