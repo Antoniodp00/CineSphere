@@ -275,4 +275,93 @@ public class MiListaDAO {
         }
         return mapa;
     }
+
+    public int countPeliculas(int idUsuario, Integer year, Double ratingMin, Integer idGenero, String searchQuery) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
+        StringBuilder sql = new StringBuilder("SELECT COUNT(DISTINCT p.idpelicula) FROM pelicula p JOIN milista ml ON p.idpelicula = ml.idpelicula ");
+        if (idGenero != null) {
+            sql.append("LEFT JOIN peliculagenero pg ON p.idpelicula = pg.idpelicula ");
+        }
+        sql.append("WHERE ml.idusuario = ? ");
+
+        List<Object> params = new ArrayList<>();
+        params.add(idUsuario);
+
+        if (year != null) {
+            sql.append("AND p.yearpelicula = ? ");
+            params.add(year);
+        }
+        if (ratingMin != null) {
+            sql.append("AND p.ratingpelicula >= ? ");
+            params.add(ratingMin);
+        }
+        if (idGenero != null) {
+            sql.append("AND pg.idgenero = ? ");
+            params.add(idGenero);
+        }
+        if (searchQuery != null && !searchQuery.isBlank()) {
+            sql.append("AND p.titulopelicula ILIKE ? ");
+            params.add("%" + searchQuery + "%");
+        }
+
+        try (PreparedStatement st = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                st.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+
+    public List<Pelicula> findFiltered(int idUsuario, Integer year, Double ratingMin, Integer idGenero, String searchQuery, int page, int pageSize) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
+        List<Pelicula> lista = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT DISTINCT p.* FROM pelicula p JOIN milista ml ON p.idpelicula = ml.idpelicula ");
+        if (idGenero != null) {
+            sql.append("LEFT JOIN peliculagenero pg ON p.idpelicula = pg.idpelicula ");
+        }
+        sql.append("WHERE ml.idusuario = ? ");
+
+        List<Object> params = new ArrayList<>();
+        params.add(idUsuario);
+
+        if (year != null) {
+            sql.append("AND p.yearpelicula = ? ");
+            params.add(year);
+        }
+        if (ratingMin != null) {
+            sql.append("AND p.ratingpelicula >= ? ");
+            params.add(ratingMin);
+        }
+        if (idGenero != null) {
+            sql.append("AND pg.idgenero = ? ");
+            params.add(idGenero);
+        }
+        if (searchQuery != null && !searchQuery.isBlank()) {
+            sql.append("AND p.titulopelicula ILIKE ? ");
+            params.add("%" + searchQuery + "%");
+        }
+
+        sql.append("ORDER BY p.idpelicula LIMIT ? OFFSET ?");
+        params.add(pageSize);
+        params.add((page - 1) * pageSize);
+
+        try (PreparedStatement st = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                st.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Pelicula p = peliculaDAO.mapeoPelicula(rs);
+                    lista.add(p);
+                }
+            }
+        }
+        peliculaDAO.cargarGenerosEnLote(lista);
+        return lista;
+    }
 }

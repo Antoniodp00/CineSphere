@@ -6,26 +6,25 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import org.dam2.adp.cinesphere.DAO.MiListaDAO;
-import org.dam2.adp.cinesphere.DAO.PeliculaGeneroDAO;
 import org.dam2.adp.cinesphere.DAO.GeneroDAO;
 import org.dam2.adp.cinesphere.model.Genero;
 import org.dam2.adp.cinesphere.model.Pelicula;
 import org.dam2.adp.cinesphere.model.Usuario;
 import org.dam2.adp.cinesphere.util.Navigation;
 import org.dam2.adp.cinesphere.util.SessionManager;
+import org.dam2.adp.cinesphere.util.Utils;
 
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import static org.dam2.adp.cinesphere.util.Utils.obtenerRutaImagenPorGenero;
 
 /**
  * Controlador para la vista "Mi Lista", que muestra las películas guardadas por el usuario.
@@ -60,19 +59,13 @@ public class MiListaController {
     private Label lblPage;
 
     private final MiListaDAO miListaDAO = new MiListaDAO();
-    private final PeliculaGeneroDAO peliculaGeneroDAO = new PeliculaGeneroDAO();
     private final GeneroDAO generoDAO = new GeneroDAO();
     private Usuario usuario;
 
-
-    private List<Pelicula> cacheMisPeliculas;
-
-
     private Integer filtroYear = null;
     private Double filtroRating = null;
-    private String filtroGeneroNombre = null;
+    private Integer filtroGeneroId = null;
     private String filtroBusqueda = null;
-
 
     private int page = 1;
     private int pageSize = 18; // Default
@@ -94,14 +87,12 @@ public class MiListaController {
             return;
         }
 
-        // Listener para hacer el layout responsive
         scroll.widthProperty().addListener((obs, oldVal, newVal) -> {
             ajustarPageSize(newVal.doubleValue());
             actualizarTotalPaginas();
             cargarPagina(page);
         });
 
-        // Combos Year y Rating
         for (int y = 2024; y >= 1950; y--) cbYear.getItems().add(y);
         cbRating.getItems().addAll(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
         try {
@@ -110,115 +101,52 @@ public class MiListaController {
             logger.log(Level.SEVERE, "Error al cargar géneros para el ComboBox", e);
         }
 
-        // Eventos
         btnFiltrar.setOnAction(e -> aplicarFiltros());
         btnLimpiar.setOnAction(e -> limpiarFiltros());
         btnBuscar.setOnAction(e -> buscar(txtBuscar.getText()));
 
-        btnFirst.setOnAction(e -> {
-            if (page > 1) {
-                page = 1;
-                cargarPagina(page);
-            }
-        });
-        btnPrev.setOnAction(e -> {
-            if (page > 1) {
-                page--;
-                cargarPagina(page);
-            }
-        });
-        btnNext.setOnAction(e -> {
-            if (page < totalPages) {
-                page++;
-                cargarPagina(page);
-            }
-        });
-        btnLast.setOnAction(e -> {
-            if (page < totalPages) {
-                page = totalPages;
-                cargarPagina(page);
-            }
-        });
+        btnFirst.setOnAction(e -> cambiarPagina(1));
+        btnPrev.setOnAction(e -> cambiarPagina(page - 1));
+        btnNext.setOnAction(e -> cambiarPagina(page + 1));
+        btnLast.setOnAction(e -> cambiarPagina(totalPages));
 
-        recargarCacheDesdeDAO();
         ajustarPageSize(scroll.getWidth());
         actualizarTotalPaginas();
         cargarPagina(1);
         logger.log(Level.INFO, "MiListaController inicializado correctamente.");
     }
 
+    private void cambiarPagina(int nuevaPagina) {
+        if (nuevaPagina >= 1 && nuevaPagina <= totalPages) {
+            page = nuevaPagina;
+            cargarPagina(page);
+        }
+    }
+
     private void ajustarPageSize(double scrollWidth) {
         if (scrollWidth <= 0) {
-            pageSize = 1; // Valor mínimo
+            pageSize = 1;
             return;
         }
-        // Ancho de una tarjeta (170) + gap horizontal (20)
         int cardWidth = 190;
         int numColumns = (int) Math.floor(scrollWidth / cardWidth);
         if (numColumns == 0) numColumns = 1;
-
-        // Intentar llenar al menos 3 filas
         pageSize = numColumns * 3;
         logger.log(Level.INFO, "Ajustando pageSize a " + pageSize + " para un ancho de " + scrollWidth);
     }
 
-    /**
-     * Recarga la caché de películas del usuario desde la base de datos.
-     */
-    private void recargarCacheDesdeDAO() {
-        logger.log(Level.INFO, "Recargando caché de películas del usuario desde la base de datos...");
-        try {
-            cacheMisPeliculas = miListaDAO.findPeliculasByUsuario(usuario.getIdUsuario());
-            logger.log(Level.INFO, "Caché recargada con " + cacheMisPeliculas.size() + " películas.");
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error al recargar la caché de películas del usuario", e);
-        }
-        if (cacheMisPeliculas == null) {
-            cacheMisPeliculas = List.of();
-        }
-    }
-
-    /**
-     * Aplica los filtros seleccionados a la lista de películas en memoria.
-     * @return una lista de películas que coinciden con los criterios de filtrado.
-     */
-    private List<Pelicula> aplicarFiltrosEnMemoria() {
-        logger.log(Level.INFO, "Aplicando filtros en memoria...");
-        return cacheMisPeliculas.stream()
-                .filter(p -> filtroYear == null || Objects.equals(p.getYearPelicula(), filtroYear))
-                .filter(p -> filtroRating == null || (p.getRatingPelicula() != null && p.getRatingPelicula() >= filtroRating))
-                .filter(p -> {
-                    if (filtroGeneroNombre == null || filtroGeneroNombre.isBlank()) return true;
-                    try {
-                        return peliculaGeneroDAO.findByPelicula(p.getIdPelicula())
-                                .stream()
-                                .anyMatch(g -> filtroGeneroNombre.equalsIgnoreCase(g.getNombreGenero()));
-                    } catch (Exception ex) {
-                        logger.log(Level.WARNING, "Error al filtrar por género para la película ID " + p.getIdPelicula(), ex);
-                        return true;
-                    }
-                })
-                .filter(p -> {
-                    if (filtroBusqueda == null || filtroBusqueda.isBlank()) return true;
-                    return p.getTituloPelicula() != null && p.getTituloPelicula().toLowerCase().contains(filtroBusqueda.toLowerCase());
-                })
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Actualiza el número total de páginas basándose en los filtros aplicados.
-     */
     private void actualizarTotalPaginas() {
-        int total = aplicarFiltrosEnMemoria().size();
-        totalPages = (int) Math.ceil((double) total / pageSize);
-        if (totalPages == 0) totalPages = 1;
-        logger.log(Level.INFO, "Total de páginas actualizado a: " + totalPages);
+        try {
+            int total = miListaDAO.countPeliculas(usuario.getIdUsuario(), filtroYear, filtroRating, filtroGeneroId, filtroBusqueda);
+            totalPages = (int) Math.ceil((double) total / pageSize);
+            if (totalPages == 0) totalPages = 1;
+            logger.log(Level.INFO, "Total de páginas actualizado a: " + totalPages);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error al actualizar el total de páginas", e);
+            totalPages = 1;
+        }
     }
 
-    /**
-     * Inicia una búsqueda por título de película.
-     * @param filtro el texto a buscar en los títulos de las películas.
-     */
     private void buscar(String filtro) {
         logger.log(Level.INFO, "Iniciando búsqueda con filtro: '" + filtro + "'");
         this.filtroBusqueda = filtro;
@@ -227,27 +155,15 @@ public class MiListaController {
         cargarPagina(page);
     }
 
-    /**
-     * Carga y muestra una página específica de películas.
-     * @param pagina el número de página a cargar.
-     */
     private void cargarPagina(int pagina) {
         logger.log(Level.INFO, "Cargando página " + pagina + " de " + totalPages);
         try {
             flowPeliculas.getChildren().clear();
+            List<Pelicula> lista = miListaDAO.findFiltered(usuario.getIdUsuario(), filtroYear, filtroRating, filtroGeneroId, filtroBusqueda, pagina, pageSize);
 
-            List<Pelicula> listaFiltrada = aplicarFiltrosEnMemoria();
-
-            int desde = (pagina - 1) * pageSize;
-            int hasta = Math.min(desde + pageSize, listaFiltrada.size());
-            if (desde < 0) desde = 0;
-            if (desde > hasta) desde = hasta;
-
-            List<Pelicula> pageItems = listaFiltrada.subList(desde, hasta);
-            for (Pelicula p : pageItems) {
+            for (Pelicula p : lista) {
                 flowPeliculas.getChildren().add(crearCardPelicula(p));
             }
-
             lblPage.setText(pagina + " / " + totalPages);
 
         } catch (Exception e) {
@@ -255,15 +171,9 @@ public class MiListaController {
         }
     }
 
-    /**
-     * Crea una tarjeta de película (VBox) para mostrar en la lista.
-     * @param p la película para la que se creará la tarjeta.
-     * @return un VBox que representa la tarjeta de la película.
-     */
     private VBox crearCardPelicula(Pelicula p) {
         VBox card = new VBox();
         card.getStyleClass().add("movie-card");
-
         card.setOnMouseClicked(event -> {
             logger.log(Level.INFO, "Click en la película: " + p.getTituloPelicula() + " (ID: " + p.getIdPelicula() + ")");
             SessionManager.getInstance().set("selectedPeliculaId", p.getIdPelicula());
@@ -273,22 +183,13 @@ public class MiListaController {
         String textoGeneros = "Sin género";
         String rutaImagen = "/img/noImage.png";
 
-        try {
-            List<Genero> listaGeneros = peliculaGeneroDAO.findByPelicula(p.getIdPelicula());
-
-            if (listaGeneros != null && !listaGeneros.isEmpty()) {
-                String primerGenero = listaGeneros.get(0).getNombreGenero();
-                rutaImagen = obtenerRutaImagenPorGenero(primerGenero);
-
-                textoGeneros = listaGeneros.stream()
-                        .map(g -> g.getNombreGenero())
-                        .reduce((a, b) -> a + ", " + b)
-                        .orElse("Sin género");
-            }
-        } catch (Exception e) {
-            logger.log(Level.WARNING, "Error al obtener géneros para la película ID " + p.getIdPelicula(), e);
+        if (p.getGeneros() != null && !p.getGeneros().isEmpty()) {
+            textoGeneros = p.getGeneros().stream()
+                    .map(Genero::getNombreGenero)
+                    .limit(2)
+                    .collect(Collectors.joining(", "));
+            rutaImagen = Utils.obtenerRutaImagenPorGenero(p.getGeneros().get(0).getNombreGenero());
         }
-
 
         ImageView img = new ImageView();
         img.setFitWidth(150);
@@ -296,47 +197,55 @@ public class MiListaController {
         img.setPreserveRatio(false);
 
         try {
-            img.setImage(new Image(getClass().getResource(rutaImagen).toExternalForm()));
+            String fullPath = getClass().getResource(rutaImagen).toExternalForm();
+            Image imagenAsync = new Image(fullPath, 0, 0, true, true, true);
+            img.setImage(imagenAsync);
         } catch (Exception e) {
-
             img.setImage(new Image(getClass().getResource("/img/noImage.png").toExternalForm()));
         }
 
         Label lblTitulo = new Label(p.getTituloPelicula());
         lblTitulo.getStyleClass().add("movie-title");
+        lblTitulo.setTooltip(new Tooltip(p.getTituloPelicula()));
 
         Label lblGeneros = new Label(textoGeneros);
         lblGeneros.getStyleClass().add("movie-info");
-        lblGeneros.setWrapText(true);
+        lblGeneros.setWrapText(false);
 
         Label lblYear = new Label(p.getYearPelicula() != null ? p.getYearPelicula().toString() : "—");
         lblYear.getStyleClass().add("movie-info");
 
-        Label lblRating = new Label(
-                p.getRatingPelicula() != null ? "★ " + p.getRatingPelicula() : "★ —"
-        );
+        Label lblRating = new Label(p.getRatingPelicula() != null ? "★ " + p.getRatingPelicula() : "★ —");
         lblRating.getStyleClass().add("movie-rating");
+
+        if (p.getRatingPelicula() != null && p.getRatingPelicula() >= 8.0) {
+            lblRating.setStyle("-fx-text-fill: #f1c40f;");
+        }
 
         card.getChildren().addAll(img, lblTitulo, lblGeneros, lblYear, lblRating);
         return card;
     }
 
-    /**
-     * Aplica los filtros seleccionados en los ComboBox y recarga la vista.
-     */
     private void aplicarFiltros() {
         logger.log(Level.INFO, "Aplicando filtros...");
         filtroYear = cbYear.getValue();
         filtroRating = cbRating.getValue();
-        filtroGeneroNombre = cbGenero.getValue();
+
+        if (cbGenero.getValue() != null) {
+            try {
+                filtroGeneroId = generoDAO.findByName(cbGenero.getValue()).getIdGenero();
+            } catch (Exception e) {
+                logger.log(Level.WARNING, "Error al obtener el ID del género: " + cbGenero.getValue(), e);
+                filtroGeneroId = null;
+            }
+        } else {
+            filtroGeneroId = null;
+        }
         page = 1;
         actualizarTotalPaginas();
         cargarPagina(page);
     }
 
-    /**
-     * Limpia todos los filtros aplicados y recarga la vista.
-     */
     private void limpiarFiltros() {
         logger.log(Level.INFO, "Limpiando filtros...");
         cbYear.setValue(null);
@@ -345,7 +254,7 @@ public class MiListaController {
         txtBuscar.setText("");
         filtroYear = null;
         filtroRating = null;
-        filtroGeneroNombre = null;
+        filtroGeneroId = null;
         filtroBusqueda = null;
         page = 1;
         actualizarTotalPaginas();

@@ -69,25 +69,6 @@ public class CsvImporter {
     }
 
     /**
-     * Importa películas desde un archivo ubicado en los recursos de la aplicación (classpath).
-     * Este método es ideal para cargar datasets de ejemplo predeterminados.
-     *
-     * @param resourcePath La ruta relativa del recurso (ej. "/csv/archivo.csv").
-     * @throws Exception Si el recurso no existe o hay errores de lectura/BD.
-     */
-    public void importarDesdeRecurso(String resourcePath) throws Exception {
-        logger.log(Level.INFO, "Iniciando importación desde el recurso interno: " + resourcePath);
-        InputStream is = getClass().getResourceAsStream(resourcePath);
-        if (is == null) {
-            logger.log(Level.SEVERE, "No se encontró el recurso interno: " + resourcePath);
-            throw new IllegalArgumentException("No se encontró el recurso interno: " + resourcePath);
-        }
-        try (Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
-            importar(reader);
-        }
-    }
-
-    /**
      * Lógica central del proceso de importación. Es agnóstica al origen de los datos.
      * Parsea el contenido, valida la estructura y procesa fila por fila.
      *

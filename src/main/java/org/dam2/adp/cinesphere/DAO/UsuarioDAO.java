@@ -110,15 +110,7 @@ public class UsuarioDAO {
             st.setInt(1, id);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    return new Usuario(
-                            rs.getInt("idusuario"),
-                            rs.getString("nombreusuario"),
-                            rs.getString("email"),
-                            rs.getString("passw"),
-                            rs.getDate("borndate") != null ? rs.getDate("borndate").toLocalDate() : null,
-                            null,
-                            Rol.fromString(rs.getString("rol"))
-                    );
+                    return mapeoUsuario(rs);
                 }
             }
         }
@@ -137,15 +129,7 @@ public class UsuarioDAO {
             st.setString(1, name);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    return new Usuario(
-                            rs.getInt("idusuario"),
-                            rs.getString("nombreusuario"),
-                            rs.getString("email"),
-                            rs.getString("passw"),
-                            rs.getDate("borndate") != null ? rs.getDate("borndate").toLocalDate() : null,
-                            null,
-                            Rol.fromString(rs.getString("rol"))
-                    );
+                    return mapeoUsuario(rs);
                 }
             }
         }
@@ -164,15 +148,7 @@ public class UsuarioDAO {
             st.setString(1, email);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    return new Usuario(
-                            rs.getInt("idusuario"),
-                            rs.getString("nombreusuario"),
-                            rs.getString("email"),
-                            rs.getString("passw"),
-                            rs.getDate("borndate") != null ? rs.getDate("borndate").toLocalDate() : null,
-                            null,
-                            Rol.fromString(rs.getString("rol"))
-                    );
+                    return mapeoUsuario(rs);
                 }
             }
         }
@@ -191,14 +167,7 @@ public class UsuarioDAO {
              ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
 
             while (rs.next()) {
-                Usuario u = new Usuario();
-                u.setIdUsuario(rs.getInt("idusuario"));
-                u.setNombreUsuario(rs.getString("nombreusuario"));
-                u.setEmail(rs.getString("email"));
-                // No necesitamos la contraseña para el listado, por seguridad la dejamos null o vacía
-                u.setBornDate(rs.getDate("borndate") != null ? rs.getDate("borndate").toLocalDate() : null);
-                u.setRol(Rol.fromString(rs.getString("rol"))); // Convierte String DB -> Enum
-                usuarios.add(u);
+                usuarios.add(mapeoUsuario(rs));
             }
         }
         return usuarios;
@@ -219,4 +188,23 @@ public class UsuarioDAO {
         }
     }
 
+    /**
+     * Mapea una fila de un ResultSet a un objeto Usuario.
+     * @param rs el ResultSet del que obtener los datos.
+     * @return un objeto Usuario con los datos de la fila.
+     * @throws SQLException si ocurre un error al acceder a los datos del ResultSet.
+     */
+    private Usuario mapeoUsuario(ResultSet rs) throws SQLException {
+        Usuario u = new Usuario();
+        u.setIdUsuario(rs.getInt("idusuario"));
+        u.setNombreUsuario(rs.getString("nombreusuario"));
+        u.setEmail(rs.getString("email"));
+        u.setPassw(rs.getString("passw"));
+        Date bornDate = rs.getDate("borndate");
+        if (bornDate != null) {
+            u.setBornDate(bornDate.toLocalDate());
+        }
+        u.setRol(Rol.fromString(rs.getString("rol")));
+        return u;
+    }
 }

@@ -49,7 +49,7 @@ public class DirectorDAO {
             st.setInt(1, id);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    return new Director(rs.getInt(1), rs.getString(2));
+                    return mapeoDirector(rs);
                 }
             }
         }
@@ -67,7 +67,7 @@ public class DirectorDAO {
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
             while (rs.next()) {
-                list.add(new Director(rs.getInt(1), rs.getString(2)));
+                list.add(mapeoDirector(rs));
             }
         }
         return list;
@@ -85,10 +85,23 @@ public class DirectorDAO {
             st.setString(1, name);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    return new Director(rs.getInt(1), rs.getString(2));
+                    return mapeoDirector(rs);
                 }
             }
         }
         return null;
+    }
+
+    /**
+     * Mapea una fila de un ResultSet a un objeto Director.
+     * @param rs el ResultSet del que obtener los datos.
+     * @return un objeto Director con los datos de la fila.
+     * @throws SQLException si ocurre un error al acceder a los datos del ResultSet.
+     */
+    private Director mapeoDirector(ResultSet rs) throws SQLException {
+        return new Director(
+                rs.getInt("iddirector"),
+                rs.getString("nombredirector")
+        );
     }
 }

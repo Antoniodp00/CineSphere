@@ -50,7 +50,7 @@ public class GeneroDAO {
             st.setInt(1, id);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    return new Genero(rs.getInt(1), rs.getString(2));
+                    return mapeoGenero(rs);
                 }
             }
         }
@@ -68,7 +68,7 @@ public class GeneroDAO {
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
             while (rs.next()) {
-                list.add(new Genero(rs.getInt(1), rs.getString(2)));
+                list.add(mapeoGenero(rs));
             }
         }
         return list;
@@ -86,10 +86,23 @@ public class GeneroDAO {
             st.setString(1, name);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    return new Genero(rs.getInt(1), rs.getString(2));
+                    return mapeoGenero(rs);
                 }
             }
         }
         return null;
+    }
+
+    /**
+     * Mapea una fila de un ResultSet a un objeto Genero.
+     * @param rs el ResultSet del que obtener los datos.
+     * @return un objeto Genero con los datos de la fila.
+     * @throws SQLException si ocurre un error al acceder a los datos del ResultSet.
+     */
+    private Genero mapeoGenero(ResultSet rs) throws SQLException {
+        return new Genero(
+                rs.getInt("idgenero"),
+                rs.getString("nombregenero")
+        );
     }
 }

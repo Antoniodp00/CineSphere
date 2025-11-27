@@ -4,8 +4,8 @@ import org.dam2.adp.cinesphere.database.Conexion;
 import org.dam2.adp.cinesphere.model.*;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * DAO para la entidad Pelicula.
@@ -38,6 +38,13 @@ public class PeliculaDAO {
             "DELETE FROM pelicula WHERE idpelicula=?";
     private static final String SQL_COUNT =
             "SELECT COUNT(*) FROM pelicula";
+    private static final String SQL_FIND_GENEROS_LOTE = """
+            SELECT pg.idpelicula, g.idgenero, g.nombregenero
+            FROM peliculagenero pg
+            JOIN genero g ON pg.idgenero = g.idgenero
+            WHERE pg.idpelicula IN (%s)
+            """;
+
 
     private PeliculaGeneroDAO peliculaGeneroDAO = new PeliculaGeneroDAO();
     private PeliculaActorDAO peliculaActorDAO = new PeliculaActorDAO();
@@ -197,17 +204,13 @@ public class PeliculaDAO {
             st.setInt(2, offset);
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
-                    Pelicula p = new Pelicula();
-                    p.setIdPelicula(rs.getInt(1));
-                    p.setTituloPelicula(rs.getString(2));
-                    p.setYearPelicula(rs.getObject(3, Integer.class));
-                    p.setRatingPelicula(rs.getDouble(4));
-                    p.setDuracionPelicula(rs.getObject(5, Integer.class));
-                    p.setNombreClasificacion(rs.getString(6));
+                    Pelicula p = mapeoPelicula(rs); // Extraemos el mapeo a un método helper
                     lista.add(p);
                 }
             }
         }
+        cargarGenerosEnLote(lista);
+
         return lista;
     }
 
@@ -308,6 +311,58 @@ public class PeliculaDAO {
                 }
             }
         }
+        cargarGenerosEnLote(lista);
         return lista;
+    }
+
+    void cargarGenerosEnLote(List<Pelicula> peliculas) {
+        if (peliculas.isEmpty()) return;
+
+        Map<Integer, Pelicula> peliculasPorId = peliculas.stream()
+                .collect(Collectors.toMap(Pelicula::getIdPelicula, p -> p));
+
+        List<Integer> ids = new ArrayList<>(peliculasPorId.keySet());
+
+        String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
+        String sqlFinal = String.format(SQL_FIND_GENEROS_LOTE, placeholders);
+
+        try {
+            Connection conn = Conexion.getInstance().getConnection(); // Corrected: No try-with-resources here
+            try (PreparedStatement ps = conn.prepareStatement(sqlFinal)) {
+
+                for (int i = 0; i < ids.size(); i++) {
+                    ps.setInt(i + 1, ids.get(i));
+                }
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        int idPelicula = rs.getInt("idpelicula");
+                        Pelicula pelicula = peliculasPorId.get(idPelicula);
+
+                        if (pelicula != null) {
+                            if (pelicula.getGeneros() == null) {
+                                pelicula.setGeneros(new ArrayList<>());
+                            }
+                            Genero genero = new Genero();
+                            genero.setIdGenero(rs.getInt("idgenero"));
+                            genero.setNombreGenero(rs.getString("nombregenero"));
+                            pelicula.getGeneros().add(genero);
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    Pelicula mapeoPelicula(ResultSet rs) throws SQLException {
+        Pelicula p = new Pelicula();
+        p.setIdPelicula(rs.getInt("idpelicula")); // Usa nombres de columna, es más seguro que índices
+        p.setTituloPelicula(rs.getString("titulopelicula"));
+        p.setYearPelicula(rs.getObject("yearpelicula", Integer.class));
+        p.setRatingPelicula(rs.getDouble("ratingpelicula"));
+        p.setDuracionPelicula(rs.getObject("duracionpelicula", Integer.class));
+        p.setNombreClasificacion(rs.getString("nombreclasificacion"));
+        return p;
     }
 }
