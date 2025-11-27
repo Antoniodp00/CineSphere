@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Gestiona la conexión a la base de datos.
@@ -14,6 +17,7 @@ public class Conexion {
 
     private static Conexion instance;
     private Connection connection;
+    private static final Logger logger = Logger.getLogger(Conexion.class.getName());
 
     private Conexion() {
     }
@@ -25,6 +29,7 @@ public class Conexion {
     public static Conexion getInstance() {
         if (instance == null) {
             instance = new Conexion();
+            logger.log(Level.INFO, "Instancia de Conexion creada.");
         }
         return instance;
     }
@@ -35,11 +40,13 @@ public class Conexion {
      */
     public void connect(String configFile) {
         if (connection != null) {
+            logger.log(Level.INFO, "La conexión a la base de datos ya existe. No se creará una nueva.");
             return;
         }
         try {
             InputStream is = getClass().getResourceAsStream("/config/" + configFile);
             if (is == null) {
+                logger.log(Level.SEVERE, "No se encontró el archivo de configuración: " + configFile);
                 throw new RuntimeException("Configuration file not found: " + configFile);
             }
 
@@ -55,12 +62,13 @@ public class Conexion {
 
             // --- LÓGICA ESPECÍFICA PARA SQLITE ---
             if (url.startsWith("jdbc:sqlite")) {
-
+                logger.log(Level.INFO, "Detectada base de datos SQLite.");
                 // Asegurar que la carpeta existe para evitar error de "path not found"
                 // Asumiendo url tipo "jdbc:sqlite:database/archivo.db"
                 File dbDir = new File("database");
                 if (!dbDir.exists()) {
                     dbDir.mkdirs();
+                    logger.log(Level.INFO, "Directorio de base de datos creado en: " + dbDir.getAbsolutePath());
                 }
 
                 connection = DriverManager.getConnection(url);
@@ -68,17 +76,19 @@ public class Conexion {
                 // Activar Foreign Keys en SQLite (por defecto están OFF)
                 try (Statement st = connection.createStatement()) {
                     st.execute("PRAGMA foreign_keys = ON");
+                    logger.log(Level.INFO, "PRAGMA foreign_keys = ON ejecutado para SQLite.");
                 }
 
             } else {
                 // Lógica PostgreSQL (o MySQL)
+                logger.log(Level.INFO, "Conectando a base de datos SQL estándar.");
                 connection = DriverManager.getConnection(url, user, password);
             }
 
-            System.out.println("Connected to the database: " + url);
+            logger.log(Level.INFO, "Conectado a la base de datos: " + url);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error al conectar a la base de datos", e);
             throw new RuntimeException("Error connecting to the database", e);
         }
     }
@@ -89,6 +99,7 @@ public class Conexion {
      */
     public Connection getConnection() {
         if (connection == null) {
+            logger.log(Level.SEVERE, "La base de datos no está conectada. Se debe llamar a connect() primero.");
             throw new IllegalStateException("Database is not connected. Call connect() first.");
         }
         return connection;
@@ -101,11 +112,11 @@ public class Conexion {
         try {
             if (connection != null && !connection.isClosed()) {
                 connection.close();
-                System.out.println("Conexión a la base de datos cerrada.");
+                logger.log(Level.INFO, "Conexión a la base de datos cerrada.");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }finally {
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error al cerrar la conexión a la base de datos", e);
+        } finally {
             connection = null;
         }
     }
@@ -118,7 +129,8 @@ public class Conexion {
     public boolean isSQLite() {
         try {
             return connection != null && connection.getMetaData().getURL().startsWith("jdbc:sqlite");
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            logger.log(Level.WARNING, "No se pudo determinar si la base de datos es SQLite.", e);
             return false;
         }
     }

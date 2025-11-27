@@ -1,5 +1,8 @@
 package org.dam2.adp.cinesphere.model;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Define los estados posibles de una Película en la lista personal del Usuario.
  * Mapea a VARCHAR(50) en la tabla MiLista.
@@ -11,6 +14,7 @@ public enum PeliculaEstado {
     ABANDONADA("Abandonada");
 
     private final String displayValue;
+    private static final Logger logger = Logger.getLogger(PeliculaEstado.class.getName());
 
     /**
      * Constructor del enum.
@@ -35,12 +39,16 @@ public enum PeliculaEstado {
      * @throws IllegalArgumentException si la cadena no corresponde a ningún estado.
      */
     public static PeliculaEstado fromString(String text) {
-        if (text == null) return null;
+        if (text == null) {
+            logger.log(Level.FINER, "Valor de estado nulo, se devuelve null.");
+            return null;
+        }
         for (PeliculaEstado estado : PeliculaEstado.values()) {
             if (estado.displayValue.equalsIgnoreCase(text)) {
                 return estado;
             }
         }
+        logger.log(Level.SEVERE, "No hay constante de PeliculaEstado con el valor: " + text);
         throw new IllegalArgumentException("No hay constante con el valor: " + text);
     }
 }

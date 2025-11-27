@@ -14,6 +14,8 @@ import org.dam2.adp.cinesphere.util.SessionManager;
 
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Controlador para la vista de estadísticas, que muestra datos sobre la actividad del usuario.
@@ -28,14 +30,17 @@ public class EstadisticasController {
     @FXML private BarChart<String, Number> barGeneros;
 
     private final MiListaDAO miListaDAO = new MiListaDAO();
+    private static final Logger logger = Logger.getLogger(EstadisticasController.class.getName());
 
     /**
      * Inicializa el controlador, cargando las estadísticas del usuario actual.
      */
     @FXML
     private void initialize() {
+        logger.log(Level.INFO, "Inicializando EstadisticasController...");
         Usuario usuario = SessionManager.getInstance().getUsuarioActual();
         if (usuario == null) {
+            logger.log(Level.WARNING, "No hay usuario en sesión. Mostrando estadísticas vacías.");
             // No hay usuario en sesión, evita NPE y muestra ceros
             setKPIs(0, 0, 0);
             pieEstados.setData(FXCollections.observableArrayList());
@@ -44,13 +49,15 @@ public class EstadisticasController {
         }
 
         int idUsuario = usuario.getIdUsuario();
+        logger.log(Level.INFO, "Cargando estadísticas para el usuario ID: " + idUsuario);
 
         try {
             cargarKPIs(idUsuario);
             cargarPieEstados(idUsuario);
             cargarBarGeneros(idUsuario);
+            logger.log(Level.INFO, "Estadísticas cargadas correctamente.");
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error al cargar las estadísticas", e);
         }
     }
 
@@ -60,10 +67,12 @@ public class EstadisticasController {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     private void cargarKPIs(int idUsuario) throws SQLException {
+        logger.log(Level.INFO, "Cargando KPIs...");
         int total = miListaDAO.countGuardadas(idUsuario);
         int vistas = miListaDAO.countByEstado(idUsuario, PeliculaEstado.TERMINADA);
         int minutosVistos = miListaDAO.sumDuracionTerminadas(idUsuario);
         setKPIs(total, vistas, minutosVistos);
+        logger.log(Level.INFO, "KPIs cargados: Total=" + total + ", Vistas=" + vistas + ", Minutos=" + minutosVistos);
     }
 
     /**
@@ -95,6 +104,7 @@ public class EstadisticasController {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     private void cargarPieEstados(int idUsuario) throws SQLException {
+        logger.log(Level.INFO, "Cargando gráfico de estados...");
         Map<PeliculaEstado, Integer> mapa = miListaDAO.getEstadisticasEstados(idUsuario);
         ObservableList<PieChart.Data> datos = FXCollections.observableArrayList();
         int suma = 0;
@@ -107,6 +117,7 @@ public class EstadisticasController {
         pieEstados.setLabelsVisible(true);
         pieEstados.setLegendVisible(true);
         pieEstados.setTitle("Estados (" + suma + ")");
+        logger.log(Level.INFO, "Gráfico de estados cargado con " + datos.size() + " secciones.");
     }
 
     /**
@@ -115,6 +126,7 @@ public class EstadisticasController {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     private void cargarBarGeneros(int idUsuario) throws SQLException {
+        logger.log(Level.INFO, "Cargando gráfico de géneros...");
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName("Cantidad por género");
 
@@ -126,5 +138,6 @@ public class EstadisticasController {
         barGeneros.getData().add(series);
         barGeneros.setLegendVisible(false);
         barGeneros.setAnimated(false);
+        logger.log(Level.INFO, "Gráfico de géneros cargado con " + series.getData().size() + " barras.");
     }
 }

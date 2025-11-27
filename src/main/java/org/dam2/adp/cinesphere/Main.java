@@ -5,10 +5,15 @@ import javafx.stage.Stage;
 import org.dam2.adp.cinesphere.database.Conexion;
 import org.dam2.adp.cinesphere.util.Navigation;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Clase principal de la aplicación CineSphere.
  */
 public class Main extends Application {
+
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
 
     /**
      * Inicia la aplicación y configura la ventana principal.
@@ -17,10 +22,11 @@ public class Main extends Application {
      */
     @Override
     public void start(Stage stage) throws Exception {
-
+        logger.log(Level.INFO, "Iniciando la aplicación CineSphere...");
         Navigation.setStage(stage);
         stage.setTitle("CineSphere");
         Navigation.switchScene("login.fxml");
+        logger.log(Level.INFO, "Ventana principal configurada y escena de login cargada.");
     }
 
     /**
@@ -29,10 +35,10 @@ public class Main extends Application {
      */
     @Override
     public void stop() throws Exception {
-
-        System.out.println("Cerrando aplicación...");
+        logger.log(Level.INFO, "Cerrando la aplicación...");
         Conexion.getInstance().disconnect();
         super.stop();
+        logger.log(Level.INFO, "Aplicación cerrada correctamente.");
     }
 
     /**
@@ -40,6 +46,6 @@ public class Main extends Application {
      * @param args Argumentos de la línea de comandos.
      */
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 }

@@ -6,6 +6,8 @@ import org.dam2.adp.cinesphere.model.Actor;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * DAO para la tabla de relación PeliculaActor.
@@ -19,6 +21,7 @@ public class PeliculaActorDAO {
             "WHERE pa.idpelicula = ?";
 
     private final Connection conn = Conexion.getInstance().getConnection();
+    private static final Logger logger = Logger.getLogger(PeliculaActorDAO.class.getName());
 
     /**
      * Asocia un actor a una película.
@@ -31,6 +34,10 @@ public class PeliculaActorDAO {
             st.setInt(1, idPelicula);
             st.setInt(2, idActor);
             st.executeUpdate();
+            logger.log(Level.INFO, "Actor " + idActor + " asociado a la película " + idPelicula);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error al asociar actor " + idActor + " a la película " + idPelicula + ": " + e.getMessage(), e);
+            throw e;
         }
     }
 
@@ -49,6 +56,10 @@ public class PeliculaActorDAO {
                     list.add(new Actor(rs.getInt(1), rs.getString(2)));
                 }
             }
+            logger.log(Level.INFO, "Encontrados " + list.size() + " actores para la película " + idPelicula);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error al buscar actores para la película " + idPelicula + ": " + e.getMessage(), e);
+            throw e;
         }
         return list;
     }

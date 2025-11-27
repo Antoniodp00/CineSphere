@@ -10,6 +10,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Clase utilitaria encargada de importar películas y sus datos relacionados
@@ -21,6 +23,8 @@ import java.util.*;
  * </p>
  */
 public class CsvImporter {
+
+    private static final Logger logger = Logger.getLogger(CsvImporter.class.getName());
 
     /**
      * Lista de cabeceras obligatorias que debe contener el archivo CSV para ser válido.
@@ -57,6 +61,7 @@ public class CsvImporter {
      * @throws Exception Si ocurre un error de lectura (IO) o de base de datos (SQL).
      */
     public void importar(String csvPath) throws Exception {
+        logger.log(Level.INFO, "Iniciando importación desde la ruta: " + csvPath);
         // Utilizamos try-with-resources para asegurar el cierre del Reader
         try (Reader reader = new FileReader(csvPath, StandardCharsets.UTF_8)) {
             importar(reader);
@@ -71,8 +76,10 @@ public class CsvImporter {
      * @throws Exception Si el recurso no existe o hay errores de lectura/BD.
      */
     public void importarDesdeRecurso(String resourcePath) throws Exception {
+        logger.log(Level.INFO, "Iniciando importación desde el recurso interno: " + resourcePath);
         InputStream is = getClass().getResourceAsStream(resourcePath);
         if (is == null) {
+            logger.log(Level.SEVERE, "No se encontró el recurso interno: " + resourcePath);
             throw new IllegalArgumentException("No se encontró el recurso interno: " + resourcePath);
         }
         try (Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
@@ -101,29 +108,36 @@ public class CsvImporter {
         // 1. Validación de Estructura: Comprobar que existen las columnas necesarias
         Map<String, Integer> headerMap = parser.getHeaderMap();
         if (headerMap == null || headerMap.isEmpty()) {
+            logger.log(Level.SEVERE, "El archivo CSV está vacío o no tiene cabeceras reconocibles.");
             throw new IllegalArgumentException("El archivo CSV está vacío o no tiene cabeceras reconocibles.");
         }
 
         for (String columna : CABECERAS_ESPERADAS) {
             if (!headerMap.containsKey(columna)) {
+                logger.log(Level.SEVERE, "Formato inválido. Falta la columna obligatoria: " + columna);
                 throw new IllegalArgumentException("Formato inválido. Falta la columna obligatoria: " + columna);
             }
         }
+        logger.log(Level.INFO, "Validación de cabeceras completada con éxito.");
 
         // 2. Procesamiento Iterativo: Leer cada fila
+        int processedRows = 0;
         for (CSVRecord row : parser) {
             try {
                 // Validación básica: Si la fila no es consistente o no tiene título, se salta
                 if (!row.isConsistent() || row.get("Title").isBlank()) {
+                    logger.log(Level.WARNING, "Saltando fila inconsistente o sin título: " + row.getRecordNumber());
                     continue;
                 }
                 procesarFila(row);
+                processedRows++;
 
             } catch (Exception e) {
                 // Estrategia de tolerancia a fallos: Si una fila falla, se loguea y se continúa con la siguiente
-                System.err.println("Error importando fila " + row.getRecordNumber() + ": " + e.getMessage());
+                logger.log(Level.SEVERE, "Error importando fila " + row.getRecordNumber() + ": " + e.getMessage(), e);
             }
         }
+        logger.log(Level.INFO, "Proceso de importación finalizado. Filas procesadas: " + processedRows);
     }
 
     /**
@@ -140,12 +154,15 @@ public class CsvImporter {
         Integer year = tryParseInt(row.get("ReleaseYear"));
 
         // Si no hay año, consideramos el dato inválido para nuestro sistema y saltamos la fila
-        if (year == null) return;
+        if (year == null) {
+            logger.log(Level.WARNING, "Fila " + row.getRecordNumber() + " saltada: año de lanzamiento inválido.");
+            return;
+        }
 
         // --- CONTROL DE DUPLICADOS ---
         // Verificamos si la película ya existe en la BD (por Título y Año)
         if (peliculaDAO.findByTituloAndYear(titulo, year) != null) {
-            // Ya existe, no hacemos nada (o podríamos actualizar datos si fuera necesario)
+            logger.log(Level.FINER, "Película duplicada encontrada y omitida: " + titulo + " (" + year + ")");
             return;
         }
 
@@ -169,6 +186,7 @@ public class CsvImporter {
 
         // Inserción principal (obtiene el ID generado automáticamente)
         peliculaDAO.insert(p);
+        logger.log(Level.FINE, "Película insertada: " + p.getTituloPelicula());
 
         // Procesamiento de relaciones Many-to-Many (Directores, Actores, Géneros)
         // Se pasan las cadenas crudas del CSV (ej: "Steven Spielberg, George Lucas")
@@ -232,6 +250,7 @@ public class CsvImporter {
         if (c == null) {
             c = new Clasificacion(nombre);
             clasificacionDAO.insert(c);
+            logger.log(Level.FINER, "Nueva clasificación creada: " + nombre);
         }
         cacheClasificaciones.put(nombre, c);
         return c;
@@ -251,6 +270,7 @@ public class CsvImporter {
             d = new Director(nombre);
             // El insert actualiza el ID del objeto 'd'
             directorDAO.insert(d);
+            logger.log(Level.FINER, "Nuevo director creado: " + nombre);
         }
         cacheDirectores.put(nombre, d);
         return d;
@@ -269,6 +289,7 @@ public class CsvImporter {
         if (a == null) {
             a = new Actor(nombre);
             actorDAO.insert(a);
+            logger.log(Level.FINER, "Nuevo actor creado: " + nombre);
         }
         cacheActores.put(nombre, a);
         return a;
@@ -287,6 +308,7 @@ public class CsvImporter {
         if (g == null) {
             g = new Genero(nombre);
             generoDAO.insert(g);
+            logger.log(Level.FINER, "Nuevo género creado: " + nombre);
         }
         cacheGeneros.put(nombre, g);
         return g;
@@ -321,6 +343,7 @@ public class CsvImporter {
             if (value == null) return null;
             return Integer.parseInt(value.trim());
         } catch (NumberFormatException e) {
+            logger.log(Level.WARNING, "Error al parsear entero: '" + value + "'", e);
             return null;
         }
     }
@@ -335,6 +358,7 @@ public class CsvImporter {
             if (value == null) return null;
             return Double.parseDouble(value.trim());
         } catch (NumberFormatException e) {
+            logger.log(Level.WARNING, "Error al parsear double: '" + value + "'", e);
             return null;
         }
     }

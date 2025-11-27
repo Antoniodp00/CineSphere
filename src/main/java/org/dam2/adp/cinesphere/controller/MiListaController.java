@@ -1,7 +1,6 @@
 package org.dam2.adp.cinesphere.controller;
 
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -14,6 +13,7 @@ import javafx.scene.layout.VBox;
 import org.dam2.adp.cinesphere.DAO.MiListaDAO;
 import org.dam2.adp.cinesphere.DAO.PeliculaGeneroDAO;
 import org.dam2.adp.cinesphere.DAO.GeneroDAO;
+import org.dam2.adp.cinesphere.model.Genero;
 import org.dam2.adp.cinesphere.model.Pelicula;
 import org.dam2.adp.cinesphere.model.Usuario;
 import org.dam2.adp.cinesphere.util.Navigation;
@@ -21,7 +21,11 @@ import org.dam2.adp.cinesphere.util.SessionManager;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static org.dam2.adp.cinesphere.util.Utils.obtenerRutaImagenPorGenero;
 
 /**
  * Controlador para la vista "Mi Lista", que muestra las películas guardadas por el usuario.
@@ -74,14 +78,18 @@ public class MiListaController {
     private final int pageSize = 18;
     private int totalPages = 1;
 
+    private static final Logger logger = Logger.getLogger(MiListaController.class.getName());
+
     /**
      * Inicializa el controlador, configurando los componentes de la interfaz,
      * cargando los datos iniciales y asignando los manejadores de eventos.
      */
     @FXML
     private void initialize() {
+        logger.log(Level.INFO, "Inicializando MiListaController...");
         usuario = SessionManager.getInstance().getUsuarioActual();
         if (usuario == null) {
+            logger.log(Level.WARNING, "No hay usuario en sesión. Redirigiendo al login.");
             Navigation.switchScene("login.fxml");
             return;
         }
@@ -92,7 +100,7 @@ public class MiListaController {
         try {
             generoDAO.findAll().forEach(g -> cbGenero.getItems().add(g.getNombreGenero()));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error al cargar géneros para el ComboBox", e);
         }
 
         // Eventos
@@ -129,16 +137,19 @@ public class MiListaController {
         recargarCacheDesdeDAO();
         actualizarTotalPaginas();
         cargarPagina(1);
+        logger.log(Level.INFO, "MiListaController inicializado correctamente.");
     }
 
     /**
      * Recarga la caché de películas del usuario desde la base de datos.
      */
     private void recargarCacheDesdeDAO() {
+        logger.log(Level.INFO, "Recargando caché de películas del usuario desde la base de datos...");
         try {
             cacheMisPeliculas = miListaDAO.findPeliculasByUsuario(usuario.getIdUsuario());
+            logger.log(Level.INFO, "Caché recargada con " + cacheMisPeliculas.size() + " películas.");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error al recargar la caché de películas del usuario", e);
         }
         if (cacheMisPeliculas == null) {
             cacheMisPeliculas = List.of();
@@ -150,6 +161,7 @@ public class MiListaController {
      * @return una lista de películas que coinciden con los criterios de filtrado.
      */
     private List<Pelicula> aplicarFiltrosEnMemoria() {
+        logger.log(Level.INFO, "Aplicando filtros en memoria...");
         return cacheMisPeliculas.stream()
                 .filter(p -> filtroYear == null || Objects.equals(p.getYearPelicula(), filtroYear))
                 .filter(p -> filtroRating == null || (p.getRatingPelicula() != null && p.getRatingPelicula() >= filtroRating))
@@ -160,6 +172,7 @@ public class MiListaController {
                                 .stream()
                                 .anyMatch(g -> filtroGeneroNombre.equalsIgnoreCase(g.getNombreGenero()));
                     } catch (Exception ex) {
+                        logger.log(Level.WARNING, "Error al filtrar por género para la película ID " + p.getIdPelicula(), ex);
                         return true;
                     }
                 })
@@ -177,6 +190,7 @@ public class MiListaController {
         int total = aplicarFiltrosEnMemoria().size();
         totalPages = (int) Math.ceil((double) total / pageSize);
         if (totalPages == 0) totalPages = 1;
+        logger.log(Level.INFO, "Total de páginas actualizado a: " + totalPages);
     }
 
     /**
@@ -184,6 +198,7 @@ public class MiListaController {
      * @param filtro el texto a buscar en los títulos de las películas.
      */
     private void buscar(String filtro) {
+        logger.log(Level.INFO, "Iniciando búsqueda con filtro: '" + filtro + "'");
         this.filtroBusqueda = filtro;
         page = 1;
         actualizarTotalPaginas();
@@ -195,6 +210,7 @@ public class MiListaController {
      * @param pagina el número de página a cargar.
      */
     private void cargarPagina(int pagina) {
+        logger.log(Level.INFO, "Cargando página " + pagina + " de " + totalPages);
         try {
             flowPeliculas.getChildren().clear();
 
@@ -213,7 +229,7 @@ public class MiListaController {
             lblPage.setText(pagina + " / " + totalPages);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error al cargar la página " + pagina, e);
         }
     }
 
@@ -228,31 +244,54 @@ public class MiListaController {
         // estilos y tamaños definidos en style.css (.movie-card)
 
         card.setOnMouseClicked(event -> {
+            logger.log(Level.INFO, "Click en la película: " + p.getTituloPelicula() + " (ID: " + p.getIdPelicula() + ")");
             SessionManager.getInstance().set("selectedPeliculaId", p.getIdPelicula());
             Navigation.navigate("peliculas_detalle.fxml");
         });
 
+        // --- LÓGICA DE GÉNEROS E IMAGEN ---
+        String textoGeneros = "Sin género";
+        String rutaImagen = "/img/noImage.png"; // Imagen por defecto inicial
+
+        try {
+            // 1. Obtenemos la lista completa de géneros primero
+            List<Genero> listaGeneros = peliculaGeneroDAO.findByPelicula(p.getIdPelicula());
+
+            if (listaGeneros != null && !listaGeneros.isEmpty()) {
+                // 2. Usamos el PRIMER género para determinar la imagen de fondo
+                String primerGenero = listaGeneros.get(0).getNombreGenero();
+                rutaImagen = obtenerRutaImagenPorGenero(primerGenero);
+
+                // 3. Creamos el texto para la etiqueta (ej: "Action, Drama")
+                textoGeneros = listaGeneros.stream()
+                        .map(g -> g.getNombreGenero())
+                        .reduce((a, b) -> a + ", " + b)
+                        .orElse("Sin género");
+            }
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Error al obtener géneros para la película ID " + p.getIdPelicula(), e);
+        }
+
+        // --- CONFIGURACIÓN DE LA IMAGEN ---
         ImageView img = new ImageView();
         img.setFitWidth(150);
         img.setFitHeight(220);
         img.setPreserveRatio(false);
-        img.setImage(new Image(getClass().getResource("/img/noImage.png").toExternalForm()));
 
+        try {
+            // Intentamos cargar la imagen específica del género
+            img.setImage(new Image(getClass().getResource(rutaImagen).toExternalForm()));
+        } catch (Exception e) {
+            // Si la imagen no existe o la ruta está mal, cargamos la imagen por defecto
+            // Esto evita que la aplicación se cierre si falta un archivo .png
+            img.setImage(new Image(getClass().getResource("/img/noImage.png").toExternalForm()));
+        }
+
+        // --- RESTO DE ETIQUETAS ---
         Label lblTitulo = new Label(p.getTituloPelicula());
         lblTitulo.getStyleClass().add("movie-title");
 
-        String generos = "";
-        try {
-            generos = peliculaGeneroDAO.findByPelicula(p.getIdPelicula())
-                    .stream()
-                    .map(g -> g.getNombreGenero())
-                    .reduce((a, b) -> a + ", " + b)
-                    .orElse("Sin género");
-        } catch (Exception e) {
-            generos = "Sin género";
-        }
-
-        Label lblGeneros = new Label(generos);
+        Label lblGeneros = new Label(textoGeneros);
         lblGeneros.getStyleClass().add("movie-info");
         lblGeneros.setWrapText(true);
 
@@ -272,6 +311,7 @@ public class MiListaController {
      * Aplica los filtros seleccionados en los ComboBox y recarga la vista.
      */
     private void aplicarFiltros() {
+        logger.log(Level.INFO, "Aplicando filtros...");
         filtroYear = cbYear.getValue();
         filtroRating = cbRating.getValue();
         filtroGeneroNombre = cbGenero.getValue();
@@ -284,6 +324,7 @@ public class MiListaController {
      * Limpia todos los filtros aplicados y recarga la vista.
      */
     private void limpiarFiltros() {
+        logger.log(Level.INFO, "Limpiando filtros...");
         cbYear.setValue(null);
         cbRating.setValue(null);
         cbGenero.setValue(null);

@@ -14,13 +14,18 @@ import org.dam2.adp.cinesphere.model.Usuario;
 import org.dam2.adp.cinesphere.util.AlertUtils;
 import org.dam2.adp.cinesphere.util.Navigation;
 import org.dam2.adp.cinesphere.util.SessionManager;
+import org.dam2.adp.cinesphere.util.Utils;
 
 import java.awt.Desktop;
 import java.net.URI;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static org.dam2.adp.cinesphere.util.Utils.obtenerRutaImagenPorGenero;
 
 /**
  * Controlador para la vista de detalle de una película.
@@ -48,15 +53,19 @@ public class PeliculaDetalleController {
     private Pelicula pelicula;
     private Usuario usuario;
 
+    private static final Logger logger = Logger.getLogger(PeliculaDetalleController.class.getName());
+
     /**
      * Inicializa el controlador, cargando los datos de la película seleccionada.
      */
     @FXML
     private void initialize() {
+        logger.log(Level.INFO, "Inicializando PeliculaDetalleController...");
         usuario = SessionManager.getInstance().getUsuarioActual();
         Integer idPelicula = (Integer) SessionManager.getInstance().get("selectedPeliculaId");
 
         if (idPelicula == null) {
+            logger.log(Level.WARNING, "No se encontró ID de película en sesión. Navegando a la lista.");
             Navigation.navigate("peliculas_lista.fxml");
             return;
         }
@@ -71,6 +80,7 @@ public class PeliculaDetalleController {
             btnEliminarPelicula.setVisible(false);
             btnEliminarPelicula.setManaged(false);
         }
+        logger.log(Level.INFO, "PeliculaDetalleController inicializado.");
     }
 
     /**
@@ -95,29 +105,58 @@ public class PeliculaDetalleController {
      * @param idPelicula el ID de la película a cargar.
      */
     private void cargarDatos(int idPelicula) {
+        logger.log(Level.INFO, "Cargando datos para la película ID: " + idPelicula);
         try {
             pelicula = peliculaDAO.findByIdEager(idPelicula);
-            if (pelicula == null) return;
+            if (pelicula == null) {
+                logger.log(Level.SEVERE, "No se encontró la película con ID: " + idPelicula);
+                return;
+            }
 
+            // 1. Cargar textos básicos
             lblTitulo.setText(pelicula.getTituloPelicula());
             lblSubtitulo.setText(pelicula.getYearPelicula() + " • " + pelicula.getNombreClasificacion());
             lblRating.setText("★ " + (pelicula.getRatingPelicula() != null ? pelicula.getRatingPelicula() : "—"));
             lblClasificacion.setText(pelicula.getNombreClasificacion());
             lblSinopsis.setText("Sinopsis no disponible aún.");
 
-            imgPoster.setImage(new Image(getClass().getResource("/img/noImage.png").toExternalForm()));
+            // 2. Lógica para la IMAGEN (imgPoster) basada en el género
+            String rutaImagen = "/img/noImage.png"; // Valor por defecto
+
+            // Verificamos si tiene géneros y tomamos el primero
+            if (pelicula.getGeneros() != null && !pelicula.getGeneros().isEmpty()) {
+                String primerGenero = pelicula.getGeneros().get(0).getNombreGenero();
+                // Llamamos al método auxiliar que ya tienes
+                rutaImagen = Utils.obtenerRutaImagenPorGenero(primerGenero);
+            }
+
+            try {
+                imgPoster.setImage(new Image(getClass().getResource(rutaImagen).toExternalForm()));
+            } catch (Exception e) {
+                // Si falla la carga (ruta mal), ponemos la imagen por defecto
+                logger.log(Level.WARNING, "No se pudo cargar la imagen: " + rutaImagen);
+                imgPoster.setImage(new Image(getClass().getResource("/img/noImage.png").toExternalForm()));
+            }
+
+            // 3. Cargar los Chips (FlowPanes)
+            // Limpiamos primero por si acaso se llama varias veces (opcional pero recomendado)
+            flowGeneros.getChildren().clear();
+            flowDirectores.getChildren().clear();
+            flowActores.getChildren().clear();
 
             pelicula.getGeneros().forEach(g -> flowGeneros.getChildren().add(chip(g.getNombreGenero())));
             pelicula.getDirectores().forEach(d -> flowDirectores.getChildren().add(chip(d.getNombreDirector())));
             pelicula.getActores().forEach(a -> flowActores.getChildren().add(chip(a.getNombreActor())));
 
+            // 4. Configurar botones
             actualizarEstadoMiLista();
-
             btnMiLista.setOnAction(e -> toggleMiLista());
             btnTrailer.setOnAction(e -> abrirTrailer());
 
+            logger.log(Level.INFO, "Datos de la película '" + pelicula.getTituloPelicula() + "' cargados correctamente.");
+
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error al cargar los datos de la película", e);
         }
     }
 
@@ -141,6 +180,7 @@ public class PeliculaDetalleController {
 
         cbEstado.setDisable(!enLista);
         cbPuntuacion.setDisable(!enLista);
+        logger.log(Level.INFO, "Estado de 'Mi Lista' actualizado. Película en lista: " + enLista);
     }
 
     /**
@@ -164,12 +204,14 @@ public class PeliculaDetalleController {
                 miListaDAO.insert(new MiLista(
                         pelicula, usuario, PeliculaEstado.PENDIENTE, null, null, LocalDateTime.now()
                 ));
+                logger.log(Level.INFO, "Película '" + pelicula.getTituloPelicula() + "' añadida a Mi Lista.");
             } else {
                 miListaDAO.delete(usuario.getIdUsuario(), pelicula.getIdPelicula());
+                logger.log(Level.INFO, "Película '" + pelicula.getTituloPelicula() + "' eliminada de Mi Lista.");
             }
             actualizarEstadoMiLista();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error al añadir/eliminar de Mi Lista", e);
         }
     }
 
@@ -180,8 +222,9 @@ public class PeliculaDetalleController {
     private void cambiarEstado(PeliculaEstado estado) {
         try {
             miListaDAO.updateEstado(usuario.getIdUsuario(), pelicula.getIdPelicula(), estado);
+            logger.log(Level.INFO, "Estado de la película '" + pelicula.getTituloPelicula() + "' cambiado a: " + estado);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error al cambiar el estado de la película", e);
         }
     }
 
@@ -192,8 +235,9 @@ public class PeliculaDetalleController {
     private void cambiarPuntuacion(int puntuacion) {
         try {
             miListaDAO.updatePuntuacion(usuario.getIdUsuario(), pelicula.getIdPelicula(), puntuacion);
+            logger.log(Level.INFO, "Puntuación de la película '" + pelicula.getTituloPelicula() + "' cambiada a: " + puntuacion);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error al cambiar la puntuación de la película", e);
         }
     }
 
@@ -205,8 +249,9 @@ public class PeliculaDetalleController {
             String url = "https://www.youtube.com/results?search_query=" +
                     pelicula.getTituloPelicula().replace(" ", "+") + "+trailer";
             Desktop.getDesktop().browse(new URI(url));
+            logger.log(Level.INFO, "Abriendo trailer para: " + pelicula.getTituloPelicula());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.log(Level.SEVERE, "Error al abrir el trailer", ex);
         }
     }
 
@@ -214,20 +259,17 @@ public class PeliculaDetalleController {
      * Elimina la película de la base de datos.
      */
     private void eliminarPelicula() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Eliminar Película");
-        alert.setHeaderText("¿Borrar '" + pelicula.getTituloPelicula() + "'?");
-        alert.setContentText("Esta acción es irreversible y la eliminará de las listas de todos los usuarios.");
-
-        if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+        if (AlertUtils.confirmation("Eliminar Película", "¿Borrar '" + pelicula.getTituloPelicula() + "'?", "Esta acción es irreversible y la eliminará de las listas de todos los usuarios.")) {
             try {
                 peliculaDAO.delete(pelicula.getIdPelicula());
                 AlertUtils.info("Película eliminada.");
+                logger.log(Level.INFO, "Película '" + pelicula.getTituloPelicula() + "' eliminada por un administrador.");
                 Navigation.navigate("peliculas_lista.fxml");
             } catch (SQLException e) {
-                e.printStackTrace();
+                logger.log(Level.SEVERE, "Error al eliminar la película", e);
                 AlertUtils.error("Error al eliminar: " + e.getMessage());
             }
         }
     }
+
 }

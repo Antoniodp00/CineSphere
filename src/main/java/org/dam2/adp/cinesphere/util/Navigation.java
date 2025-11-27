@@ -7,6 +7,8 @@ import javafx.stage.Stage;
 import org.dam2.adp.cinesphere.controller.MainController;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Utilidades para la navegación entre escenas en la aplicación.
@@ -15,6 +17,7 @@ public class Navigation {
 
     private static Stage primaryStage;
     private static MainController mainController;
+    private static final Logger logger = Logger.getLogger(Navigation.class.getName());
 
     /**
      * Establece el escenario principal de la aplicación.
@@ -22,6 +25,7 @@ public class Navigation {
      */
     public static void setStage(Stage stage) {
         primaryStage = stage;
+        logger.log(Level.INFO, "Primary stage establecido.");
     }
 
     /**
@@ -30,6 +34,7 @@ public class Navigation {
      */
     public static void setMainController(MainController controller) {
         mainController = controller;
+        logger.log(Level.INFO, "Main controller establecido.");
     }
 
     /**
@@ -37,9 +42,11 @@ public class Navigation {
      * @param fxml el archivo FXML de la vista a cargar.
      */
     public static void navigate(String fxml) {
+        logger.log(Level.INFO, "Navegando a: " + fxml);
         if (mainController != null) {
             mainController.loadView(fxml);
         } else {
+            logger.log(Level.WARNING, "MainController no está establecido. Usando switchScene como fallback.");
             // Fallback for navigation before main controller is set (e.g., login -> register)
             switchScene(fxml);
         }
@@ -51,17 +58,18 @@ public class Navigation {
      */
     public static void switchScene(String fxml) {
         if (primaryStage == null) {
-            System.err.println("Primary stage is not set.");
+            logger.log(Level.SEVERE, "Primary stage no está establecido. No se puede cambiar de escena.");
             return;
         }
         try {
+            logger.log(Level.INFO, "Cambiando a la escena: " + fxml);
             FXMLLoader loader = new FXMLLoader(Navigation.class.getResource("/view/" + fxml));
             Parent root = loader.load();
             Scene scene = new Scene(root);
             primaryStage.setScene(scene);
             primaryStage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error al cargar FXML para la escena " + fxml, e);
         }
     }
 }

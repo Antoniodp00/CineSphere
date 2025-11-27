@@ -9,6 +9,8 @@ import org.dam2.adp.cinesphere.util.Navigation;
 import org.dam2.adp.cinesphere.util.SessionManager;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Controlador principal que gestiona la navegación y el contenido de la ventana principal.
@@ -28,12 +30,15 @@ public class MainController {
     @FXML
     private Button btnLogout;
 
+    private static final Logger logger = Logger.getLogger(MainController.class.getName());
+
     /**
      * Inicializa el controlador principal, configurando los listeners de los botones de navegación
      * y cargando la vista inicial.
      */
     @FXML
     public void initialize() {
+        logger.log(Level.INFO, "Inicializando MainController...");
         Navigation.setMainController(this);
 
         btnPeliculas.setOnAction(e -> loadView("peliculas_lista.fxml"));
@@ -44,6 +49,7 @@ public class MainController {
         btnLogout.setOnAction(e -> logout());
 
         loadView("peliculas_lista.fxml");
+        logger.log(Level.INFO, "MainController inicializado y vista por defecto cargada.");
     }
 
     /**
@@ -53,10 +59,11 @@ public class MainController {
      */
     public void loadView(String fxml) {
         try {
+            logger.log(Level.INFO, "Cargando vista: " + fxml);
             Node view = FXMLLoader.load(getClass().getResource("/view/" + fxml));
             contentArea.getChildren().setAll(view);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error al cargar la vista FXML: " + fxml, e);
         }
     }
 
@@ -64,6 +71,7 @@ public class MainController {
      * Cierra la sesión del usuario actual y navega a la pantalla de login.
      */
     private void logout() {
+        logger.log(Level.INFO, "Iniciando proceso de cierre de sesión...");
         SessionManager.getInstance().cerrarSesion();
         Navigation.switchScene("login.fxml");
     }

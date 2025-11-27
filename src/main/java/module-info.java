@@ -9,6 +9,7 @@ module org.dam2.adp.cinesphere {
     requires jbcrypt;
     requires org.controlsfx.controls;
     requires java.desktop;
+    requires java.logging;
 
     opens org.dam2.adp.cinesphere to javafx.fxml;
     opens org.dam2.adp.cinesphere.controller to javafx.fxml;

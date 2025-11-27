@@ -14,6 +14,8 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Controlador para la pantalla de login.
@@ -27,12 +29,14 @@ public class LoginController {
     @FXML private Hyperlink linkRegistro;
 
     private UsuarioDAO usuarioDAO;
+    private static final Logger logger = Logger.getLogger(LoginController.class.getName());
 
     /**
      * Inicializa el controlador, configurando los listeners de los botones.
      */
     @FXML
     private void initialize() {
+        logger.log(Level.INFO, "Inicializando LoginController...");
         cbBaseDatos.getItems().addAll("PostgreSQL", "SQLite (Local)");
         cbBaseDatos.getSelectionModel().selectFirst();
 
@@ -43,12 +47,14 @@ public class LoginController {
                 Navigation.switchScene("register.fxml");
             }
         });
+        logger.log(Level.INFO, "LoginController inicializado.");
     }
 
     /**
      * Intenta iniciar sesión con los datos introducidos por el usuario.
      */
     private void intentarLogin() {
+        logger.log(Level.INFO, "Intento de inicio de sesión...");
         if (!establecerConexion()) {
             return;
         }
@@ -58,6 +64,7 @@ public class LoginController {
 
         if (nombreUsuario.isBlank() || password.isBlank()) {
             AlertUtils.error("Rellena todos los campos.");
+            logger.log(Level.WARNING, "Intento de login con campos vacíos.");
             return;
         }
 
@@ -68,19 +75,22 @@ public class LoginController {
 
             if (u == null) {
                 AlertUtils.error("El usuario no existe en esta base de datos.");
+                logger.log(Level.WARNING, "Intento de login para un usuario no existente: " + nombreUsuario);
                 return;
             }
 
             if (!BCrypt.checkpw(password, u.getPassw())) {
                 AlertUtils.error("Contraseña incorrecta.");
+                logger.log(Level.WARNING, "Intento de login con contraseña incorrecta para el usuario: " + nombreUsuario);
                 return;
             }
 
             SessionManager.getInstance().setUsuarioActual(u);
+            logger.log(Level.INFO, "Inicio de sesión exitoso para el usuario: " + nombreUsuario);
             Navigation.switchScene("main.fxml");
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.log(Level.SEVERE, "Error durante el inicio de sesión", ex);
             AlertUtils.error("Error al iniciar sesión: " + ex.getMessage());
         }
     }
@@ -92,15 +102,17 @@ public class LoginController {
     private boolean establecerConexion() {
         String seleccion = cbBaseDatos.getValue();
         String archivoConfig = seleccion.startsWith("SQLite") ? "config-sqlite.properties" : "config-postgres.properties";
+        logger.log(Level.INFO, "Estableciendo conexión con la base de datos: " + seleccion);
 
         try {
             Conexion.getInstance().disconnect();
             Conexion.getInstance().connect(archivoConfig);
             DatabaseSchema.inicializar();
             crearAdminPorDefecto();
+            logger.log(Level.INFO, "Conexión establecida y esquema inicializado correctamente.");
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "No se pudo conectar a la base de datos", e);
             AlertUtils.error("No se pudo conectar a la base de datos:\n" + e.getMessage());
             return false;
         }
@@ -121,10 +133,10 @@ public class LoginController {
                 admin.setRol(Rol.ADMIN);
 
                 dao.insert(admin);
-                System.out.println("Admin creado en la BD actual.");
+                logger.log(Level.INFO, "Usuario 'admin' por defecto creado en la base de datos actual.");
             }
         } catch (SQLException e) {
-            System.err.println("Error comprobando admin: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al comprobar o crear el usuario 'admin' por defecto", e);
         }
     }
 }
