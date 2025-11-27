@@ -18,7 +18,6 @@ public class PeliculaGeneroDAO {
             "FROM genero g JOIN peliculagenero pg ON g.idgenero = pg.idgenero " +
             "WHERE pg.idpelicula = ?";
 
-    private final Connection conn = Conexion.getInstance().getConnection();
 
     /**
      * Asocia un género a una película.
@@ -27,6 +26,7 @@ public class PeliculaGeneroDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public void insert(int idPelicula, int idGenero) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT)) {
             st.setInt(1, idPelicula);
             st.setInt(2, idGenero);
@@ -41,6 +41,7 @@ public class PeliculaGeneroDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public List<Genero> findByPelicula(int idPelicula) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         List<Genero> list = new ArrayList<>();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_PELICULA)) {
             st.setInt(1, idPelicula);

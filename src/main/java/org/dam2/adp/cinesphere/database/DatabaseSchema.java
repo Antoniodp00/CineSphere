@@ -70,7 +70,7 @@ public class DatabaseSchema {
             """.formatted(AUTO_INCREMENT));
             logger.log(Level.FINE, "Tabla 'pelicula' creada o ya existente.");
 
-            // 4. Tablas Intermedias (Sin cambios, la sintaxis estándar suele funcionar bien)
+            // 4. Tablas Intermedias
             // Pelicula - Genero
             stmt.executeUpdate("""
                 CREATE TABLE IF NOT EXISTS peliculagenero (

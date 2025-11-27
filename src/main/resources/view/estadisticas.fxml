@@ -59,19 +59,19 @@
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
             <Label styleClass="section-title" text="Distribución por Estado" />
-            <PieChart fx:id="pieEstados" VBox.vgrow="ALWAYS" />
+            <PieChart fx:id="pieEstados" VBox.vgrow="ALWAYS" title=" " styleClass="chart-legend" />
         </VBox>
         <VBox styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="0">
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
             <Label styleClass="section-title" text="Géneros Favoritos" />
-            <BarChart fx:id="barGeneros" VBox.vgrow="ALWAYS">
+            <BarChart fx:id="barGeneros" VBox.vgrow="ALWAYS" title=" " styleClass="chart-legend">
                 <xAxis>
-                    <CategoryAxis side="BOTTOM" />
+                    <CategoryAxis side="BOTTOM" styleClass="axis-label" tickLabelFill="black" />
                 </xAxis>
                 <yAxis>
-                    <NumberAxis side="LEFT" />
+                    <NumberAxis side="LEFT" styleClass="axis-label" tickLabelFill="black" />
                 </yAxis>
             </BarChart>
         </VBox>

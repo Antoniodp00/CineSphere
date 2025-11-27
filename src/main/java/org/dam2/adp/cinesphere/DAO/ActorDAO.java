@@ -17,7 +17,7 @@ public class ActorDAO {
     private static final String SQL_FIND_ALL = "SELECT idactor, nombreactor FROM actor";
     private static final String SQL_FIND_BY_NAME = "SELECT idactor, nombreactor FROM actor WHERE nombreactor=?";
 
-    private final Connection conn = Conexion.getInstance().getConnection();
+
 
     /**
      * Inserta un nuevo actor en la base de datos.
@@ -26,6 +26,7 @@ public class ActorDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Actor insert(Actor a) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             st.setString(1, a.getNombreActor());
             st.executeUpdate();
@@ -45,6 +46,7 @@ public class ActorDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Actor findById(int id) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_ID)) {
             st.setInt(1, id);
             try (ResultSet rs = st.executeQuery()) {
@@ -62,6 +64,7 @@ public class ActorDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public List<Actor> findAll() throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         List<Actor> list = new ArrayList<>();
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
@@ -79,6 +82,7 @@ public class ActorDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Actor findByName(String name) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_NAME)) {
             st.setString(1, name);
             try (ResultSet rs = st.executeQuery()) {

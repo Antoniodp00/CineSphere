@@ -45,7 +45,6 @@
                     <ComboBox fx:id="cbPuntuacion" promptText="Puntuación" />
                     <Button fx:id="btnTrailer" styleClass="accent-button" text="Ver trailer" />
                     <Region HBox.hgrow="ALWAYS" />
-                    <Button fx:id="btnEliminarPelicula" styleClass="danger-button" text="Eliminar" visible="false" />
                 </HBox>
             </VBox>
 
@@ -63,6 +62,7 @@
                     <Label styleClass="section-title" text="Actores" />
                     <FlowPane fx:id="flowActores" hgap="10.0" vgap="10.0" />
                 </VBox>
+                <Button fx:id="btnEliminarPelicula" styleClass="danger-button" text="Eliminar" visible="false" />
             </VBox>
         </GridPane>
     </content>

@@ -18,7 +18,7 @@ public class PeliculaDirectorDAO {
             "FROM director d JOIN peliculadirector pd ON d.iddirector = pd.iddirector " +
             "WHERE pd.idpelicula = ?";
 
-    private final Connection conn = Conexion.getInstance().getConnection();
+
 
     /**
      * Asocia un director a una película.
@@ -27,6 +27,7 @@ public class PeliculaDirectorDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public void insert(int idPelicula, int idDirector) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT)) {
             st.setInt(1, idPelicula);
             st.setInt(2, idDirector);
@@ -41,6 +42,7 @@ public class PeliculaDirectorDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public List<Director> findByPelicula(int idPelicula) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         List<Director> list = new ArrayList<>();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_PELICULA)) {
             st.setInt(1, idPelicula);

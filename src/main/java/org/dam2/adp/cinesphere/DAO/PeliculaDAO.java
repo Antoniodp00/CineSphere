@@ -44,7 +44,7 @@ public class PeliculaDAO {
     private PeliculaDirectorDAO peliculaDirectorDAO = new PeliculaDirectorDAO();
 
 
-    private final Connection conn = Conexion.getInstance().getConnection();
+
 
     /**
      * Inserta una nueva película en la base de datos.
@@ -53,6 +53,7 @@ public class PeliculaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Pelicula insert(Pelicula p) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             st.setString(1, p.getTituloPelicula());
             st.setObject(2, p.getYearPelicula());
@@ -72,10 +73,12 @@ public class PeliculaDAO {
 
     /**
      * Elimina una película de la base de datos.
+     *
      * @param idPelicula el ID de la película a eliminar.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public void delete(int idPelicula) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_DELETE)) {
             st.setInt(1, idPelicula);
             st.executeUpdate();
@@ -88,6 +91,7 @@ public class PeliculaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public List<Pelicula> findAllLazy() throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         List<Pelicula> list = new ArrayList<>();
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
@@ -112,6 +116,7 @@ public class PeliculaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Pelicula findByIdLazy(int idPelicula) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_ID)) {
             st.setInt(1, idPelicula);
             try (ResultSet rs = st.executeQuery()) {
@@ -138,6 +143,7 @@ public class PeliculaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Pelicula findByTituloAndYear(String titulo, int year) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_TITULO_AND_YEAR)) {
             st.setString(1, titulo);
             st.setInt(2, year);
@@ -182,6 +188,7 @@ public class PeliculaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public List<Pelicula> findPage(int page, int pageSize) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         List<Pelicula> lista = new ArrayList<>();
         int offset = (page - 1) * pageSize;
 
@@ -213,6 +220,7 @@ public class PeliculaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public int countPeliculas(Integer year, Double ratingMin, Integer idGenero) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         StringBuilder sql = new StringBuilder("SELECT COUNT(DISTINCT p.idpelicula) FROM pelicula p ");
         if (idGenero != null) {
             sql.append("LEFT JOIN peliculaGenero pg ON p.idpelicula = pg.idpelicula ");
@@ -257,6 +265,7 @@ public class PeliculaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public List<Pelicula> findFiltered(Integer year, Double ratingMin, Integer idGenero, int page, int pageSize) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         List<Pelicula> lista = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT DISTINCT p.* FROM pelicula p ");
         if (idGenero != null) {

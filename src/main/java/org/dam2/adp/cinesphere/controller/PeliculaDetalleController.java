@@ -26,7 +26,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * Controlador para la vista de detalle de una película.
+ * Controlador encargado de la gestión y visualización de los detalles de una película.
+ * Permite la interacción del usuario con su lista personal, valoración y estado de visualización.
  */
 public class PeliculaDetalleController {
 
@@ -54,7 +55,8 @@ public class PeliculaDetalleController {
     private static final Logger logger = Logger.getLogger(PeliculaDetalleController.class.getName());
 
     /**
-     * Inicializa el controlador, cargando los datos de la película seleccionada.
+     * Inicializa el controlador obteniendo la sesión actual y cargando los datos de la película seleccionada.
+     * Configura la visibilidad de los controles administrativos si corresponde.
      */
     @FXML
     private void initialize() {
@@ -82,7 +84,8 @@ public class PeliculaDetalleController {
     }
 
     /**
-     * Configura los ComboBox de estado y puntuación.
+     * Configura los valores y listeners de los componentes de selección.
+     * Establece la lógica reactiva entre el estado de visualización y la posibilidad de puntuar.
      */
     private void setupComboBoxes() {
         cbEstado.getItems().setAll(PeliculaEstado.values());
@@ -91,16 +94,42 @@ public class PeliculaDetalleController {
         );
 
         cbEstado.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) cambiarEstado(newVal);
+            if (newVal != null) {
+                cambiarEstado(newVal);
+                gestionarAccesibilidadPuntuacion(newVal);
+
+                if (newVal != PeliculaEstado.TERMINADA) {
+                    cbPuntuacion.setValue(null);
+                }
+            }
         });
+
         cbPuntuacion.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) cambiarPuntuacion(newVal);
         });
     }
 
     /**
-     * Carga los datos de la película y los muestra en la interfaz.
-     * @param idPelicula el ID de la película a cargar.
+     * Controla la habilitación del selector de puntuación basándose en el estado de la película.
+     * Solo permite puntuar si el estado es VISTA.
+     *
+     * @param estado El estado actual de la película en la lista del usuario.
+     */
+    private void gestionarAccesibilidadPuntuacion(PeliculaEstado estado) {
+        boolean esVista = (estado == PeliculaEstado.TERMINADA);
+        cbPuntuacion.setDisable(!esVista);
+
+        if (!esVista) {
+            cbPuntuacion.setPromptText("Marca como terminada para puntuar");
+        } else {
+            cbPuntuacion.setPromptText("Nota");
+        }
+    }
+
+    /**
+     * Recupera la información de la película desde la base de datos y actualiza la interfaz gráfica.
+     *
+     * @param idPelicula Identificador único de la película.
      */
     private void cargarDatos(int idPelicula) {
         logger.log(Level.INFO, "Cargando datos para la película ID: " + idPelicula);
@@ -117,24 +146,19 @@ public class PeliculaDetalleController {
             lblClasificacion.setText(pelicula.getNombreClasificacion());
             lblSinopsis.setText("Sinopsis no disponible aún.");
 
-
             String rutaImagen = "/img/noImage.png";
-
 
             if (pelicula.getGeneros() != null && !pelicula.getGeneros().isEmpty()) {
                 String primerGenero = pelicula.getGeneros().get(0).getNombreGenero();
-                // Llamamos al método auxiliar que ya tienes
                 rutaImagen = Utils.obtenerRutaImagenPorGenero(primerGenero);
             }
 
             try {
                 imgPoster.setImage(new Image(getClass().getResource(rutaImagen).toExternalForm()));
             } catch (Exception e) {
-
                 logger.log(Level.WARNING, "No se pudo cargar la imagen: " + rutaImagen);
                 imgPoster.setImage(new Image(getClass().getResource("/img/noImage.png").toExternalForm()));
             }
-
 
             flowGeneros.getChildren().clear();
             flowDirectores.getChildren().clear();
@@ -156,8 +180,10 @@ public class PeliculaDetalleController {
     }
 
     /**
-     * Actualiza el estado de la interfaz relacionado con "Mi Lista" (botones, ComboBoxes).
-     * @throws Exception si ocurre un error al acceder a la base de datos.
+     * Sincroniza los controles de UI con el estado actual de la película en la lista del usuario.
+     * Habilita o deshabilita componentes según la existencia del registro en la base de datos.
+     *
+     * @throws Exception Si ocurre un error de acceso a datos.
      */
     private void actualizarEstadoMiLista() throws Exception {
         MiLista ml = miListaDAO.findAll(usuario.getIdUsuario(), pelicula.getIdPelicula());
@@ -167,21 +193,25 @@ public class PeliculaDetalleController {
             btnMiLista.setText("En tu lista");
             cbEstado.setValue(ml.getEstado());
             cbPuntuacion.setValue(ml.getPuntuacion());
+
+            gestionarAccesibilidadPuntuacion(ml.getEstado());
+            cbEstado.setDisable(false);
         } else {
             btnMiLista.setText("Añadir a mi lista");
             cbEstado.setValue(null);
             cbPuntuacion.setValue(null);
-        }
 
-        cbEstado.setDisable(!enLista);
-        cbPuntuacion.setDisable(!enLista);
+            cbEstado.setDisable(true);
+            cbPuntuacion.setDisable(true);
+        }
         logger.log(Level.INFO, "Estado de 'Mi Lista' actualizado. Película en lista: " + enLista);
     }
 
     /**
-     * Crea una etiqueta con estilo de "chip".
-     * @param text el texto de la etiqueta.
-     * @return una etiqueta con el estilo aplicado.
+     * Genera un componente visual tipo etiqueta (Chip) para mostrar metadatos.
+     *
+     * @param text El contenido del chip.
+     * @return Label configurado con estilo.
      */
     private Label chip(String text) {
         Label l = new Label(text);
@@ -190,7 +220,8 @@ public class PeliculaDetalleController {
     }
 
     /**
-     * Añade o elimina la película de "Mi Lista".
+     * Alterna la presencia de la película actual en la lista personal del usuario.
+     * Inserta o elimina el registro según corresponda y refresca la interfaz.
      */
     private void toggleMiLista() {
         try {
@@ -211,8 +242,9 @@ public class PeliculaDetalleController {
     }
 
     /**
-     * Cambia el estado de la película en "Mi Lista".
-     * @param estado el nuevo estado de la película.
+     * Actualiza el estado de visualización de la película en la base de datos.
+     *
+     * @param estado El nuevo estado seleccionado.
      */
     private void cambiarEstado(PeliculaEstado estado) {
         try {
@@ -224,8 +256,9 @@ public class PeliculaDetalleController {
     }
 
     /**
-     * Cambia la puntuación de la película en "Mi Lista".
-     * @param puntuacion la nueva puntuación de la película.
+     * Actualiza la puntuación personal de la película en la base de datos.
+     *
+     * @param puntuacion La nueva puntuación asignada (1-10).
      */
     private void cambiarPuntuacion(int puntuacion) {
         try {
@@ -237,7 +270,7 @@ public class PeliculaDetalleController {
     }
 
     /**
-     * Abre una búsqueda en YouTube con el trailer de la película.
+     * Inicia el navegador predeterminado del sistema para buscar el trailer de la película en YouTube.
      */
     private void abrirTrailer() {
         try {
@@ -251,7 +284,8 @@ public class PeliculaDetalleController {
     }
 
     /**
-     * Elimina la película de la base de datos.
+     * Ejecuta el proceso de eliminación física de la película de la base de datos.
+     * Requiere confirmación previa del usuario administrador.
      */
     private void eliminarPelicula() {
         if (AlertUtils.confirmation("Eliminar Película", "¿Borrar '" + pelicula.getTituloPelicula() + "'?", "Esta acción es irreversible y la eliminará de las listas de todos los usuarios.")) {
@@ -266,5 +300,4 @@ public class PeliculaDetalleController {
             }
         }
     }
-
 }

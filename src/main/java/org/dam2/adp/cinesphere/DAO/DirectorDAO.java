@@ -17,8 +17,6 @@ public class DirectorDAO {
     private static final String SQL_FIND_ALL = "SELECT iddirector, nombredirector FROM director";
     private static final String SQL_FIND_BY_NAME = "SELECT iddirector, nombredirector FROM director WHERE nombredirector=?";
 
-    private final Connection conn = Conexion.getInstance().getConnection();
-
     /**
      * Inserta un nuevo director en la base de datos.
      * @param d el director a insertar.
@@ -26,6 +24,7 @@ public class DirectorDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Director insert(Director d) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             st.setString(1, d.getNombreDirector());
             st.executeUpdate();
@@ -45,6 +44,7 @@ public class DirectorDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Director findById(int id) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_ID)) {
             st.setInt(1, id);
             try (ResultSet rs = st.executeQuery()) {
@@ -62,6 +62,7 @@ public class DirectorDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public List<Director> findAll() throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         List<Director> list = new ArrayList<>();
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
@@ -79,6 +80,7 @@ public class DirectorDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Director findByName(String name) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_NAME)) {
             st.setString(1, name);
             try (ResultSet rs = st.executeQuery()) {

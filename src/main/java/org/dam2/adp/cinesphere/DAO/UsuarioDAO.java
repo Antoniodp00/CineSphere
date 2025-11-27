@@ -36,7 +36,6 @@ public class UsuarioDAO {
     private static final String SQL_UPDATE_ROL =
             "UPDATE usuario SET rol=? WHERE idusuario=?";
 
-    private final Connection conn = Conexion.getInstance().getConnection();
 
     /**
      * Inserta un nuevo usuario en la base de datos.
@@ -45,6 +44,7 @@ public class UsuarioDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Usuario insert(Usuario u) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             st.setString(1, u.getNombreUsuario());
             st.setString(2, u.getEmail());
@@ -71,6 +71,7 @@ public class UsuarioDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Usuario update(Usuario u) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_UPDATE)) {
             st.setString(1, u.getNombreUsuario());
             st.setString(2, u.getEmail());
@@ -89,14 +90,12 @@ public class UsuarioDAO {
      * @return true si se eliminó correctamente, false si no se encontró.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
-    public Boolean delete(Usuario u) throws SQLException {
-        boolean eliminado = false;
+    public boolean delete(Usuario u) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_DELETE)) {
             st.setInt(1, u.getIdUsuario());
-            // Si devuelve > 0, significa que borró al menos una fila
-            eliminado = st.executeUpdate() > 0;
+            return st.executeUpdate() > 0;
         }
-        return eliminado;
     }
 
     /**
@@ -106,6 +105,7 @@ public class UsuarioDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Usuario findById(int id) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_ID)) {
             st.setInt(1, id);
             try (ResultSet rs = st.executeQuery()) {
@@ -132,6 +132,7 @@ public class UsuarioDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Usuario findByName(String name) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_NAME)) {
             st.setString(1, name);
             try (ResultSet rs = st.executeQuery()) {
@@ -158,6 +159,7 @@ public class UsuarioDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Usuario findByEmail(String email) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_EMAIL)) {
             st.setString(1, email);
             try (ResultSet rs = st.executeQuery()) {
@@ -183,6 +185,7 @@ public class UsuarioDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public List<Usuario> findAll() throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         List<Usuario> usuarios = new ArrayList<>();
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
@@ -208,6 +211,7 @@ public class UsuarioDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public void updateRol(int idUsuario, Rol nuevoRol) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_UPDATE_ROL)) {
             st.setString(1, nuevoRol.name());
             st.setInt(2, idUsuario);

@@ -17,7 +17,6 @@ public class GeneroDAO {
     private static final String SQL_FIND_ALL = "SELECT idgenero, nombregenero FROM genero";
     private static final String SQL_FIND_BY_NAME = "SELECT idgenero, nombregenero FROM genero WHERE nombregenero=?";
 
-    private final Connection conn = Conexion.getInstance().getConnection();
 
     /**
      * Inserta un nuevo género en la base de datos.
@@ -26,6 +25,7 @@ public class GeneroDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Genero insert(Genero g) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             st.setString(1, g.getNombreGenero());
             st.executeUpdate();
@@ -45,6 +45,7 @@ public class GeneroDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Genero findById(int id) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_ID)) {
             st.setInt(1, id);
             try (ResultSet rs = st.executeQuery()) {
@@ -62,6 +63,7 @@ public class GeneroDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public List<Genero> findAll() throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         List<Genero> list = new ArrayList<>();
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
@@ -79,6 +81,7 @@ public class GeneroDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Genero findByName(String name) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_NAME)) {
             st.setString(1, name);
             try (ResultSet rs = st.executeQuery()) {

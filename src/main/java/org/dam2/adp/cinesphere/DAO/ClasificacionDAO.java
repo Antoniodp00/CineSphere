@@ -16,14 +16,13 @@ public class ClasificacionDAO {
     private static final String SQL_FIND_ALL = "SELECT nombreclasificacion FROM clasificacion";
     private static final String SQL_FIND_BY_ID = "SELECT nombreclasificacion FROM clasificacion WHERE nombreclasificacion=?";
 
-    private final Connection conn = Conexion.getInstance().getConnection();
-
     /**
      * Inserta una nueva clasificación en la base de datos.
      * @param c la clasificación a insertar.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public void insert(Clasificacion c) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT)) {
             st.setString(1, c.getNombreClasificacion());
             st.executeUpdate();
@@ -37,6 +36,7 @@ public class ClasificacionDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Clasificacion findById(String id) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_ID)) {
             st.setString(1, id);
             try (ResultSet rs = st.executeQuery()) {
@@ -54,6 +54,7 @@ public class ClasificacionDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public List<Clasificacion> findAll() throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         List<Clasificacion> list = new ArrayList<>();
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {

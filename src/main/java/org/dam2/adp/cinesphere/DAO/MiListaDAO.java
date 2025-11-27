@@ -38,7 +38,6 @@ public class MiListaDAO {
 
     private static final String SQL_COUNT_ALL_ESTADOS =  "SELECT estado, COUNT(*) AS total FROM milista WHERE idusuario = ? GROUP BY estado";
 
-    private final Connection conn = Conexion.getInstance().getConnection();
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
     private final PeliculaDAO peliculaDAO = new PeliculaDAO();
 
@@ -49,6 +48,7 @@ public class MiListaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public void insert(MiLista ml) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT)) {
             st.setInt(1, ml.getUsuario().getIdUsuario());
             st.setInt(2, ml.getPelicula().getIdPelicula());
@@ -68,6 +68,7 @@ public class MiListaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public MiLista findAll(int idUsuario, int idPelicula) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_ALL)) {
             st.setInt(1, idUsuario);
             st.setInt(2, idPelicula);
@@ -97,6 +98,7 @@ public class MiListaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public List<Pelicula> findPeliculasByUsuario(int idUsuario) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         List<Pelicula> misPeliculas = new ArrayList<>();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_USER)) {
             st.setInt(1, idUsuario);
@@ -121,6 +123,7 @@ public class MiListaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public void updateEstado(int idUsuario, int idPelicula, PeliculaEstado estado) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_UPDATE_ESTADO)) {
             st.setString(1, estado.getDisplayValue());
             st.setInt(2, idUsuario);
@@ -137,6 +140,7 @@ public class MiListaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public void updatePuntuacion(int idUsuario, int idPelicula, int puntuacion) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_UPDATE_PUNTUACION)) {
             st.setInt(1, puntuacion);
             st.setInt(2, idUsuario);
@@ -147,11 +151,13 @@ public class MiListaDAO {
 
     /**
      * Elimina una película de la lista de un usuario.
-     * @param idUsuario el ID del usuario.
+     *
+     * @param idUsuario  el ID del usuario.
      * @param idPelicula el ID de la película.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public void delete(int idUsuario, int idPelicula) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_DELETE)) {
             st.setInt(1, idUsuario);
             st.setInt(2, idPelicula);
@@ -165,8 +171,9 @@ public class MiListaDAO {
      * @return un mapa con el estado de la película como clave y el recuento como valor.
      * @throws SQLException en caso de error de acceso a datos.
      */
-    public java.util.Map<PeliculaEstado, Integer> getEstadisticasEstados(int idUsuario) throws SQLException {
-        java.util.Map<PeliculaEstado, Integer> mapa = new java.util.EnumMap<>(PeliculaEstado.class);
+    public Map<PeliculaEstado, Integer> getEstadisticasEstados(int idUsuario) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
+        Map<PeliculaEstado, Integer> mapa = new EnumMap<>(PeliculaEstado.class);
         try (PreparedStatement st = conn.prepareStatement(SQL_COUNT_ALL_ESTADOS)) {
             st.setInt(1, idUsuario);
             try (ResultSet rs = st.executeQuery()) {
@@ -194,6 +201,7 @@ public class MiListaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public int countGuardadas(int idUsuario) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_COUNT_GUARDADAS)) {
             st.setInt(1, idUsuario);
             try (ResultSet rs = st.executeQuery()) {
@@ -213,6 +221,7 @@ public class MiListaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public int countByEstado(int idUsuario, PeliculaEstado estado) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_COUNT_BY_ESTADOS)) {
             st.setInt(1, idUsuario);
             st.setString(2, estado.getDisplayValue());
@@ -232,6 +241,7 @@ public class MiListaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public int sumDuracionTerminadas(int idUsuario) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_COUNT_DURACION_TERMINADAS)) {
             st.setInt(1, idUsuario);
             st.setString(2, PeliculaEstado.TERMINADA.getDisplayValue());
@@ -253,6 +263,7 @@ public class MiListaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Map<String, Integer> getConteoGenerosByUsuario(int idUsuario) throws SQLException {
+        Connection conn = Conexion.getInstance().getConnection();
         Map<String, Integer> mapa = new LinkedHashMap<>();
         try (PreparedStatement st = conn.prepareStatement(SQL_COUNT_GENEROS_BY_USER)) {
             st.setInt(1, idUsuario);
