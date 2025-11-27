@@ -29,7 +29,7 @@ public class PeliculaDirectorDAO {
      * @param idDirector el ID del director.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
-    public void add(int idPelicula, int idDirector) throws SQLException {
+    public void insert(int idPelicula, int idDirector) throws SQLException {
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT)) {
             st.setInt(1, idPelicula);
             st.setInt(2, idDirector);

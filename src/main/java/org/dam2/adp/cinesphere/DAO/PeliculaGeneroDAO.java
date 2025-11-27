@@ -29,7 +29,7 @@ public class PeliculaGeneroDAO {
      * @param idGenero el ID del género.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
-    public void add(int idPelicula, int idGenero) throws SQLException {
+    public void insert(int idPelicula, int idGenero) throws SQLException {
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT)) {
             st.setInt(1, idPelicula);
             st.setInt(2, idGenero);

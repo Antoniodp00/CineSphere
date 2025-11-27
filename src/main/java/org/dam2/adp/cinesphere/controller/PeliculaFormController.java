@@ -156,7 +156,7 @@ public class PeliculaFormController {
                 g = generoDAO.insert(new Genero(nombre));
                 logger.log(Level.FINE, "Nuevo género creado y añadido a la película: " + nombre);
             }
-            peliculaGeneroDAO.add(p.getIdPelicula(), g.getIdGenero());
+            peliculaGeneroDAO.insert(p.getIdPelicula(), g.getIdGenero());
         }
     }
 
@@ -173,7 +173,7 @@ public class PeliculaFormController {
                 d = directorDAO.insert(new Director(nombre));
                 logger.log(Level.FINE, "Nuevo director creado y añadido a la película: " + nombre);
             }
-            peliculaDirectorDAO.add(p.getIdPelicula(), d.getIdDirector());
+            peliculaDirectorDAO.insert(p.getIdPelicula(), d.getIdDirector());
         }
     }
 
@@ -190,7 +190,7 @@ public class PeliculaFormController {
                 a = actorDAO.insert(new Actor(nombre));
                 logger.log(Level.FINE, "Nuevo actor creado y añadido a la película: " + nombre);
             }
-            peliculaActorDAO.add(p.getIdPelicula(), a.getIdActor());
+            peliculaActorDAO.insert(p.getIdPelicula(), a.getIdActor());
         }
     }
 

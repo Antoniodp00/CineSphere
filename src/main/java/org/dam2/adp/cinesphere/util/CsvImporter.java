@@ -204,7 +204,7 @@ public class CsvImporter {
     private void procesarDirectores(Pelicula p, String rawData) throws SQLException {
         for (String nombre : splitAndClean(rawData)) {
             Director d = obtenerDirector(nombre);
-            peliculaDirectorDAO.add(p.getIdPelicula(), d.getIdDirector());
+            peliculaDirectorDAO.insert(p.getIdPelicula(), d.getIdDirector());
         }
     }
 
@@ -217,7 +217,7 @@ public class CsvImporter {
     private void procesarActores(Pelicula p, String rawData) throws SQLException {
         for (String nombre : splitAndClean(rawData)) {
             Actor a = obtenerActor(nombre);
-            peliculaActorDAO.add(p.getIdPelicula(), a.getIdActor());
+            peliculaActorDAO.insert(p.getIdPelicula(), a.getIdActor());
         }
     }
 
@@ -230,7 +230,7 @@ public class CsvImporter {
     private void procesarGeneros(Pelicula p, String rawData) throws SQLException {
         for (String nombre : splitAndClean(rawData)) {
             Genero g = obtenerGenero(nombre);
-            peliculaGeneroDAO.add(p.getIdPelicula(), g.getIdGenero());
+            peliculaGeneroDAO.insert(p.getIdPelicula(), g.getIdGenero());
         }
     }
 

@@ -25,8 +25,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.dam2.adp.cinesphere.util.Utils.obtenerRutaImagenPorGenero;
-
 /**
  * Controlador para la vista de detalle de una película.
  */
@@ -113,17 +111,16 @@ public class PeliculaDetalleController {
                 return;
             }
 
-            // 1. Cargar textos básicos
             lblTitulo.setText(pelicula.getTituloPelicula());
             lblSubtitulo.setText(pelicula.getYearPelicula() + " • " + pelicula.getNombreClasificacion());
             lblRating.setText("★ " + (pelicula.getRatingPelicula() != null ? pelicula.getRatingPelicula() : "—"));
             lblClasificacion.setText(pelicula.getNombreClasificacion());
             lblSinopsis.setText("Sinopsis no disponible aún.");
 
-            // 2. Lógica para la IMAGEN (imgPoster) basada en el género
-            String rutaImagen = "/img/noImage.png"; // Valor por defecto
 
-            // Verificamos si tiene géneros y tomamos el primero
+            String rutaImagen = "/img/noImage.png";
+
+
             if (pelicula.getGeneros() != null && !pelicula.getGeneros().isEmpty()) {
                 String primerGenero = pelicula.getGeneros().get(0).getNombreGenero();
                 // Llamamos al método auxiliar que ya tienes
@@ -133,13 +130,12 @@ public class PeliculaDetalleController {
             try {
                 imgPoster.setImage(new Image(getClass().getResource(rutaImagen).toExternalForm()));
             } catch (Exception e) {
-                // Si falla la carga (ruta mal), ponemos la imagen por defecto
+
                 logger.log(Level.WARNING, "No se pudo cargar la imagen: " + rutaImagen);
                 imgPoster.setImage(new Image(getClass().getResource("/img/noImage.png").toExternalForm()));
             }
 
-            // 3. Cargar los Chips (FlowPanes)
-            // Limpiamos primero por si acaso se llama varias veces (opcional pero recomendado)
+
             flowGeneros.getChildren().clear();
             flowDirectores.getChildren().clear();
             flowActores.getChildren().clear();
@@ -148,7 +144,6 @@ public class PeliculaDetalleController {
             pelicula.getDirectores().forEach(d -> flowDirectores.getChildren().add(chip(d.getNombreDirector())));
             pelicula.getActores().forEach(a -> flowActores.getChildren().add(chip(a.getNombreActor())));
 
-            // 4. Configurar botones
             actualizarEstadoMiLista();
             btnMiLista.setOnAction(e -> toggleMiLista());
             btnTrailer.setOnAction(e -> abrirTrailer());
@@ -165,7 +160,7 @@ public class PeliculaDetalleController {
      * @throws Exception si ocurre un error al acceder a la base de datos.
      */
     private void actualizarEstadoMiLista() throws Exception {
-        MiLista ml = miListaDAO.find(usuario.getIdUsuario(), pelicula.getIdPelicula());
+        MiLista ml = miListaDAO.findAll(usuario.getIdUsuario(), pelicula.getIdPelicula());
         boolean enLista = ml != null;
 
         if (enLista) {
@@ -199,7 +194,7 @@ public class PeliculaDetalleController {
      */
     private void toggleMiLista() {
         try {
-            MiLista ml = miListaDAO.find(usuario.getIdUsuario(), pelicula.getIdPelicula());
+            MiLista ml = miListaDAO.findAll(usuario.getIdUsuario(), pelicula.getIdPelicula());
             if (ml == null) {
                 miListaDAO.insert(new MiLista(
                         pelicula, usuario, PeliculaEstado.PENDIENTE, null, null, LocalDateTime.now()

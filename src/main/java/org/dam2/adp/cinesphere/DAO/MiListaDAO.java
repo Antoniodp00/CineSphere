@@ -18,7 +18,7 @@ public class MiListaDAO {
             "INSERT INTO milista(idusuario, idpelicula, estado, puntuacion, urlimg, fecha_anadido) " +
                     "VALUES (?, ?, ?, ?, ?, ?)";
 
-    private static final String SQL_FIND =
+    private static final String SQL_FIND_ALL =
             "SELECT * FROM milista WHERE idusuario=? AND idpelicula=?";
 
     private static final String SQL_FIND_BY_USER = "SELECT idpelicula FROM milista WHERE idusuario=?";
@@ -74,9 +74,9 @@ public class MiListaDAO {
      * @return la entrada encontrada, o null si no se encuentra.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
-    public MiLista find(int idUsuario, int idPelicula) throws SQLException {
+    public MiLista findAll(int idUsuario, int idPelicula) throws SQLException {
         MiLista miLista = null;
-        try (PreparedStatement st = conn.prepareStatement(SQL_FIND)) {
+        try (PreparedStatement st = conn.prepareStatement(SQL_FIND_ALL)) {
             st.setInt(1, idUsuario);
             st.setInt(2, idPelicula);
             try (ResultSet rs = st.executeQuery()) {

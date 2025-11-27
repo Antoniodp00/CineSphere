@@ -202,7 +202,6 @@ public class PeliculaListaController {
         card.getStyleClass().add("movie-card");
         card.setOnMouseClicked(event -> verDetalle(p.getIdPelicula()));
 
-        // --- LÓGICA PARA ELEGIR LA IMAGEN SEGÚN EL GÉNERO ---
         List<Genero> listaGeneros = new ArrayList<>();
         String textoGeneros = "Sin género";
         String rutaImagen = "/img/noImage.png";
@@ -211,14 +210,11 @@ public class PeliculaListaController {
             listaGeneros = peliculaGeneroDAO.findByPelicula(p.getIdPelicula());
 
             if (listaGeneros != null && !listaGeneros.isEmpty()) {
-                // 1. Preparamos el texto para mostrar (ej: "Action, Drama")
+
                 textoGeneros = listaGeneros.stream()
                         .map(g -> g.getNombreGenero())
                         .reduce((a, b) -> a + ", " + b)
                         .orElse("Sin género");
-
-                // 2. Tomamos el PRIMER género de la lista para elegir la imagen de fondo
-                // Esto asume que el primer género es el principal
                 String primerGenero = listaGeneros.get(0).getNombreGenero();
                 rutaImagen = Utils.obtenerRutaImagenPorGenero(primerGenero);
             }
@@ -226,22 +222,18 @@ public class PeliculaListaController {
             logger.log(Level.WARNING, "Error al procesar géneros película ID " + p.getIdPelicula(), e);
         }
 
-        // --- CREACIÓN DE LA IMAGEN ---
         ImageView img = new ImageView();
         img.setFitWidth(150);
         img.setFitHeight(220);
         img.setPreserveRatio(false);
 
         try {
-            // Cargamos la imagen seleccionada
             img.setImage(new Image(getClass().getResource(rutaImagen).toExternalForm()));
         } catch (Exception e) {
-            // Si falla (por ejemplo si la ruta está mal escrita), ponemos la default
             System.out.println("No se encontró imagen: " + rutaImagen);
             img.setImage(new Image(getClass().getResource("/img/noImage.png").toExternalForm()));
         }
 
-        // --- RESTO DE ELEMENTOS ---
         Label lblTitulo = new Label(p.getTituloPelicula());
         lblTitulo.getStyleClass().add("movie-title");
 

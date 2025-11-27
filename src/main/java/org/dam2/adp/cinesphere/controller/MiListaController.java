@@ -64,16 +64,16 @@ public class MiListaController {
     private final GeneroDAO generoDAO = new GeneroDAO();
     private Usuario usuario;
 
-    // Datos en memoria de la lista del usuario
-    private List<Pelicula> cacheMisPeliculas; // lista completa del usuario
 
-    // Estado de filtros
+    private List<Pelicula> cacheMisPeliculas;
+
+
     private Integer filtroYear = null;
     private Double filtroRating = null;
-    private String filtroGeneroNombre = null; // nombre legible
-    private String filtroBusqueda = null; // por título
+    private String filtroGeneroNombre = null;
+    private String filtroBusqueda = null;
 
-    // Paginación
+
     private int page = 1;
     private final int pageSize = 18;
     private int totalPages = 1;
@@ -133,7 +133,6 @@ public class MiListaController {
             }
         });
 
-        // Cargar datos iniciales desde DAO y pintar página 1
         recargarCacheDesdeDAO();
         actualizarTotalPaginas();
         cargarPagina(1);
@@ -241,7 +240,6 @@ public class MiListaController {
     private VBox crearCardPelicula(Pelicula p) {
         VBox card = new VBox();
         card.getStyleClass().add("movie-card");
-        // estilos y tamaños definidos en style.css (.movie-card)
 
         card.setOnMouseClicked(event -> {
             logger.log(Level.INFO, "Click en la película: " + p.getTituloPelicula() + " (ID: " + p.getIdPelicula() + ")");
@@ -249,20 +247,16 @@ public class MiListaController {
             Navigation.navigate("peliculas_detalle.fxml");
         });
 
-        // --- LÓGICA DE GÉNEROS E IMAGEN ---
         String textoGeneros = "Sin género";
-        String rutaImagen = "/img/noImage.png"; // Imagen por defecto inicial
+        String rutaImagen = "/img/noImage.png";
 
         try {
-            // 1. Obtenemos la lista completa de géneros primero
             List<Genero> listaGeneros = peliculaGeneroDAO.findByPelicula(p.getIdPelicula());
 
             if (listaGeneros != null && !listaGeneros.isEmpty()) {
-                // 2. Usamos el PRIMER género para determinar la imagen de fondo
                 String primerGenero = listaGeneros.get(0).getNombreGenero();
                 rutaImagen = obtenerRutaImagenPorGenero(primerGenero);
 
-                // 3. Creamos el texto para la etiqueta (ej: "Action, Drama")
                 textoGeneros = listaGeneros.stream()
                         .map(g -> g.getNombreGenero())
                         .reduce((a, b) -> a + ", " + b)
@@ -272,22 +266,19 @@ public class MiListaController {
             logger.log(Level.WARNING, "Error al obtener géneros para la película ID " + p.getIdPelicula(), e);
         }
 
-        // --- CONFIGURACIÓN DE LA IMAGEN ---
+
         ImageView img = new ImageView();
         img.setFitWidth(150);
         img.setFitHeight(220);
         img.setPreserveRatio(false);
 
         try {
-            // Intentamos cargar la imagen específica del género
             img.setImage(new Image(getClass().getResource(rutaImagen).toExternalForm()));
         } catch (Exception e) {
-            // Si la imagen no existe o la ruta está mal, cargamos la imagen por defecto
-            // Esto evita que la aplicación se cierre si falta un archivo .png
+
             img.setImage(new Image(getClass().getResource("/img/noImage.png").toExternalForm()));
         }
 
-        // --- RESTO DE ETIQUETAS ---
         Label lblTitulo = new Label(p.getTituloPelicula());
         lblTitulo.getStyleClass().add("movie-title");
 
