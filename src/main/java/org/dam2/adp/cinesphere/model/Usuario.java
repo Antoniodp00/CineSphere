@@ -41,6 +41,7 @@ public class Usuario {
      * @param passw la contraseña del usuario.
      * @param bornDate la fecha de nacimiento del usuario.
      * @param misPeliculas la lista de películas del usuario.
+     * @param rol el rol del usuario.
      */
     public Usuario(int idUsuario, String nombreUsuario, String email, String passw,
                    LocalDate bornDate, List<MiLista> misPeliculas, Rol rol) {
@@ -53,8 +54,6 @@ public class Usuario {
         this.misPeliculas = misPeliculas;
         this.rol = rol;
     }
-
-    // getters + setters
 
     /**
      * Obtiene el ID del usuario.
@@ -116,10 +115,18 @@ public class Usuario {
      */
     public void setBornDate(LocalDate bornDate) { this.bornDate = bornDate; }
 
+    /**
+     * Obtiene el rol del usuario.
+     * @return el rol del usuario.
+     */
     public Rol getRol() {
         return rol;
     }
 
+    /**
+     * Establece el rol del usuario.
+     * @param rol el nuevo rol del usuario.
+     */
     public void setRol(Rol rol) {
         this.rol = rol;
     }
@@ -128,7 +135,6 @@ public class Usuario {
      * Obtiene la lista de películas del usuario.
      * @return la lista de películas del usuario.
      */
-
     public List<MiLista> getMisPeliculas() { return misPeliculas; }
 
     /**
@@ -146,11 +152,11 @@ public class Usuario {
         return nombreUsuario;
     }
 
+    /**
+     * Comprueba si el usuario es administrador.
+     * @return true si el usuario es administrador, false en caso contrario.
+     */
     public boolean isAdmin() {
-        // Si usas Enum:
         return this.rol == Rol.ADMIN;
-
-        // O si sigues usando String temporalmente:
-        // return "ADMIN".equalsIgnoreCase(this.rol);
     }
 }

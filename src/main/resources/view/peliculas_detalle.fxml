@@ -40,6 +40,8 @@
                     <ComboBox fx:id="cbEstado" promptText="Estado"/>
                     <ComboBox fx:id="cbPuntuacion" promptText="Puntuación"/>
                     <Button fx:id="btnTrailer" text="Ver trailer" styleClass="accent-button"/>
+
+                    <Region HBox.hgrow="ALWAYS" /> <Button fx:id="btnEliminarPelicula" text="Eliminar" styleClass="danger-button" visible="false"/>
                 </HBox>
             </VBox>
 

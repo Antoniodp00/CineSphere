@@ -34,8 +34,10 @@ public class PeliculaDAO {
             ORDER BY idpelicula
             LIMIT ? OFFSET ?
             """;
-
-    private static final String SQL_COUNT = "SELECT COUNT(*) FROM pelicula";
+    private static final String SQL_DELETE =
+            "DELETE FROM pelicula WHERE idpelicula=?";
+    private static final String SQL_COUNT =
+            "SELECT COUNT(*) FROM pelicula";
 
     private PeliculaGeneroDAO peliculaGeneroDAO = new PeliculaGeneroDAO();
     private PeliculaActorDAO peliculaActorDAO = new PeliculaActorDAO();
@@ -69,6 +71,18 @@ public class PeliculaDAO {
     }
 
     /**
+     * Elimina una película de la base de datos.
+     * @param idPelicula el ID de la película a eliminar.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
+    public void delete(int idPelicula) throws SQLException {
+        try (PreparedStatement st = conn.prepareStatement(SQL_DELETE)) {
+            st.setInt(1, idPelicula);
+            st.executeUpdate();
+        }
+    }
+
+    /**
      * Obtiene todas las películas de la base de datos (carga perezosa).
      * @return una lista de todas las películas.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
@@ -81,9 +95,9 @@ public class PeliculaDAO {
                 Pelicula p = new Pelicula();
                 p.setIdPelicula(rs.getInt("idpelicula"));
                 p.setTituloPelicula(rs.getString("titulopelicula"));
-                p.setYearPelicula(rs.getObject("yearpelicula", Integer.class));
+                p.setYearPelicula(rs.getInt("yearpelicula"));
                 p.setRatingPelicula(rs.getDouble("ratingpelicula"));
-                p.setDuracionPelicula(rs.getObject("duracionpelicula", Integer.class));
+                p.setDuracionPelicula(rs.getInt("duracionpelicula"));
                 p.setNombreClasificacion(rs.getString("nombreclasificacion"));
                 list.add(p);
             }

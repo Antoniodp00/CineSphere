@@ -14,12 +14,17 @@
 
         <Label text="CineSphere" styleClass="title" />
 
-        <VBox spacing="10">
+        <VBox spacing="10" maxWidth="250">
+            <Label text="Seleccionar Base de Datos:" styleClass="text-normal" style="-fx-font-size: 12px;"/>
+            <ComboBox fx:id="cbBaseDatos" prefWidth="250" />
+
+            <Separator opacity="0.5"/>
+
             <TextField fx:id="txtUsuario" promptText="Usuario" />
             <PasswordField fx:id="txtPassword" promptText="Contraseña" />
         </VBox>
 
-        <Button fx:id="btnLogin" text="Iniciar Sesión" prefWidth="200"/>
+        <Button fx:id="btnLogin" text="Conectar e Iniciar Sesión" prefWidth="200" styleClass="accent-button"/>
         <Hyperlink fx:id="linkRegistro" text="Crear una cuenta"/>
 
     </VBox>
