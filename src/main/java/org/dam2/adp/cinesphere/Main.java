@@ -2,69 +2,44 @@ package org.dam2.adp.cinesphere;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import org.dam2.adp.cinesphere.DAO.UsuarioDAO;
 import org.dam2.adp.cinesphere.database.Conexion;
-import org.dam2.adp.cinesphere.model.Rol;
-import org.dam2.adp.cinesphere.model.Usuario;
 import org.dam2.adp.cinesphere.util.Navigation;
-import org.mindrot.jbcrypt.BCrypt; // Importante para hashear la contraseña
 
-import java.sql.SQLException;
-import java.time.LocalDate;
-
+/**
+ * Clase principal de la aplicación CineSphere.
+ */
 public class Main extends Application {
 
+    /**
+     * Inicia la aplicación y configura la ventana principal.
+     * @param stage El escenario principal de la aplicación.
+     * @throws Exception Si ocurre un error durante el inicio.
+     */
     @Override
     public void start(Stage stage) throws Exception {
-        // 1. Conectar a la BBDD
-        Conexion.getInstance().connect("config-postgres.properties");
 
-        // 2. Comprobar y crear admin si no existe (NUEVO PASO)
-        crearAdminPorDefecto();
-
-        // 3. Iniciar la interfaz gráfica
         Navigation.setStage(stage);
         stage.setTitle("CineSphere");
         Navigation.switchScene("login.fxml");
     }
 
-    public static void main(String[] args) {
-        launch();
+    /**
+     * Se ejecuta al cerrar la aplicación, desconectando la base de datos.
+     * @throws Exception Si ocurre un error durante el cierre.
+     */
+    @Override
+    public void stop() throws Exception {
+
+        System.out.println("Cerrando aplicación...");
+        Conexion.getInstance().disconnect();
+        super.stop();
     }
 
     /**
-     * Verifica si existe el usuario 'admin'. Si no existe, lo crea.
+     * Método principal que lanza la aplicación.
+     * @param args Argumentos de la línea de comandos.
      */
-    private void crearAdminPorDefecto() {
-        UsuarioDAO usuarioDAO = new UsuarioDAO();
-
-        try {
-
-            Usuario adminExistente = usuarioDAO.findByName("admin");
-
-            if (adminExistente == null) {
-                System.out.println("--- Primer inicio detectado: Creando usuario ADMIN ---");
-
-                Usuario admin = new Usuario();
-                admin.setNombreUsuario("admin");
-                admin.setEmail("admin@cinesphere.com");
-
-
-                String passHasheada = BCrypt.hashpw("admin", BCrypt.gensalt());
-                admin.setPassw(passHasheada);
-
-                admin.setBornDate(LocalDate.now());
-
-                admin.setRol(Rol.ADMIN);
-
-                usuarioDAO.insert(admin);
-
-                System.out.println("Usuario 'admin' creado con contraseña 'admin'.");
-            }
-
-        } catch (SQLException e) {
-            System.err.println("Error al verificar/crear el usuario admin: " + e.getMessage());
-            e.printStackTrace();
-        }
+    public static void main(String[] args) {
+        launch();
     }
 }

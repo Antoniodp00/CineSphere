@@ -177,8 +177,12 @@ public class CsvImporter {
         procesarGeneros(p, row.get("Category"));
     }
 
-    // --- MÉTODOS AUXILIARES DE PROCESAMIENTO ---
-
+    /**
+     * Procesa los directores de una película.
+     * @param p la película.
+     * @param rawData los datos en crudo de los directores.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
     private void procesarDirectores(Pelicula p, String rawData) throws SQLException {
         for (String nombre : splitAndClean(rawData)) {
             Director d = obtenerDirector(nombre);
@@ -186,6 +190,12 @@ public class CsvImporter {
         }
     }
 
+    /**
+     * Procesa los actores de una película.
+     * @param p la película.
+     * @param rawData los datos en crudo de los actores.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
     private void procesarActores(Pelicula p, String rawData) throws SQLException {
         for (String nombre : splitAndClean(rawData)) {
             Actor a = obtenerActor(nombre);
@@ -193,6 +203,12 @@ public class CsvImporter {
         }
     }
 
+    /**
+     * Procesa los géneros de una película.
+     * @param p la película.
+     * @param rawData los datos en crudo de los géneros.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
     private void procesarGeneros(Pelicula p, String rawData) throws SQLException {
         for (String nombre : splitAndClean(rawData)) {
             Genero g = obtenerGenero(nombre);
@@ -200,11 +216,11 @@ public class CsvImporter {
         }
     }
 
-    // --- GESTIÓN DE CACHÉ Y BÚSQUEDA EN BD ---
-    // Estos métodos buscan primero en el mapa local, luego en la BD, y si no existe, insertan.
-
     /**
      * Obtiene o crea una Clasificación.
+     * @param nombre el nombre de la clasificación.
+     * @return la clasificación.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     private Clasificacion obtenerClasificacion(String nombre) throws SQLException {
         if (nombre == null || nombre.isBlank()) nombre = "Not Rated"; // Valor por defecto
@@ -223,6 +239,9 @@ public class CsvImporter {
 
     /**
      * Obtiene o crea un Director.
+     * @param nombre el nombre del director.
+     * @return el director.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     private Director obtenerDirector(String nombre) throws SQLException {
         if (cacheDirectores.containsKey(nombre)) return cacheDirectores.get(nombre);
@@ -239,6 +258,9 @@ public class CsvImporter {
 
     /**
      * Obtiene o crea un Actor.
+     * @param nombre el nombre del actor.
+     * @return el actor.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     private Actor obtenerActor(String nombre) throws SQLException {
         if (cacheActores.containsKey(nombre)) return cacheActores.get(nombre);
@@ -254,6 +276,9 @@ public class CsvImporter {
 
     /**
      * Obtiene o crea un Género.
+     * @param nombre el nombre del género.
+     * @return el género.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     private Genero obtenerGenero(String nombre) throws SQLException {
         if (cacheGeneros.containsKey(nombre)) return cacheGeneros.get(nombre);
@@ -267,11 +292,11 @@ public class CsvImporter {
         return g;
     }
 
-    // --- UTILIDADES DE PARSEO Y LIMPIEZA ---
-
     /**
      * Divide una cadena por comas, limpia espacios y elimina duplicados o vacíos.
      * Ej: "Action, Drama, Action" -> ["Action", "Drama"]
+     * @param cadena la cadena a procesar.
+     * @return un conjunto de cadenas limpias.
      */
     private Set<String> splitAndClean(String cadena) {
         if (cadena == null || cadena.isBlank()) return Collections.emptySet();
@@ -288,6 +313,7 @@ public class CsvImporter {
 
     /**
      * Intenta parsear un entero de forma segura.
+     * @param value el valor a parsear.
      * @return el número o null si el formato es incorrecto.
      */
     private Integer tryParseInt(String value) {
@@ -301,6 +327,7 @@ public class CsvImporter {
 
     /**
      * Intenta parsear un double de forma segura.
+     * @param value el valor a parsear.
      * @return el número o null si el formato es incorrecto.
      */
     private Double tryParseDouble(String value) {

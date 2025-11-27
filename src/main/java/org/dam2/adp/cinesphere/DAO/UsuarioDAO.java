@@ -61,6 +61,12 @@ public class UsuarioDAO {
         return u;
     }
 
+    /**
+     * Actualiza un usuario existente en la base de datos.
+     * @param u el usuario a actualizar.
+     * @return el usuario actualizado.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
     public Usuario update(Usuario u) throws SQLException {
         try (PreparedStatement st = conn.prepareStatement(SQL_UPDATE)) {
             st.setString(1, u.getNombreUsuario());
@@ -74,12 +80,11 @@ public class UsuarioDAO {
         return u;
     }
 
-    // ... (resto de la clase igual)
-
     /**
      * Elimina un usuario de la base de datos.
      * @param u El objeto Usuario a eliminar.
      * @return true si se eliminó correctamente, false si no se encontró.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Boolean delete(Usuario u) throws SQLException {
         boolean eliminado = false;
@@ -90,8 +95,6 @@ public class UsuarioDAO {
         }
         return eliminado;
     }
-
-// ... (resto de la clase igual)
 
     /**
      * Busca un usuario por su ID.
@@ -173,6 +176,8 @@ public class UsuarioDAO {
 
     /**
      * Obtiene la lista completa de usuarios registrados.
+     * @return una lista de todos los usuarios.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public List<Usuario> findAll() throws SQLException {
         List<Usuario> usuarios = new ArrayList<>();
@@ -195,6 +200,9 @@ public class UsuarioDAO {
 
     /**
      * Actualiza el rol de un usuario por su ID.
+     * @param idUsuario el ID del usuario a actualizar.
+     * @param nuevoRol el nuevo rol del usuario.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public void updateRol(int idUsuario, Rol nuevoRol) throws SQLException {
         try (PreparedStatement st = conn.prepareStatement(SQL_UPDATE_ROL)) {
@@ -205,4 +213,3 @@ public class UsuarioDAO {
     }
 
 }
-

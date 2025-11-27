@@ -11,11 +11,13 @@ import org.dam2.adp.cinesphere.model.MiLista;
 import org.dam2.adp.cinesphere.model.Pelicula;
 import org.dam2.adp.cinesphere.model.PeliculaEstado;
 import org.dam2.adp.cinesphere.model.Usuario;
+import org.dam2.adp.cinesphere.util.AlertUtils;
 import org.dam2.adp.cinesphere.util.Navigation;
 import org.dam2.adp.cinesphere.util.SessionManager;
 
 import java.awt.Desktop;
 import java.net.URI;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -25,6 +27,7 @@ import java.util.stream.IntStream;
  */
 public class PeliculaDetalleController {
 
+    @FXML private Button btnEliminarPelicula;
     @FXML private ImageView imgPoster;
     @FXML private Label lblTitulo;
     @FXML private Label lblSubtitulo;
@@ -60,6 +63,14 @@ public class PeliculaDetalleController {
 
         setupComboBoxes();
         cargarDatos(idPelicula);
+
+        if (usuario != null && usuario.isAdmin()) {
+            btnEliminarPelicula.setVisible(true);
+            btnEliminarPelicula.setOnAction(e -> eliminarPelicula());
+        } else {
+            btnEliminarPelicula.setVisible(false);
+            btnEliminarPelicula.setManaged(false);
+        }
     }
 
     /**
@@ -196,6 +207,27 @@ public class PeliculaDetalleController {
             Desktop.getDesktop().browse(new URI(url));
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Elimina la película de la base de datos.
+     */
+    private void eliminarPelicula() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Eliminar Película");
+        alert.setHeaderText("¿Borrar '" + pelicula.getTituloPelicula() + "'?");
+        alert.setContentText("Esta acción es irreversible y la eliminará de las listas de todos los usuarios.");
+
+        if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+            try {
+                peliculaDAO.delete(pelicula.getIdPelicula());
+                AlertUtils.info("Película eliminada.");
+                Navigation.navigate("peliculas_lista.fxml");
+            } catch (SQLException e) {
+                e.printStackTrace();
+                AlertUtils.error("Error al eliminar: " + e.getMessage());
+            }
         }
     }
 }
