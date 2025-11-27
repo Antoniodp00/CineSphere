@@ -19,10 +19,13 @@ import java.util.logging.Logger;
 
 /**
  * Controlador para la pantalla de login.
+ * Gestiona la autenticación y selección de base de datos.
  */
 public class LoginController {
 
     @FXML private ComboBox<String> cbBaseDatos;
+    @FXML private Button btnConectar;
+    @FXML private Label lblEstadoConexion;
     @FXML private TextField txtUsuario;
     @FXML private PasswordField txtPassword;
     @FXML private Button btnLogin;
@@ -30,113 +33,174 @@ public class LoginController {
 
     private UsuarioDAO usuarioDAO;
     private static final Logger logger = Logger.getLogger(LoginController.class.getName());
+    private boolean isConnected = false;
 
     /**
-     * Inicializa el controlador, configurando los listeners de los botones.
+     * Inicializa el controlador, configurando los listeners de los componentes.
      */
     @FXML
     private void initialize() {
         logger.log(Level.INFO, "Inicializando LoginController...");
-        cbBaseDatos.getItems().addAll("PostgreSQL", "SQLite (Local)");
+
+        configurarComboBaseDatos();
+
+        btnConectar.setOnAction(e -> conectar());
+        btnLogin.setOnAction(e -> intentarLogin());
+        linkRegistro.setOnAction(e -> Navigation.switchScene("register.fxml"));
+
+        logger.log(Level.INFO, "LoginController inicializado.");
+    }
+
+    /**
+     * Configura los ítems y el listener del ComboBox de selección de BD.
+     */
+    private void configurarComboBaseDatos() {
+        cbBaseDatos.getItems().addAll("PostgreSQL (Online)", "SQLite (Local)");
         cbBaseDatos.getSelectionModel().selectFirst();
 
-        btnLogin.setOnAction(e -> intentarLogin());
-
-        linkRegistro.setOnAction(e -> {
-            if (establecerConexion()) {
-                Navigation.switchScene("register.fxml");
+        // Listener: Si cambia la selección, forzamos la desconexión visual y lógica
+        cbBaseDatos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.equals(oldValue)) {
+                resetearEstadoConexion();
             }
         });
-        logger.log(Level.INFO, "LoginController inicializado.");
+    }
+
+    /**
+     * Resetea la UI y el estado lógico a "Desconectado".
+     */
+    private void resetearEstadoConexion() {
+        isConnected = false;
+        lblEstadoConexion.setText("Estado: Desconectado (Selección cambiada)");
+        lblEstadoConexion.setStyle("-fx-text-fill: #7f8c8d;"); // Gris para estado neutro/aviso
+        habilitarFormulario(false);
+        logger.log(Level.INFO, "Selección de BD cambiada. Estado reseteado a desconectado.");
+    }
+
+    /**
+     * Intenta establecer la conexión a la base de datos y actualiza la UI.
+     */
+    private void conectar() {
+        if (establecerConexion()) {
+            actualizarUiConectado(true);
+        } else {
+            actualizarUiConectado(false);
+        }
+    }
+
+    /**
+     * Actualiza los elementos visuales basándose en el resultado de la conexión.
+     * @param exito true si la conexión fue exitosa.
+     */
+    private void actualizarUiConectado(boolean exito) {
+        isConnected = exito;
+        habilitarFormulario(exito);
+
+        if (exito) {
+            lblEstadoConexion.setText("Estado: Conectado");
+            lblEstadoConexion.setStyle("-fx-text-fill: #2ecc71;"); // Verde
+        } else {
+            lblEstadoConexion.setText("Estado: Error de conexión");
+            lblEstadoConexion.setStyle("-fx-text-fill: #e74c3c;"); // Rojo
+        }
     }
 
     /**
      * Intenta iniciar sesión con los datos introducidos por el usuario.
      */
     private void intentarLogin() {
-        logger.log(Level.INFO, "Intento de inicio de sesión...");
-        if (!establecerConexion()) {
-            return;
-        }
+        if (!validarPreLogin()) return;
 
         String nombreUsuario = txtUsuario.getText();
         String password = txtPassword.getText();
-
-        if (nombreUsuario.isBlank() || password.isBlank()) {
-            AlertUtils.error("Rellena todos los campos.");
-            logger.log(Level.WARNING, "Intento de login con campos vacíos.");
-            return;
-        }
 
         try {
             if (usuarioDAO == null) usuarioDAO = new UsuarioDAO();
 
             Usuario u = usuarioDAO.findByName(nombreUsuario);
 
-            if (u == null) {
-                AlertUtils.error("El usuario no existe en esta base de datos.");
-                logger.log(Level.WARNING, "Intento de login para un usuario no existente: " + nombreUsuario);
-                return;
+            if (u != null && BCrypt.checkpw(password, u.getPassw())) {
+                realizarLoginExitoso(u);
+            } else {
+                AlertUtils.error("Usuario o contraseña incorrectos.");
+                logger.log(Level.WARNING, "Login fallido para: " + nombreUsuario);
             }
-
-            if (!BCrypt.checkpw(password, u.getPassw())) {
-                AlertUtils.error("Contraseña incorrecta.");
-                logger.log(Level.WARNING, "Intento de login con contraseña incorrecta para el usuario: " + nombreUsuario);
-                return;
-            }
-
-            SessionManager.getInstance().setUsuarioActual(u);
-            logger.log(Level.INFO, "Inicio de sesión exitoso para el usuario: " + nombreUsuario);
-            Navigation.switchScene("main.fxml");
 
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Error durante el inicio de sesión", ex);
-            AlertUtils.error("Error al iniciar sesión: " + ex.getMessage());
+            AlertUtils.error("Error crítico al iniciar sesión: " + ex.getMessage());
         }
     }
 
+    private boolean validarPreLogin() {
+        if (!isConnected) {
+            AlertUtils.error("Por favor, conecta a una base de datos primero.");
+            return false;
+        }
+        if (txtUsuario.getText().isBlank() || txtPassword.getText().isBlank()) {
+            AlertUtils.error("Rellena todos los campos.");
+            return false;
+        }
+        return true;
+    }
+
+    private void realizarLoginExitoso(Usuario u) {
+        SessionManager.getInstance().setUsuarioActual(u);
+        logger.log(Level.INFO, "Inicio de sesión exitoso: " + u.getNombreUsuario());
+        Navigation.switchScene("main.fxml");
+    }
+
     /**
-     * Establece la conexión a la base de datos, inicializa el esquema y crea el usuario administrador por defecto.
-     * @return true si la conexión se ha establecido correctamente, false en caso contrario.
+     * Establece la conexión a la base de datos.
      */
     private boolean establecerConexion() {
         String seleccion = cbBaseDatos.getValue();
-        String archivoConfig = seleccion.startsWith("SQLite") ? "config-sqlite.properties" : "config-postgres.properties";
-        logger.log(Level.INFO, "Estableciendo conexión con la base de datos: " + seleccion);
+        // Operador ternario para seleccionar configuración
+        String archivoConfig = seleccion.startsWith("SQLite")
+                ? "config-sqlite.properties"
+                : "config-postgres.properties";
+
+        logger.log(Level.INFO, "Conectando a: " + seleccion);
 
         try {
-            Conexion.getInstance().disconnect();
+            Conexion.getInstance().disconnect(); // Aseguramos desconexión previa
             Conexion.getInstance().connect(archivoConfig);
             DatabaseSchema.inicializar();
             crearAdminPorDefecto();
-            logger.log(Level.INFO, "Conexión establecida y esquema inicializado correctamente.");
+            logger.log(Level.INFO, "Conexión establecida.");
             return true;
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "No se pudo conectar a la base de datos", e);
-            AlertUtils.error("No se pudo conectar a la base de datos:\n" + e.getMessage());
+            logger.log(Level.SEVERE, "Fallo de conexión", e);
+            AlertUtils.error("No se pudo conectar:\n" + e.getMessage());
             return false;
         }
     }
 
-    /**
-     * Crea el usuario administrador por defecto si no existe.
-     */
     private void crearAdminPorDefecto() {
-        UsuarioDAO dao = new UsuarioDAO();
-        try {
-            if (dao.findByName("admin") == null) {
-                Usuario admin = new Usuario();
-                admin.setNombreUsuario("admin");
-                admin.setEmail("admin@cinesphere.com");
-                admin.setPassw(BCrypt.hashpw("admin", BCrypt.gensalt()));
-                admin.setBornDate(LocalDate.now());
-                admin.setRol(Rol.ADMIN);
-
-                dao.insert(admin);
-                logger.log(Level.INFO, "Usuario 'admin' por defecto creado en la base de datos actual.");
+        // Ejecución en hilo separado para no bloquear UI si la DB es lenta (Opcional pero recomendado)
+        new Thread(() -> {
+            try {
+                UsuarioDAO dao = new UsuarioDAO();
+                if (dao.findByName("admin") == null) {
+                    Usuario admin = new Usuario();
+                    admin.setNombreUsuario("admin");
+                    admin.setEmail("admin@cinesphere.com");
+                    admin.setPassw(BCrypt.hashpw("admin", BCrypt.gensalt()));
+                    admin.setBornDate(LocalDate.now());
+                    admin.setRol(Rol.ADMIN);
+                    dao.insert(admin);
+                    logger.log(Level.INFO, "Admin creado.");
+                }
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Error creando admin", e);
             }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al comprobar o crear el usuario 'admin' por defecto", e);
-        }
+        }).start();
+    }
+
+    private void habilitarFormulario(boolean habilitar) {
+        txtUsuario.setDisable(!habilitar);
+        txtPassword.setDisable(!habilitar);
+        btnLogin.setDisable(!habilitar);
+        linkRegistro.setDisable(!habilitar);
     }
 }

@@ -2,6 +2,7 @@ package org.dam2.adp.cinesphere.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import org.dam2.adp.cinesphere.util.Utils;
 import org.mindrot.jbcrypt.BCrypt;
 import org.dam2.adp.cinesphere.DAO.UsuarioDAO;
 import org.dam2.adp.cinesphere.model.Usuario;
@@ -23,6 +24,7 @@ public class RegisterController {
     @FXML private Hyperlink linkLogin;
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private final int EDAD_MINIMA = 14;
     private static final Logger logger = Logger.getLogger(RegisterController.class.getName());
 
     /**
@@ -52,6 +54,15 @@ public class RegisterController {
             return;
         }
 
+        if (!Utils.esEdadValida(dpNacimiento.getValue(), EDAD_MINIMA)) {
+            AlertUtils.error("Fecha no válida. Debes tener al menos " + EDAD_MINIMA + " años y la fecha no puede ser futura.");
+            return;
+        }
+
+        if (!Utils.esEmailValido(txtEmail.getText())) {
+            AlertUtils.error("Correo electrónico no es válido (ejemplo: usuario@dominio.com).");
+            return;
+        }
         try{
             if(usuarioDAO.findByName(nombreUsuario) != null){
                 AlertUtils.error("El usuario ya existe.");

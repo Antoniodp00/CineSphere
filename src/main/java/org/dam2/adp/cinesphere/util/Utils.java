@@ -1,6 +1,11 @@
 package org.dam2.adp.cinesphere.util;
 
+import java.time.LocalDate;
+import java.time.Period;
+
 public class Utils {
+
+    private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
     public static String obtenerRutaImagenPorGenero(String nombreGenero) {
         if (nombreGenero == null) return "/img/noImage.png";
@@ -53,4 +58,47 @@ public class Utils {
                 return "/img/noImage.png";
         }
     }
+
+    /**
+     * Clase de utilidades generales para la aplicación.
+     */
+
+
+    /**
+     * Valida si una fecha de nacimiento cumple con la edad mínima requerida
+     * y no es una fecha futura.
+     *
+     * @param fechaNacimiento La fecha a validar.
+     * @param edadMinima      La edad mínima requerida (ej. 14, 18).
+     * @return true si la fecha es válida y cumple la edad; false en caso contrario o si es nula.
+     */
+    public static boolean esEdadValida(LocalDate fechaNacimiento, int edadMinima) {
+        if (fechaNacimiento == null) {
+            return false;
+        }
+
+        LocalDate fechaActual = LocalDate.now();
+
+        // Validar que no sea fecha futura
+        if (fechaNacimiento.isAfter(fechaActual)) {
+            return false;
+        }
+
+        // Calcular edad y comparar
+        int edad = Period.between(fechaNacimiento, fechaActual).getYears();
+        return edad >= edadMinima;
+    }
+
+    /**
+     * Valida el formato de un correo electrónico usando expresiones regulares.
+     * * @param email El texto del correo a validar.
+     * @return true si el formato es correcto, false si es nulo o incorrecto.
+     */
+    public static boolean esEmailValido(String email) {
+        if (email == null || email.isBlank()) {
+            return false;
+        }
+        return EMAIL_REGEX.matches(email);
+    }
 }
+

@@ -151,7 +151,7 @@ public class SettingsController {
                 AlertUtils.info("Usuario eliminado correctamente");
                 logger.log(Level.INFO, "Usuario '" + u.getNombreUsuario() + "' eliminado correctamente.");
                 SessionManager.getInstance().cerrarSesion();
-                Navigation.navigate("login.fxml");
+                Navigation.switchScene("login.fxml");
             } else {
                 AlertUtils.error("Error al eliminar usuario");
                 logger.log(Level.SEVERE, "Error al eliminar el usuario '" + u.getNombreUsuario() + "'.");

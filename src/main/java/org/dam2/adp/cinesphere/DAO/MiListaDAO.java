@@ -6,8 +6,6 @@ import org.dam2.adp.cinesphere.model.*;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * DAO para la entidad MiLista.
@@ -43,7 +41,6 @@ public class MiListaDAO {
     private final Connection conn = Conexion.getInstance().getConnection();
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
     private final PeliculaDAO peliculaDAO = new PeliculaDAO();
-    private static final Logger logger = Logger.getLogger(MiListaDAO.class.getName());
 
 
     /**
@@ -60,10 +57,6 @@ public class MiListaDAO {
             st.setString(5, ml.getUrlImg());
             st.setObject(6, ml.getFechaAnadido());
             st.executeUpdate();
-            logger.log(Level.INFO, "Entrada de MiLista insertada: " + ml.toString());
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al insertar entrada en MiLista: " + e.getMessage(), e);
-            throw e;
         }
     }
 
@@ -75,7 +68,6 @@ public class MiListaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public MiLista findAll(int idUsuario, int idPelicula) throws SQLException {
-        MiLista miLista = null;
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_ALL)) {
             st.setInt(1, idUsuario);
             st.setInt(2, idPelicula);
@@ -84,7 +76,7 @@ public class MiListaDAO {
                     Usuario u = usuarioDAO.findById(idUsuario);
                     Pelicula p = peliculaDAO.findByIdLazy(idPelicula);
 
-                    miLista = new MiLista(
+                    return new MiLista(
                             p,
                             u,
                             PeliculaEstado.fromString(rs.getString("estado")),
@@ -94,12 +86,8 @@ public class MiListaDAO {
                     );
                 }
             }
-            logger.log(Level.INFO, "Entrada de MiLista encontrada para usuario " + idUsuario + " y película " + idPelicula + ": " + (miLista != null ? miLista.toString() : "null"));
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al buscar entrada en MiLista para usuario " + idUsuario + " y película " + idPelicula + ": " + e.getMessage(), e);
-            throw e;
         }
-        return miLista;
+        return null;
     }
 
     /**
@@ -121,10 +109,6 @@ public class MiListaDAO {
                     }
                 }
             }
-            logger.log(Level.INFO, "Encontradas " + misPeliculas.size() + " películas para el usuario " + idUsuario);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al buscar películas por usuario " + idUsuario + ": " + e.getMessage(), e);
-            throw e;
         }
         return misPeliculas;
     }
@@ -142,10 +126,6 @@ public class MiListaDAO {
             st.setInt(2, idUsuario);
             st.setInt(3, idPelicula);
             st.executeUpdate();
-            logger.log(Level.INFO, "Estado actualizado a " + estado + " para la película " + idPelicula + " del usuario " + idUsuario);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al actualizar estado para la película " + idPelicula + " del usuario " + idUsuario + ": " + e.getMessage(), e);
-            throw e;
         }
     }
 
@@ -162,10 +142,6 @@ public class MiListaDAO {
             st.setInt(2, idUsuario);
             st.setInt(3, idPelicula);
             st.executeUpdate();
-            logger.log(Level.INFO, "Puntuación actualizada a " + puntuacion + " para la película " + idPelicula + " del usuario " + idUsuario);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al actualizar puntuación para la película " + idPelicula + " del usuario " + idUsuario + ": " + e.getMessage(), e);
-            throw e;
         }
     }
 
@@ -180,10 +156,6 @@ public class MiListaDAO {
             st.setInt(1, idUsuario);
             st.setInt(2, idPelicula);
             st.executeUpdate();
-            logger.log(Level.INFO, "Película " + idPelicula + " eliminada de la lista del usuario " + idUsuario);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al eliminar la película " + idPelicula + " de la lista del usuario " + idUsuario + ": " + e.getMessage(), e);
-            throw e;
         }
     }
 
@@ -211,10 +183,6 @@ public class MiListaDAO {
                     }
                 }
             }
-            logger.log(Level.INFO, "Estadísticas de estados obtenidas para el usuario " + idUsuario);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al obtener estadísticas de estados para el usuario " + idUsuario + ": " + e.getMessage(), e);
-            throw e;
         }
         return mapa;
     }
@@ -226,20 +194,15 @@ public class MiListaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public int countGuardadas(int idUsuario) throws SQLException {
-        int count = 0;
         try (PreparedStatement st = conn.prepareStatement(SQL_COUNT_GUARDADAS)) {
             st.setInt(1, idUsuario);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    count = rs.getInt(1);
+                    return rs.getInt(1);
                 }
             }
-            logger.log(Level.INFO, "Total de películas guardadas para el usuario " + idUsuario + ": " + count);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al contar las películas guardadas para el usuario " + idUsuario + ": " + e.getMessage(), e);
-            throw e;
         }
-        return count;
+        return 0;
     }
 
     /**
@@ -250,21 +213,16 @@ public class MiListaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public int countByEstado(int idUsuario, PeliculaEstado estado) throws SQLException {
-        int count = 0;
         try (PreparedStatement st = conn.prepareStatement(SQL_COUNT_BY_ESTADOS)) {
             st.setInt(1, idUsuario);
             st.setString(2, estado.getDisplayValue());
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    count = rs.getInt(1);
+                    return rs.getInt(1);
                 }
             }
-            logger.log(Level.INFO, "Total de películas en estado '" + estado + "' para el usuario " + idUsuario + ": " + count);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al contar películas por estado para el usuario " + idUsuario + ": " + e.getMessage(), e);
-            throw e;
         }
-        return count;
+        return 0;
     }
 
     /**
@@ -274,22 +232,18 @@ public class MiListaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public int sumDuracionTerminadas(int idUsuario) throws SQLException {
-        int total = 0;
         try (PreparedStatement st = conn.prepareStatement(SQL_COUNT_DURACION_TERMINADAS)) {
             st.setInt(1, idUsuario);
             st.setString(2, PeliculaEstado.TERMINADA.getDisplayValue());
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    long sum = rs.getLong(1);
-                    total = (sum > Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int) sum;
+                    long total = rs.getLong(1);
+                    if (total > Integer.MAX_VALUE) return Integer.MAX_VALUE;
+                    return (int) total;
                 }
             }
-            logger.log(Level.INFO, "Suma de duración de películas terminadas para el usuario " + idUsuario + ": " + total + " minutos.");
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al sumar la duración de películas terminadas para el usuario " + idUsuario + ": " + e.getMessage(), e);
-            throw e;
         }
-        return total;
+        return 0;
     }
 
     /**
@@ -307,10 +261,6 @@ public class MiListaDAO {
                     mapa.put(rs.getString(1), rs.getInt(2));
                 }
             }
-            logger.log(Level.INFO, "Conteo de géneros obtenido para el usuario " + idUsuario);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al obtener el conteo de géneros para el usuario " + idUsuario + ": " + e.getMessage(), e);
-            throw e;
         }
         return mapa;
     }

@@ -6,8 +6,6 @@ import org.dam2.adp.cinesphere.model.Director;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * DAO para la tabla de relación PeliculaDirector.
@@ -21,7 +19,6 @@ public class PeliculaDirectorDAO {
             "WHERE pd.idpelicula = ?";
 
     private final Connection conn = Conexion.getInstance().getConnection();
-    private static final Logger logger = Logger.getLogger(PeliculaDirectorDAO.class.getName());
 
     /**
      * Asocia un director a una película.
@@ -34,10 +31,6 @@ public class PeliculaDirectorDAO {
             st.setInt(1, idPelicula);
             st.setInt(2, idDirector);
             st.executeUpdate();
-            logger.log(Level.INFO, "Director " + idDirector + " asociado a la película " + idPelicula);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al asociar director " + idDirector + " a la película " + idPelicula + ": " + e.getMessage(), e);
-            throw e;
         }
     }
 
@@ -56,10 +49,6 @@ public class PeliculaDirectorDAO {
                     list.add(new Director(rs.getInt(1), rs.getString(2)));
                 }
             }
-            logger.log(Level.INFO, "Encontrados " + list.size() + " directores para la película " + idPelicula);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al buscar directores para la película " + idPelicula + ": " + e.getMessage(), e);
-            throw e;
         }
         return list;
     }

@@ -4,25 +4,27 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.dam2.adp.cinesphere.controller.RegisterController"
-            stylesheets="@../style.css">
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="org.dam2.adp.cinesphere.controller.RegisterController"
+           stylesheets="@../style.css">
 
-    <VBox spacing="15" alignment="CENTER" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
-          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+    <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="no-border">
+        <content>
+            <VBox spacing="18" alignment="CENTER" styleClass="container">
+                <Label text="Crear Cuenta" styleClass="title" />
 
-        <Label text="Crear Cuenta" styleClass="title" />
+                <VBox spacing="10" styleClass="form-panel">
+                    <TextField fx:id="txtUsuario" promptText="Usuario"/>
+                    <TextField fx:id="txtEmail" promptText="Email"/>
+                    <PasswordField fx:id="txtPassword" promptText="Contraseña"/>
+                    <DatePicker fx:id="dpNacimiento" promptText="Fecha de nacimiento"/>
+                </VBox>
 
-        <VBox spacing="10">
-            <TextField fx:id="txtUsuario" promptText="Usuario"/>
-            <TextField fx:id="txtEmail" promptText="Email"/>
-            <PasswordField fx:id="txtPassword" promptText="Contraseña"/>
-            <DatePicker fx:id="dpNacimiento" promptText="Fecha de nacimiento"/>
-        </VBox>
+                <Button fx:id="btnRegistrar" text="Registrar" styleClass="accent-button"/>
+                <Hyperlink fx:id="linkLogin" text="Volver al login"/>
+            </VBox>
+        </content>
+    </ScrollPane>
 
-        <Button fx:id="btnRegistrar" text="Registrar" prefWidth="200"/>
-        <Hyperlink fx:id="linkLogin" text="Volver al login"/>
-
-    </VBox>
-</AnchorPane>
+</StackPane>

@@ -6,8 +6,6 @@ import org.dam2.adp.cinesphere.model.Genero;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * DAO para la entidad Genero.
@@ -20,7 +18,6 @@ public class GeneroDAO {
     private static final String SQL_FIND_BY_NAME = "SELECT idgenero, nombregenero FROM genero WHERE nombregenero=?";
 
     private final Connection conn = Conexion.getInstance().getConnection();
-    private static final Logger logger = Logger.getLogger(GeneroDAO.class.getName());
 
     /**
      * Inserta un nuevo género en la base de datos.
@@ -37,10 +34,6 @@ public class GeneroDAO {
                     g.setIdGenero(keys.getInt(1));
                 }
             }
-            logger.log(Level.INFO, "Genero insertado: " + g.toString());
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al insertar genero: " + e.getMessage(), e);
-            throw e;
         }
         return g;
     }
@@ -52,20 +45,15 @@ public class GeneroDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Genero findById(int id) throws SQLException {
-        Genero genero = null;
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_ID)) {
             st.setInt(1, id);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    genero = new Genero(rs.getInt(1), rs.getString(2));
+                    return new Genero(rs.getInt(1), rs.getString(2));
                 }
             }
-            logger.log(Level.INFO, "Genero encontrado por ID " + id + ": " + (genero != null ? genero.toString() : "null"));
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al buscar genero por ID " + id + ": " + e.getMessage(), e);
-            throw e;
         }
-        return genero;
+        return null;
     }
 
     /**
@@ -80,10 +68,6 @@ public class GeneroDAO {
             while (rs.next()) {
                 list.add(new Genero(rs.getInt(1), rs.getString(2)));
             }
-            logger.log(Level.INFO, "Encontrados " + list.size() + " generos.");
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al buscar todos los generos: " + e.getMessage(), e);
-            throw e;
         }
         return list;
     }
@@ -95,19 +79,14 @@ public class GeneroDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Genero findByName(String name) throws SQLException {
-        Genero genero = null;
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_NAME)) {
             st.setString(1, name);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    genero = new Genero(rs.getInt(1), rs.getString(2));
+                    return new Genero(rs.getInt(1), rs.getString(2));
                 }
             }
-            logger.log(Level.INFO, "Genero encontrado por nombre '" + name + "': " + (genero != null ? genero.toString() : "null"));
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al buscar genero por nombre '" + name + "': " + e.getMessage(), e);
-            throw e;
         }
-        return genero;
+        return null;
     }
 }

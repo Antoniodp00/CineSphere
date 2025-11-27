@@ -1,362 +1,3 @@
-/*******************************************
- *  PALETA DE COLORES (reemplazo manual)
- *******************************************/
-/* Valores directos porque JavaFX NO soporta variables estilo web */
-
-/* Colores */
-.root {
-    -fx-font-family: "Segoe UI", "Roboto", sans-serif;
-    -fx-background-color: #000000; /* Negro */
-    -fx-text-fill: #f0f0f0;
-}
-
-.label {
-    -fx-text-fill: #f0f0f0;
-}
-
-/*******************************************
- *  TIPOGRAFÍA Y UTILIDADES
- *******************************************/
-.page-title {
-    -fx-font-size: 24px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #ffffff;
-}
-
-.muted {
-    -fx-text-fill: #b0b0b0;
-}
-
-.spacer { /* usar con HBox.setHgrow para empujar elementos */ }
-
-/*******************************************
- *  SIDEBAR GENERAL
- *******************************************/
-#sidebar {
-    -fx-background-color: #141414;
-    -fx-padding: 20 20 20 20;
-    -fx-spacing: 20;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 15, 0.3, 0, 0);
-}
-
-#sidebar .title {
-    -fx-font-size: 22px;
-}
-
-.sidebar-button {
-    -fx-background-color: transparent;
-    -fx-text-fill: #f0f0f0;
-    -fx-alignment: CENTER_LEFT;
-    -fx-padding: 10 14;
-    -fx-background-radius: 6;
-}
-
-.sidebar-button:hover {
-    -fx-background-color: #262626;
-}
-
-.sidebar-button.active {
-    -fx-background-color: #3fa9f5;
-    -fx-text-fill: #000000;
-}
-
-/*******************************************
- *  BOTONES GENERALES
- *******************************************/
-.button {
-    -fx-background-color: #262626;
-    -fx-text-fill: #f0f0f0;
-    -fx-font-size: 14px;
-    -fx-background-radius: 6;
-    -fx-padding: 8 14;
-    -fx-border-width: 0;
-}
-
-.button:hover {
-    -fx-background-color: #3fa9f5;
-    -fx-text-fill: black;
-    -fx-cursor: hand;
-}
-
-.button:pressed {
-    -fx-background-color: #2a82bf;
-}
-
-/*******************************************
- *  BOTÓN CERRAR SESIÓN
- *******************************************/
-#btnLogout {
-    -fx-background-color: #d33f3f;
-    -fx-text-fill: white;
-}
-
-#btnLogout:hover {
-    -fx-background-color: #ff5c5c;
-}
-
-/*******************************************
- *  TEXTFIELD & PASSWORD FIELD
- *******************************************/
-.text-field, .password-field, .text-area {
-    -fx-background-color: #262626;
-    -fx-text-fill: #f0f0f0;
-    -fx-prompt-text-fill: #cccccc;
-    -fx-background-radius: 4;
-    -fx-padding: 8 12;
-    -fx-border-color: #333333;
-    -fx-border-radius: 4;
-}
-
-.text-field:focused, .password-field:focused {
-    -fx-border-color: #3fa9f5;
-}
-
-/*******************************************
- *  COMBOBOX & MENUBUTTON
- *******************************************/
-.combo-box, .menu-button {
-    -fx-background-color: #262626;
-    -fx-text-fill: #f0f0f0;
-    -fx-background-radius: 4;
-    -fx-border-color: #333333;
-    -fx-border-radius: 4;
-}
-
-.combo-box .list-cell, .menu-item .label {
-    -fx-background-color: #262626;
-    -fx-text-fill: #f0f0f0;
-}
-
-.combo-box .list-cell:hover, .menu-item:hover {
-    -fx-background-color: #333333;
-}
-
-.combo-box .list-cell:selected, .menu-item:focused {
-    -fx-background-color: #3fa9f5;
-    -fx-text-fill: black;
-}
-
-.combo-box-popup .list-view, .menu-button .context-menu {
-    -fx-background-color: #262626;
-    -fx-border-color: #333333;
-}
-
-/*******************************************
- *  TABLEVIEW
- *******************************************/
-.table-view {
-    -fx-background-color: #000000; /* Negro */
-}
-
-.table-view .column-header-background {
-    -fx-background-color: #262626;
-}
-
-.table-view .column-header .label {
-    -fx-text-fill: #f0f0f0;
-}
-
-.table-view .table-row-cell {
-    -fx-background-color: #000000; /* Negro */
-}
-
-.table-view .table-row-cell:filled:hover {
-    -fx-background-color: #262626;
-}
-
-.table-view .table-row-cell:selected {
-    -fx-background-color: #3fa9f5;
-    -fx-text-fill: black;
-}
-
-/*******************************************
- *  SCROLLBAR
- *******************************************/
-.scroll-bar .thumb {
-    -fx-background-color: #262626;
-}
-
-.scroll-bar .thumb:hover {
-    -fx-background-color: #3fa9f5;
-}
-
-/*******************************************
- *  CARDS DE PELÍCULA
- *******************************************/
-.card, .movie-card {
-    -fx-background-color: #262626;
-    -fx-background-radius: 8;
-    -fx-padding: 10;
-    -fx-spacing: 8; /* para VBox/HBox */
-    -fx-pref-width: 160; /* tamaño fijo de tarjeta */
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0.2, 0, 3);
-}
-
-.movie-card:hover {
-    -fx-background-color: #333333;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 14, 0.35, 0, 6);
-}
-
-.movie-title {
-    -fx-font-size: 14px;
-    -fx-text-fill: #f0f0f0;
-    -fx-font-weight: bold;
-}
-
-.movie-info {
-    -fx-font-size: 12px;
-    -fx-text-fill: #cccccc;
-}
-
-.movie-rating {
-    -fx-font-size: 16px;
-    -fx-text-fill: gold;
-    -fx-font-weight: bold;
-}
-
-/*******************************************
- *  ÁREA DE CONTENIDO
- *******************************************/
-.content-area {
-    -fx-background-color: #000000; /* Negro */
-    /* Tamaños fijos del área central para mantener consistencia */
-    -fx-min-width: 1400;
-    -fx-pref-width: 1400;
-    -fx-max-width: 1400;
-}
-
-/*******************************************
- *  ESTADÍSTICAS: TARJETAS Y HEADINGS
- *******************************************/
-.title { /* título genérico reutilizable */
-    -fx-font-size: 18px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #ffffff;
-}
-
-.kpi-value {
-    -fx-font-size: 28px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #3fa9f5;
-}
-
-/*******************************************
- *  CHARTS – TEMA OSCURO
- *******************************************/
-.chart-legend {
-    -fx-background-color: transparent;
-}
-
-.chart-legend .label {
-    -fx-text-fill: #ffffff; /* Texto de la leyenda en blanco para mejor contraste */
-}
-
-.chart-title, .axis-label {
-    -fx-text-fill: #f0f0f0;
-}
-
-.axis {
-    -fx-tick-label-fill: #cccccc;
-}
-
-.chart {
-    -fx-background-color: transparent;
-}
-
-/* Etiquetas de los sectores del PieChart */
-.chart-pie-label {
-    -fx-fill: #ffffff; /* Texto de etiquetas del pastel en blanco */
-}
-
-/* PieChart sectores */
-.default-color0.chart-pie { -fx-pie-color: #3fa9f5; }
-.default-color1.chart-pie { -fx-pie-color: #7bd389; }
-.default-color2.chart-pie { -fx-pie-color: #f7b267; }
-.default-color3.chart-pie { -fx-pie-color: #f4845f; }
-.default-color4.chart-pie { -fx-pie-color: #9b6ef3; }
-.default-color5.chart-pie { -fx-pie-color: #56cfe1; }
-.default-color6.chart-pie { -fx-pie-color: #e76f51; }
-
-/* Barras del BarChart */
-.default-color0.chart-bar { -fx-bar-fill: #3fa9f5; }
-.default-color1.chart-bar { -fx-bar-fill: #7bd389; }
-.default-color2.chart-bar { -fx-bar-fill: #f7b267; }
-.default-color3.chart-bar { -fx-bar-fill: #f4845f; }
-.default-color4.chart-bar { -fx-bar-fill: #9b6ef3; }
-.default-color5.chart-bar { -fx-bar-fill: #56cfe1; }
-.default-color6.chart-bar { -fx-bar-fill: #e76f51; }
-
-.chart-plot-background {
-    -fx-background-color: #141414;
-}
-
-.chart-vertical-grid-lines, .chart-horizontal-grid-lines {
-    -fx-stroke: #2a2a2a;
-}
-
-/*******************************************
- *  TOPBAR (HEADER)
- *******************************************/
-.topbar {
-    -fx-background-color: #0f0f0f;
-    -fx-padding: 10 16;
-    -fx-spacing: 12;
-    -fx-alignment: CENTER_LEFT;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 12, 0.2, 0, 2);
-}
-
-.topbar .brand {
-    -fx-font-size: 18px;
-    -fx-font-weight: bold;
-}
-
-.topbar .search-field {
-    -fx-background-color: #1f1f1f;
-    -fx-border-color: #333333;
-}
-
-/*******************************************
- *  NO BORDERS
- *******************************************/
-.no-border {
-    -fx-background-color: transparent;
-    -fx-border-width: 0;
-}
-
-/*******************************************
- *  SCROLLPANE (evitar fondo blanco por defecto)
- *******************************************/
-.scroll-pane {
-    -fx-background-color: transparent;
-}
-
-.scroll-pane > .viewport {
-    -fx-background-color: transparent;
-}
-
-/*******************************************
- *  CONTENEDORES Y BARRAS COMUNES
- *******************************************/
-.toolbar {
-    -fx-spacing: 15;
-    -fx-alignment: CENTER_LEFT;
-}
-
-.cards-container {
-    -fx-background-color: #262626;
-    -fx-padding: 20;
-}
-
-.pagination-bar {
-    -fx-spacing: 10;
-    -fx-alignment: CENTER;
-    -fx-padding: 5 0 0 0;
-}
-
-.accent-button {
-    -fx-background-color: #3fa9f5;
-    -fx-text-fill: black;
-}
 
 /*******************************************
  *  PELICULA DETALLE
@@ -388,7 +29,34 @@
 .text-normal {
     -fx-font-size: 14px;
     -fx-text-fill: #c0c0c0;
-    -fx-line-spacing: 4px;
+}
+
+/*******************************************
+ *  CONTENEDORES COMUNES
+ *******************************************/
+/* Contenedor centrado y con ancho máximo para formularios sencillos */
+.container {
+    -fx-padding: 24;
+}
+
+.form-panel {
+    -fx-spacing: 10;
+    -fx-padding: 16;
+    -fx-background-color: transparent;
+    -fx-max-width: 480; /* límite para pantallas grandes */
+}
+
+/* Pestañas de ajustes (oscuro y sin bordes molestos) */
+.settings-tabs .tab-header-area {
+    -fx-background-color: #0f0f0f;
+    -fx-border-color: transparent transparent #333333 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+.settings-tabs .tab-label {
+    -fx-text-fill: #f0f0f0;
+}
+.settings-tabs .tab:selected .tab-label {
+    -fx-text-fill: #3fa9f5;
 }
 
 .chip {
@@ -546,4 +214,96 @@
 
 .table-row-cell:selected .table-cell {
     -fx-text-fill: black;              /* Texto negro para contraste con el azul */
+}
+/* Base y colores */
+.root {
+    -fx-font-family: "Segoe UI", "Roboto", sans-serif;
+    -fx-background-color: #000000; /* Negro */
+    -fx-text-fill: #f0f0f0;
+}
+
+.label {
+    -fx-text-fill: #f0f0f0;
+}
+
+/* Botones generales */
+.button {
+    -fx-background-color: #262626;
+    -fx-text-fill: #f0f0f0;
+    -fx-font-size: 14px;
+    -fx-background-radius: 6;
+    -fx-padding: 8 14;
+    -fx-border-width: 0;
+}
+.button:hover {
+    -fx-background-color: #3fa9f5;
+    -fx-text-fill: black;
+    -fx-cursor: hand;
+}
+.button:pressed {
+    -fx-background-color: #2a82bf;
+}
+
+/* Sidebar */
+#sidebar {
+    -fx-background-color: #141414;
+    -fx-padding: 20;
+    -fx-spacing: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 15, 0.3, 0, 0);
+}
+#sidebar .title { -fx-font-size: 22px; }
+
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #f0f0f0;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 10 14;
+    -fx-background-radius: 6;
+}
+.sidebar-button:hover { -fx-background-color: #262626; }
+.sidebar-button.active { -fx-background-color: #3fa9f5; -fx-text-fill: #000000; }
+
+/* Topbar */
+.topbar { -fx-background-color: #0f0f0f; -fx-padding: 10 16; -fx-spacing: 12; -fx-alignment: CENTER_LEFT; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 12, 0.2, 0, 2); }
+.topbar .brand { -fx-font-size: 18px; -fx-font-weight: bold; }
+
+/* Área de contenido */
+.content-area { -fx-background-color: #000000; -fx-padding: 10 16 16 16; }
+
+/* Entradas de texto y combos */
+.text-field, .password-field, .text-area { -fx-background-color: #262626; -fx-text-fill: #f0f0f0; -fx-prompt-text-fill: #cccccc; -fx-background-radius: 4; -fx-padding: 8 12; -fx-border-color: #333333; -fx-border-radius: 4; }
+.text-field:focused, .password-field:focused { -fx-border-color: #3fa9f5; }
+.combo-box, .menu-button { -fx-background-color: #262626; -fx-text-fill: #f0f0f0; -fx-background-radius: 4; -fx-border-color: #333333; -fx-border-radius: 4; }
+.combo-box .list-cell, .menu-item .label { -fx-background-color: #262626; -fx-text-fill: #f0f0f0; }
+.combo-box .list-cell:hover, .menu-item:hover { -fx-background-color: #333333; }
+.combo-box .list-cell:selected, .menu-item:focused { -fx-background-color: #3fa9f5; -fx-text-fill: black; }
+.combo-box-popup .list-view, .menu-button .context-menu { -fx-background-color: #262626; -fx-border-color: #333333; }
+
+/* ScrollPane sin bordes/fondos blancos */
+.no-border { -fx-background-color: transparent; -fx-border-width: 0; }
+.scroll-pane { -fx-background-color: transparent; }
+.scroll-pane > .viewport { -fx-background-color: transparent; }
+
+/* Contenedores comunes */
+.toolbar { -fx-spacing: 15; -fx-alignment: CENTER_LEFT; }
+.cards-container { -fx-background-color: #262626; -fx-padding: 20; }
+.pagination-bar { -fx-spacing: 10; -fx-alignment: CENTER; -fx-padding: 5 0 0 0; }
+
+/* Tarjetas de película básicas */
+.movie-card {
+    -fx-pref-width: 170px;
+    -fx-pref-height: 320px;
+    -fx-background-color: #262626;
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+    -fx-spacing: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0.2, 0, 3);
+}
+.movie-card:hover { -fx-background-color: #333333; }
+
+.movie-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #f0f0f0;
+    -fx-wrap-text: true;
 }

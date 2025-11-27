@@ -6,8 +6,6 @@ import org.dam2.adp.cinesphere.model.Clasificacion;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * DAO para la entidad Clasificacion.
@@ -19,7 +17,6 @@ public class ClasificacionDAO {
     private static final String SQL_FIND_BY_ID = "SELECT nombreclasificacion FROM clasificacion WHERE nombreclasificacion=?";
 
     private final Connection conn = Conexion.getInstance().getConnection();
-    private static final Logger logger = Logger.getLogger(ClasificacionDAO.class.getName());
 
     /**
      * Inserta una nueva clasificación en la base de datos.
@@ -30,10 +27,6 @@ public class ClasificacionDAO {
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT)) {
             st.setString(1, c.getNombreClasificacion());
             st.executeUpdate();
-            logger.log(Level.INFO, "Clasificación insertada: " + c.toString());
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al insertar clasificación: " + e.getMessage(), e);
-            throw e;
         }
     }
 
@@ -44,20 +37,15 @@ public class ClasificacionDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Clasificacion findById(String id) throws SQLException {
-        Clasificacion clasificacion = null;
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_ID)) {
             st.setString(1, id);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    clasificacion = new Clasificacion(rs.getString(1));
+                    return new Clasificacion(rs.getString(1));
                 }
             }
-            logger.log(Level.INFO, "Clasificación encontrada por ID '" + id + "': " + (clasificacion != null ? clasificacion.toString() : "null"));
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al buscar clasificación por ID '" + id + "': " + e.getMessage(), e);
-            throw e;
         }
-        return clasificacion;
+        return null;
     }
 
     /**
@@ -72,10 +60,6 @@ public class ClasificacionDAO {
             while (rs.next()) {
                 list.add(new Clasificacion(rs.getString(1)));
             }
-            logger.log(Level.INFO, "Encontradas " + list.size() + " clasificaciones.");
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al buscar todas las clasificaciones: " + e.getMessage(), e);
-            throw e;
         }
         return list;
     }

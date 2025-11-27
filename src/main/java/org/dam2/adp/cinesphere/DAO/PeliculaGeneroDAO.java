@@ -6,8 +6,6 @@ import org.dam2.adp.cinesphere.model.Genero;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * DAO para la tabla de relación PeliculaGenero.
@@ -21,7 +19,6 @@ public class PeliculaGeneroDAO {
             "WHERE pg.idpelicula = ?";
 
     private final Connection conn = Conexion.getInstance().getConnection();
-    private static final Logger logger = Logger.getLogger(PeliculaGeneroDAO.class.getName());
 
     /**
      * Asocia un género a una película.
@@ -34,10 +31,6 @@ public class PeliculaGeneroDAO {
             st.setInt(1, idPelicula);
             st.setInt(2, idGenero);
             st.executeUpdate();
-            logger.log(Level.INFO, "Género " + idGenero + " asociado a la película " + idPelicula);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al asociar género " + idGenero + " a la película " + idPelicula + ": " + e.getMessage(), e);
-            throw e;
         }
     }
 
@@ -56,10 +49,6 @@ public class PeliculaGeneroDAO {
                     list.add(new Genero(rs.getInt(1), rs.getString(2)));
                 }
             }
-            logger.log(Level.INFO, "Encontrados " + list.size() + " géneros para la película " + idPelicula);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al buscar géneros para la película " + idPelicula + ": " + e.getMessage(), e);
-            throw e;
         }
         return list;
     }

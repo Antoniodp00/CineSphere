@@ -6,8 +6,6 @@ import org.dam2.adp.cinesphere.model.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * DAO para la entidad Pelicula.
@@ -47,7 +45,6 @@ public class PeliculaDAO {
 
 
     private final Connection conn = Conexion.getInstance().getConnection();
-    private static final Logger logger = Logger.getLogger(PeliculaDAO.class.getName());
 
     /**
      * Inserta una nueva película en la base de datos.
@@ -69,10 +66,6 @@ public class PeliculaDAO {
                     p.setIdPelicula(keys.getInt(1));
                 }
             }
-            logger.log(Level.INFO, "Película insertada: " + p.toString());
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al insertar película: " + e.getMessage(), e);
-            throw e;
         }
         return p;
     }
@@ -86,10 +79,6 @@ public class PeliculaDAO {
         try (PreparedStatement st = conn.prepareStatement(SQL_DELETE)) {
             st.setInt(1, idPelicula);
             st.executeUpdate();
-            logger.log(Level.INFO, "Película eliminada con ID: " + idPelicula);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al eliminar película con ID " + idPelicula + ": " + e.getMessage(), e);
-            throw e;
         }
     }
 
@@ -112,10 +101,6 @@ public class PeliculaDAO {
                 p.setNombreClasificacion(rs.getString("nombreclasificacion"));
                 list.add(p);
             }
-            logger.log(Level.INFO, "Encontradas " + list.size() + " películas (lazy).");
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al buscar todas las películas (lazy): " + e.getMessage(), e);
-            throw e;
         }
         return list;
     }
@@ -127,26 +112,22 @@ public class PeliculaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Pelicula findByIdLazy(int idPelicula) throws SQLException {
-        Pelicula p = null;
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_ID)) {
             st.setInt(1, idPelicula);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    p = new Pelicula();
+                    Pelicula p = new Pelicula();
                     p.setIdPelicula(rs.getInt("idpelicula"));
                     p.setTituloPelicula(rs.getString("titulopelicula"));
                     p.setYearPelicula(rs.getObject("yearpelicula", Integer.class));
                     p.setRatingPelicula(rs.getDouble("ratingpelicula"));
                     p.setDuracionPelicula(rs.getObject("duracionpelicula", Integer.class));
                     p.setNombreClasificacion(rs.getString("nombreclasificacion"));
+                    return p;
                 }
             }
-            logger.log(Level.INFO, "Película encontrada por ID " + idPelicula + " (lazy): " + (p != null ? p.toString() : "null"));
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al buscar película por ID " + idPelicula + " (lazy): " + e.getMessage(), e);
-            throw e;
         }
-        return p;
+        return null;
     }
 
     /**
@@ -157,27 +138,23 @@ public class PeliculaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Pelicula findByTituloAndYear(String titulo, int year) throws SQLException {
-        Pelicula p = null;
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_TITULO_AND_YEAR)) {
             st.setString(1, titulo);
             st.setInt(2, year);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    p = new Pelicula();
+                    Pelicula p = new Pelicula();
                     p.setIdPelicula(rs.getInt("idpelicula"));
                     p.setTituloPelicula(rs.getString("titulopelicula"));
                     p.setYearPelicula(rs.getObject("yearpelicula", Integer.class));
                     p.setRatingPelicula(rs.getDouble("ratingpelicula"));
                     p.setDuracionPelicula(rs.getObject("duracionpelicula", Integer.class));
                     p.setNombreClasificacion(rs.getString("nombreclasificacion"));
+                    return p;
                 }
             }
-            logger.log(Level.INFO, "Película encontrada por título '" + titulo + "' y año " + year + ": " + (p != null ? p.toString() : "null"));
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al buscar película por título '" + titulo + "' y año " + year + ": " + e.getMessage(), e);
-            throw e;
         }
-        return p;
+        return null;
     }
 
     /**
@@ -190,15 +167,9 @@ public class PeliculaDAO {
         Pelicula p = findByIdLazy(idPelicula);
         if (p == null) return null;
 
-        try {
-            p.setGeneros(peliculaGeneroDAO.findByPelicula(idPelicula));
-            p.setActores(peliculaActorDAO.findByPelicula(idPelicula));
-            p.setDirectores(peliculaDirectorDAO.findByPelicula(idPelicula));
-            logger.log(Level.INFO, "Carga ansiosa completada para la película con ID " + idPelicula);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error durante la carga ansiosa para la película con ID " + idPelicula + ": " + e.getMessage(), e);
-            throw e;
-        }
+        p.setGeneros(peliculaGeneroDAO.findByPelicula(idPelicula));
+        p.setActores(peliculaActorDAO.findByPelicula(idPelicula));
+        p.setDirectores(peliculaDirectorDAO.findByPelicula(idPelicula));
 
         return p;
     }
@@ -229,10 +200,6 @@ public class PeliculaDAO {
                     lista.add(p);
                 }
             }
-            logger.log(Level.INFO, "Página " + page + " de películas (tamaño=" + pageSize + ") obtenida. Encontradas: " + lista.size());
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al obtener la página " + page + " de películas: " + e.getMessage(), e);
-            throw e;
         }
         return lista;
     }
@@ -272,14 +239,9 @@ public class PeliculaDAO {
             }
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    int count = rs.getInt(1);
-                    logger.log(Level.INFO, "Conteo de películas con filtros: " + count);
-                    return count;
+                    return rs.getInt(1);
                 }
             }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al contar películas con filtros: " + e.getMessage(), e);
-            throw e;
         }
         return 0;
     }
@@ -336,10 +298,6 @@ public class PeliculaDAO {
                     lista.add(p);
                 }
             }
-            logger.log(Level.INFO, "Búsqueda filtrada de películas (página " + page + ", tamaño=" + pageSize + ") completada. Encontradas: " + lista.size());
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error en la búsqueda filtrada de películas: " + e.getMessage(), e);
-            throw e;
         }
         return lista;
     }

@@ -1,5 +1,6 @@
 package org.dam2.adp.cinesphere.controller;
 
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -62,7 +63,7 @@ public class PeliculaListaController {
     private final GeneroDAO generoDAO = new GeneroDAO();
 
     private int page = 1;
-    private final int pageSize = 18;
+    private int pageSize = 18; // Default
     private int totalPages = 1;
 
     private static final Logger logger = Logger.getLogger(PeliculaListaController.class.getName());
@@ -74,6 +75,14 @@ public class PeliculaListaController {
     @FXML
     private void initialize() {
         logger.log(Level.INFO, "Inicializando PeliculaListaController...");
+
+        // Listener para hacer el layout responsive
+        scroll.widthProperty().addListener((obs, oldVal, newVal) -> {
+            ajustarPageSize(newVal.doubleValue());
+            actualizarTotalPaginas();
+            cargarPagina(page);
+        });
+
         // Rellenar ComboBoxes
         for (int y = 2024; y >= 1950; y--) cbYear.getItems().add(y);
         cbRating.getItems().addAll(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
@@ -114,10 +123,27 @@ public class PeliculaListaController {
         });
 
         // Carga inicial
+        ajustarPageSize(scroll.getWidth());
         actualizarTotalPaginas();
         cargarPagina(1);
         logger.log(Level.INFO, "PeliculaListaController inicializado.");
     }
+
+    private void ajustarPageSize(double scrollWidth) {
+        if (scrollWidth <= 0) {
+            pageSize = 1; // Valor mínimo
+            return;
+        }
+        // Ancho de una tarjeta (170) + gap horizontal (20)
+        int cardWidth = 190;
+        int numColumns = (int) Math.floor(scrollWidth / cardWidth);
+        if (numColumns == 0) numColumns = 1;
+
+        // Intentar llenar al menos 3 filas
+        pageSize = numColumns * 3;
+        logger.log(Level.INFO, "Ajustando pageSize a " + pageSize + " para un ancho de " + scrollWidth);
+    }
+
 
     /**
      * Actualiza el número total de páginas basándose en los filtros aplicados.

@@ -1,66 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-<ScrollPane  stylesheets="@../style.css" fitToWidth="true" fitToHeight="true" xmlns="http://javafx.com/javafx" styleClass="no-border"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.dam2.adp.cinesphere.controller.PeliculaDetalleController">
+<ScrollPane fitToWidth="true" styleClass="no-border" stylesheets="@../style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dam2.adp.cinesphere.controller.PeliculaDetalleController">
     <content>
-        <GridPane hgap="40" vgap="20" styleClass="detail-container">
+        <GridPane hgap="40.0" styleClass="detail-container" vgap="20.0">
             <padding>
-                <Insets top="20" right="40" bottom="40" left="40"/>
+                <Insets bottom="40.0" left="40.0" right="40.0" top="20.0" />
             </padding>
-
             <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" minWidth="300"/>
-                <ColumnConstraints hgrow="ALWAYS"/>
+                <ColumnConstraints hgrow="NEVER" minWidth="300.0" />
+                <ColumnConstraints hgrow="ALWAYS" />
             </columnConstraints>
 
             <!-- Columna 0: Poster -->
-            <ImageView fx:id="imgPoster" fitWidth="300" fitHeight="450" preserveRatio="true"
-                       GridPane.rowIndex="0" GridPane.rowSpan="2"/>
+            <ImageView fx:id="imgPoster" fitHeight="450.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true" GridPane.rowSpan="2" />
 
             <!-- Columna 1, Fila 0: Título y Acciones -->
-            <VBox spacing="25" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                <Label fx:id="lblTitulo" styleClass="title" wrapText="true"/>
-                <Label fx:id="lblSubtitulo" styleClass="subtitle"/>
+            <VBox spacing="20.0" GridPane.columnIndex="1">
+                <Label fx:id="lblTitulo" styleClass="title" wrapText="true" />
+                <Label fx:id="lblSubtitulo" styleClass="subtitle" />
 
-                <HBox spacing="15" alignment="CENTER_LEFT">
-                    <Label fx:id="lblRating" styleClass="movie-rating"/>
-                    <Label fx:id="lblClasificacion" styleClass="chip"/>
+                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                    <Label fx:id="lblRating" styleClass="movie-rating" />
+                    <Label fx:id="lblClasificacion" styleClass="chip" />
                 </HBox>
 
-                <FlowPane fx:id="flowGeneros" hgap="10" vgap="10"/>
+                <FlowPane fx:id="flowGeneros" hgap="10.0" vgap="10.0" />
 
-                <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-padding: 10 0 0 0;">
-                    <Button fx:id="btnMiLista" text="Añadir a mi lista"/>
-                    <ComboBox fx:id="cbEstado" promptText="Estado"/>
-                    <ComboBox fx:id="cbPuntuacion" promptText="Puntuación"/>
-                    <Button fx:id="btnTrailer" text="Ver trailer" styleClass="accent-button"/>
-
-                    <Region HBox.hgrow="ALWAYS" /> <Button fx:id="btnEliminarPelicula" text="Eliminar" styleClass="danger-button" visible="false"/>
+                <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="action-bar">
+                    <Button fx:id="btnMiLista" text="Añadir a mi lista" />
+                    <ComboBox fx:id="cbEstado" promptText="Estado" />
+                    <ComboBox fx:id="cbPuntuacion" promptText="Puntuación" />
+                    <Button fx:id="btnTrailer" styleClass="accent-button" text="Ver trailer" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button fx:id="btnEliminarPelicula" styleClass="danger-button" text="Eliminar" visible="false" />
                 </HBox>
             </VBox>
 
             <!-- Columna 1, Fila 1: Sinopsis, Directores, Actores -->
-            <VBox spacing="30" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                <VBox spacing="10">
-                    <Label text="Sinopsis" styleClass="section-title"/>
-                    <Label fx:id="lblSinopsis" wrapText="true" styleClass="text-normal"/>
+            <VBox spacing="25.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                <VBox spacing="10.0">
+                    <Label styleClass="section-title" text="Sinopsis" />
+                    <Label fx:id="lblSinopsis" styleClass="text-normal" wrapText="true" />
                 </VBox>
-                <VBox spacing="10">
-                    <Label text="Directores" styleClass="section-title"/>
-                    <FlowPane fx:id="flowDirectores" hgap="10" vgap="10"/>
+                <VBox spacing="10.0">
+                    <Label styleClass="section-title" text="Directores" />
+                    <FlowPane fx:id="flowDirectores" hgap="10.0" vgap="10.0" />
                 </VBox>
-                <VBox spacing="10">
-                    <Label text="Actores" styleClass="section-title"/>
-                    <FlowPane fx:id="flowActores" hgap="10" vgap="10"/>
+                <VBox spacing="10.0">
+                    <Label styleClass="section-title" text="Actores" />
+                    <FlowPane fx:id="flowActores" hgap="10.0" vgap="10.0" />
                 </VBox>
             </VBox>
-
         </GridPane>
     </content>
 </ScrollPane>

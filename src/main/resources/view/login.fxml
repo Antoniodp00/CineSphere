@@ -1,31 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.dam2.adp.cinesphere.controller.LoginController"
-            stylesheets="@../style.css">
+<StackPane stylesheets="@../style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dam2.adp.cinesphere.controller.LoginController">
 
-    <VBox spacing="15" alignment="CENTER" layoutX="0" layoutY="0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
-          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+    <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="no-border">
+        <content>
+            <VBox alignment="CENTER" spacing="18" styleClass="container">
+                <Label styleClass="title" text="CineSphere" />
 
-        <Label text="CineSphere" styleClass="title" />
+                <VBox spacing="10" styleClass="form-panel">
+                    <Label styleClass="text-normal" text="Base de Datos:" />
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <ComboBox fx:id="cbBaseDatos" prefWidth="250.0" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="btnConectar" prefWidth="100.0" text="Conectar" />
+                    </HBox>
+                    <Label fx:id="lblEstadoConexion" styleClass="muted" text="Estado: Desconectado" />
 
-        <VBox spacing="10" maxWidth="250">
-            <Label text="Seleccionar Base de Datos:" styleClass="text-normal" style="-fx-font-size: 12px;"/>
-            <ComboBox fx:id="cbBaseDatos" prefWidth="250" />
+                    <Separator opacity="0.5" />
 
-            <Separator opacity="0.5"/>
+                    <TextField fx:id="txtUsuario" disable="true" promptText="Usuario" />
+                    <PasswordField fx:id="txtPassword" disable="true" promptText="Contraseña" />
+                </VBox>
 
-            <TextField fx:id="txtUsuario" promptText="Usuario" />
-            <PasswordField fx:id="txtPassword" promptText="Contraseña" />
-        </VBox>
+                <Button fx:id="btnLogin" disable="true" styleClass="accent-button" text="Iniciar Sesión" />
+                <Hyperlink fx:id="linkRegistro" disable="true" text="Crear una cuenta" />
+            </VBox>
+        </content>
+    </ScrollPane>
 
-        <Button fx:id="btnLogin" text="Conectar e Iniciar Sesión" prefWidth="200" styleClass="accent-button"/>
-        <Hyperlink fx:id="linkRegistro" text="Crear una cuenta"/>
-
-    </VBox>
-</AnchorPane>
+</StackPane>

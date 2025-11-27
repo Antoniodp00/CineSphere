@@ -15,7 +15,7 @@
 
     <!-- SIDEBAR -->
     <left>
-        <VBox fx:id="sidebar" alignment="TOP_LEFT" prefWidth="200" spacing="12">
+        <VBox fx:id="sidebar" id="sidebar" alignment="TOP_LEFT" prefWidth="200" spacing="12">
 
             <Label styleClass="title" text="Menú" />
 
@@ -30,7 +30,7 @@
             <!-- Separador flexible -->
             <Pane VBox.vgrow="ALWAYS" />
 
-            <Button fx:id="btnLogout" prefWidth="180" styleClass="logout-button" text="Cerrar Sesión" />
+            <Button fx:id="btnLogout" prefWidth="180" styleClass="danger-button" text="Cerrar Sesión" />
 
         </VBox>
     </left>
