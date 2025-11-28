@@ -3,27 +3,35 @@ package org.dam2.adp.cinesphere.util;
 import java.time.LocalDate;
 import java.time.Period;
 
+/**
+ * Clase de utilidades generales para la aplicación.
+ */
 public class Utils {
 
     private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
+    /**
+     * Obtiene la ruta de la imagen asociada a un género.
+     * @param nombreGenero el nombre del género.
+     * @return la ruta de la imagen.
+     */
     public static String obtenerRutaImagenPorGenero(String nombreGenero) {
         if (nombreGenero == null) return "/img/noImage.png";
 
-        // Convertimos a String normalizado por si acaso, pero compararemos con tu lista exacta
+
         switch (nombreGenero) {
             case "Action":
-                return "/img/Accion.png"; // Mapea "Action" a tu archivo "Accion.png"
+                return "/img/Action.png";
             case "Drama":
                 return "/img/Drama.png";
             case "Adventure":
-                return "/img/Aventure.png"; // Ojo: tu archivo se llama "Aventure.png"
+                return "/img/Aventure.png";
             case "Comedy":
                 return "/img/Comedy.png";
             case "Crime":
                 return "/img/Crime.png";
             case "Sci-Fi":
-                return "/img/Scifipng.png"; // Ojo: tu archivo se llama "Scifipng.png"
+                return "/img/Scifi.png";
             case "Fantasy":
                 return "/img/Fantasy.png";
             case "Biography":
@@ -58,11 +66,6 @@ public class Utils {
                 return "/img/noImage.png";
         }
     }
-
-    /**
-     * Clase de utilidades generales para la aplicación.
-     */
-
 
     /**
      * Valida si una fecha de nacimiento cumple con la edad mínima requerida
@@ -101,4 +104,3 @@ public class Utils {
         return EMAIL_REGEX.matches(email);
     }
 }
-

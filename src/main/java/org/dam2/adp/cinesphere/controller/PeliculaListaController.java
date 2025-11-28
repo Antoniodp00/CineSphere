@@ -55,6 +55,10 @@ public class PeliculaListaController {
 
     private static final Logger logger = Logger.getLogger(PeliculaListaController.class.getName());
 
+    /**
+     * Inicializa el controlador, configurando los componentes de la interfaz,
+     * cargando los datos iniciales y asignando los manejadores de eventos.
+     */
     @FXML
     private void initialize() {
         logger.log(Level.INFO, "Inicializando PeliculaListaController...");
@@ -101,6 +105,10 @@ public class PeliculaListaController {
         logger.log(Level.INFO, "PeliculaListaController inicializado.");
     }
 
+    /**
+     * Cambia a una página específica si está dentro de los límites.
+     * @param nuevaPagina El número de la página a la que se quiere ir.
+     */
     private void cambiarPagina(int nuevaPagina) {
         if (nuevaPagina >= 1 && nuevaPagina <= totalPages) {
             page = nuevaPagina;
@@ -108,6 +116,10 @@ public class PeliculaListaController {
         }
     }
 
+    /**
+     * Ajusta el tamaño de la página (pageSize) dinámicamente según el ancho del ScrollPane.
+     * @param scrollWidth El ancho actual del ScrollPane.
+     */
     private void ajustarPageSize(double scrollWidth) {
         if (scrollWidth <= 0) {
             pageSize = 18;
@@ -122,6 +134,9 @@ public class PeliculaListaController {
 
     }
 
+    /**
+     * Actualiza el número total de páginas basándose en los filtros aplicados.
+     */
     private void actualizarTotalPaginas() {
         try {
             int total = peliculaDAO.countPeliculas(filtroYear, filtroRating, filtroGeneroId);
@@ -134,6 +149,10 @@ public class PeliculaListaController {
         }
     }
 
+    /**
+     * Carga y muestra una página específica de películas.
+     * @param pagina el número de página a cargar.
+     */
     private void cargarPagina(int pagina) {
         try {
             flowPeliculas.getChildren().clear();
@@ -155,6 +174,10 @@ public class PeliculaListaController {
         }
     }
 
+    /**
+     * Inicia una búsqueda por título de película.
+     * @param filtro el texto a buscar en los títulos de las películas.
+     */
     private void buscar(String filtro) {
         try {
             // Nota: Idealmente esto también debería ser paginado en BBDD
@@ -170,6 +193,11 @@ public class PeliculaListaController {
         }
     }
 
+    /**
+     * Crea una tarjeta de película (VBox) para mostrar en la lista.
+     * @param p la película para la que se creará la tarjeta.
+     * @return un VBox que representa la tarjeta de la película.
+     */
     private VBox crearCardPelicula(Pelicula p) {
         VBox card = new VBox();
         card.getStyleClass().add("movie-card");
@@ -222,11 +250,18 @@ public class PeliculaListaController {
         return card;
     }
 
+    /**
+     * Navega a la vista de detalle de la película seleccionada.
+     * @param idPelicula el ID de la película a mostrar.
+     */
     private void verDetalle(int idPelicula) {
         SessionManager.getInstance().set("selectedPeliculaId", idPelicula);
         Navigation.navigate("peliculas_detalle.fxml");
     }
 
+    /**
+     * Aplica los filtros seleccionados en los ComboBox y recarga la vista.
+     */
     private void aplicarFiltros() {
         filtroYear = cbYear.getValue();
         filtroRating = cbRating.getValue();
@@ -244,6 +279,9 @@ public class PeliculaListaController {
         cargarPagina(page);
     }
 
+    /**
+     * Limpia todos los filtros aplicados y recarga la vista.
+     */
     private void limpiarFiltros() {
         cbYear.setValue(null);
         cbRating.setValue(null);

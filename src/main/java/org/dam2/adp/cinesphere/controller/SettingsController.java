@@ -1,28 +1,22 @@
 package org.dam2.adp.cinesphere.controller;
 
 import javafx.collections.FXCollections;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.dam2.adp.cinesphere.DAO.UsuarioDAO;
 import org.dam2.adp.cinesphere.model.Rol;
+import org.dam2.adp.cinesphere.model.Usuario;
 import org.dam2.adp.cinesphere.util.AlertUtils;
 import org.dam2.adp.cinesphere.util.CsvImporter;
 import org.dam2.adp.cinesphere.util.Navigation;
 import org.dam2.adp.cinesphere.util.SessionManager;
-import org.dam2.adp.cinesphere.model.Usuario;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -34,7 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Controlador para la vista de configuración de la aplicación.
+ * Controlador para la vista de configuración y administración.
  */
 public class SettingsController {
 
@@ -96,7 +90,6 @@ public class SettingsController {
     private void gestionarPermisos() {
         Usuario u = SessionManager.getInstance().getUsuarioActual();
         if (u != null && !u.isAdmin()) {
-            logger.log(Level.INFO, "Usuario no es administrador. Ocultando pestañas de administración.");
             tabPane.getTabs().remove(tabImportacion);
             tabPane.getTabs().remove(tabUsuarios);
         }
@@ -110,7 +103,6 @@ public class SettingsController {
         if (u != null) {
             txtUsuario.setText(u.getNombreUsuario());
             txtEmail.setText(u.getEmail());
-            logger.log(Level.INFO, "Datos del usuario '" + u.getNombreUsuario() + "' cargados en el formulario.");
         }
     }
 
@@ -118,7 +110,6 @@ public class SettingsController {
      * Guarda los cambios realizados en el perfil del usuario.
      */
     private void guardarPerfil() {
-        logger.log(Level.INFO, "Intentando guardar perfil...");
         Usuario u = SessionManager.getInstance().getUsuarioActual();
         u.setNombreUsuario(txtUsuario.getText());
         u.setEmail(txtEmail.getText());
@@ -126,17 +117,15 @@ public class SettingsController {
 
         if (u.getNombreUsuario().isBlank() || u.getEmail().isBlank() || u.getPassw().isBlank()) {
             AlertUtils.error("Rellene todos los campos");
-            logger.log(Level.WARNING, "Intento de guardar perfil con campos vacíos.");
             return;
         }
         try {
             usuarioDAO.update(u);
             AlertUtils.info("Perfil actualizado correctamente");
             txtPassword.clear();
-            logger.log(Level.INFO, "Perfil del usuario '" + u.getNombreUsuario() + "' actualizado correctamente.");
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al actualizar el perfil del usuario", e);
-            throw new RuntimeException(e);
+            logger.log(Level.SEVERE, "Error al actualizar perfil", e);
+            AlertUtils.error("Error al guardar: " + e.getMessage());
         }
     }
 
@@ -144,21 +133,17 @@ public class SettingsController {
      * Elimina la cuenta del usuario actual.
      */
     private void eliminarUsuario() {
-        logger.log(Level.INFO, "Iniciando proceso de eliminación de cuenta...");
         Usuario u = SessionManager.getInstance().getUsuarioActual();
         try {
             if (usuarioDAO.delete(u)) {
                 AlertUtils.info("Usuario eliminado correctamente");
-                logger.log(Level.INFO, "Usuario '" + u.getNombreUsuario() + "' eliminado correctamente.");
                 SessionManager.getInstance().cerrarSesion();
                 Navigation.switchScene("login.fxml");
             } else {
                 AlertUtils.error("Error al eliminar usuario");
-                logger.log(Level.SEVERE, "Error al eliminar el usuario '" + u.getNombreUsuario() + "'.");
             }
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error de SQL al eliminar el usuario", e);
-            throw new RuntimeException(e);
+            logger.log(Level.SEVERE, "Error SQL eliminar usuario", e);
         }
     }
 
@@ -184,15 +169,13 @@ public class SettingsController {
     private void importarCsvLocal() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Seleccionar archivo CSV");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Archivos CSV", "*.csv")
-        );
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos CSV", "*.csv"));
+
         File file = fileChooser.showOpenDialog(btnImportarLocal.getScene().getWindow());
 
         if (file != null) {
             lblEstadoLocal.setText(file.getName());
-            logger.log(Level.INFO, "Archivo CSV local seleccionado para importar: " + file.getAbsolutePath());
-            ejecutarImportacion(importer -> importer.importar(file.getAbsolutePath()));
+            ejecutarImportacion(file.getAbsolutePath(), false);
         }
     }
 
@@ -202,71 +185,57 @@ public class SettingsController {
     private void importarCsvPredeterminado() {
         String seleccion = cbPredeterminados.getValue();
         if (seleccion != null) {
+
             String rutaRecurso = switch (seleccion) {
-                case "IMDb Top Movies (Completo)" -> "src/main/resources/csv/IMDb_Data_final.csv";
-                case "Estrenos 2023" -> "src/main/resources/csv/estrenos_2023.csv";
-                case "Selección Cine Español" -> "src/main/resources/csv/cine_espanol.csv";
-                case "Animación Clásica" -> "src/main/resources/csv/animacion_clasica.csv";
+                case "IMDb Top Movies (Completo)" -> "/csv/IMDb_Data_final.csv";
+                case "Estrenos 2023" -> "/csv/estrenos_2023.csv";
+                case "Selección Cine Español" -> "/csv/cine_espanol.csv";
+                case "Animación Clásica" -> "/csv/animacion_clasica.csv";
                 default -> null;
             };
 
             if (rutaRecurso != null) {
-                logger.log(Level.INFO, "Importando archivo CSV predeterminado: " + seleccion);
-                ejecutarImportacion(importer -> importer.importar(rutaRecurso));
+                // Llamada síncrona directa: Recurso = true
+                ejecutarImportacion(rutaRecurso, true);
             } else {
-                AlertUtils.error("No se ha encontrado el archivo CSV");
-                logger.log(Level.SEVERE, "No se encontró la ruta del recurso para la selección: " + seleccion);
+                AlertUtils.error("Recurso no encontrado para: " + seleccion);
             }
         }
     }
 
     /**
-     * Interfaz funcional para definir una acción de importación.
+     * Ejecuta la importación en el hilo principal (Síncrono, sin Task/Thread).
+     * @param ruta Ruta del archivo o recurso.
+     * @param esRecursoInterno true si está en el classpath, false si es disco local.
      */
-    private interface ImportAction {
-        void execute(CsvImporter importer) throws Exception;
-    }
-
-    /**
-     * Ejecuta una acción de importación en un hilo separado.
-     * @param action la acción de importación a ejecutar.
-     */
-    private void ejecutarImportacion(ImportAction action) {
+    private void ejecutarImportacion(String ruta, boolean esRecursoInterno) {
         btnImportarLocal.setDisable(true);
         btnCargarPredeterminado.setDisable(true);
-        logger.log(Level.INFO, "Ejecutando importación en un hilo separado...");
+        logger.log(Level.INFO, "Iniciando importación síncrona desde: " + ruta);
 
-        Task<Void> task = new Task<>() {
-            @Override
-            protected Void call() throws Exception {
-                CsvImporter importer = new CsvImporter();
-                action.execute(importer);
-                return null;
+        lblEstadoLocal.setText("Procesando...");
+
+        try {
+
+            if (esRecursoInterno) {
+                CsvImporter.importarDesdeRecurso(ruta);
+            } else {
+                CsvImporter.importarLocal(ruta);
             }
-        };
-        task.setOnSucceeded(e -> {
-            habilitarBotones();
+
             AlertUtils.info("Importación completada con éxito.");
-            lblEstadoLocal.setText("No se ha seleccionado archivo");
-            logger.log(Level.INFO, "Importación completada con éxito.");
-        });
+            lblEstadoLocal.setText("Finalizado correctamente.");
+            logger.log(Level.INFO, "Importación finalizada.");
 
-        task.setOnFailed(e -> {
-            habilitarBotones();
-            Throwable error = task.getException();
-            logger.log(Level.SEVERE, "Error durante la importación", error);
-            AlertUtils.error("Error al importar: " + error.getMessage());
-        });
-
-        new Thread(task).start();
-    }
-
-    /**
-     * Habilita los botones de importación.
-     */
-    private void habilitarBotones() {
-        btnImportarLocal.setDisable(false);
-        btnCargarPredeterminado.setDisable(false);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error durante la importación", e);
+            AlertUtils.error("Error al importar: " + e.getMessage());
+            lblEstadoLocal.setText("Error en la importación.");
+        } finally {
+            // Siempre reactivamos los botones
+            btnImportarLocal.setDisable(false);
+            btnCargarPredeterminado.setDisable(false);
+        }
     }
 
     /**
@@ -290,10 +259,8 @@ public class SettingsController {
         try {
             List<Usuario> lista = usuarioDAO.findAll();
             tablaUsuarios.setItems(FXCollections.observableArrayList(lista));
-            logger.log(Level.INFO, "Lista de usuarios cargada en la tabla.");
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al cargar la lista de usuarios", e);
-            AlertUtils.error("Error al cargar usuarios: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error cargando usuarios", e);
         }
     }
 
@@ -303,17 +270,14 @@ public class SettingsController {
      */
     private void cambiarRolSeleccionado(Rol nuevoRol) {
         Usuario seleccionado = tablaUsuarios.getSelectionModel().getSelectedItem();
-
         if (seleccionado == null) {
-            AlertUtils.error("Selecciona un usuario de la lista.");
-            logger.log(Level.WARNING, "Intento de cambiar rol sin seleccionar un usuario.");
+            AlertUtils.error("Selecciona un usuario.");
             return;
         }
 
         Usuario yo = SessionManager.getInstance().getUsuarioActual();
         if (seleccionado.getIdUsuario() == yo.getIdUsuario()) {
             AlertUtils.error("No puedes cambiar tu propio rol.");
-            logger.log(Level.WARNING, "Intento de cambiar el rol del propio usuario.");
             return;
         }
 
@@ -321,10 +285,8 @@ public class SettingsController {
             usuarioDAO.updateRol(seleccionado.getIdUsuario(), nuevoRol);
             seleccionado.setRol(nuevoRol);
             tablaUsuarios.refresh();
-            AlertUtils.info("Rol de " + seleccionado.getNombreUsuario() + " actualizado a " + nuevoRol);
-            logger.log(Level.INFO, "Rol del usuario '" + seleccionado.getNombreUsuario() + "' actualizado a " + nuevoRol);
+            AlertUtils.info("Rol actualizado a " + nuevoRol);
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al actualizar el rol del usuario", e);
             AlertUtils.error("Error al actualizar rol.");
         }
     }
@@ -334,29 +296,24 @@ public class SettingsController {
      */
     private void eliminarUsuarioSeleccionado() {
         Usuario seleccionado = tablaUsuarios.getSelectionModel().getSelectedItem();
-
         if (seleccionado == null) {
             AlertUtils.error("Selecciona un usuario.");
-            logger.log(Level.WARNING, "Intento de eliminar usuario sin seleccionar uno.");
             return;
         }
 
         Usuario yo = SessionManager.getInstance().getUsuarioActual();
         if (seleccionado.getIdUsuario() == yo.getIdUsuario()) {
-            AlertUtils.error("No puedes eliminar tu propia cuenta desde aquí.");
-            logger.log(Level.WARNING, "Intento de eliminar la propia cuenta desde la tabla de administración.");
+            AlertUtils.error("No puedes eliminarte a ti mismo aquí.");
             return;
         }
 
-        if (AlertUtils.confirmation("Eliminar Usuario", "¿Estás seguro?", "Vas a eliminar a " + seleccionado.getNombreUsuario() + ". Esta acción es irreversible.")) {
+        if (AlertUtils.confirmation("Eliminar Usuario", "¿Estás seguro?", "Esta acción es irreversible.")) {
             try {
                 usuarioDAO.delete(seleccionado);
                 tablaUsuarios.getItems().remove(seleccionado);
                 AlertUtils.info("Usuario eliminado.");
-                logger.log(Level.INFO, "Usuario '" + seleccionado.getNombreUsuario() + "' eliminado por un administrador.");
             } catch (SQLException e) {
-                logger.log(Level.SEVERE, "Error al eliminar el usuario seleccionado", e);
-                AlertUtils.error("Error al eliminar usuario.");
+                AlertUtils.error("Error al eliminar.");
             }
         }
     }
@@ -368,19 +325,15 @@ public class SettingsController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/pelicula_form.fxml"));
             Parent root = loader.load();
-
             Stage stage = new Stage();
-            stage.setTitle("Añadir Película - CineSphere Admin");
+            stage.setTitle("Añadir Película");
             stage.setScene(new Scene(root));
-
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
-
-            logger.log(Level.INFO, "Abriendo formulario para añadir nueva película.");
             stage.showAndWait();
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "No se pudo abrir el formulario de nueva película", e);
-            AlertUtils.error("No se pudo abrir el formulario: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error abriendo formulario", e);
+            AlertUtils.error("Error: " + e.getMessage());
         }
     }
 
@@ -396,7 +349,6 @@ public class SettingsController {
         File file = fileChooser.showSaveDialog(btnDescargarPlantilla.getScene().getWindow());
 
         if (file != null) {
-            logger.log(Level.INFO, "Descargando plantilla CSV en: " + file.getAbsolutePath());
             guardarArchivoPlantilla(file);
         }
     }
@@ -407,17 +359,15 @@ public class SettingsController {
      */
     private void guardarArchivoPlantilla(File file) {
         String cabeceras = "Title,Director,Stars,IMDb-Rating,Category,Duration,Censor-board-rating,ReleaseYear";
-        String ejemplo = "Ejemplo de Película,\"Director Uno, Director Dos\",\"Actor A, Actor B\",8.5,\"Action, Drama\",120min,PG-13,2024";
+        String ejemplo = "Ejemplo Pelicula,\"Director A\",\"Actor 1, Actor 2\",8.5,\"Action, Drama\",120min,PG-13,2024";
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write(cabeceras);
             writer.newLine();
             writer.write(ejemplo);
-            AlertUtils.info("Plantilla guardada correctamente en:\n" + file.getAbsolutePath());
-            logger.log(Level.INFO, "Plantilla CSV guardada correctamente.");
+            AlertUtils.info("Plantilla guardada.");
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error al guardar la plantilla CSV", e);
-            AlertUtils.error("Error al guardar la plantilla: " + e.getMessage());
+            AlertUtils.error("Error guardando plantilla.");
         }
     }
 }

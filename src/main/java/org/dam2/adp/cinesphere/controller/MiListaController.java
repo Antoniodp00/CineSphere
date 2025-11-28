@@ -116,6 +116,10 @@ public class MiListaController {
         logger.log(Level.INFO, "MiListaController inicializado correctamente.");
     }
 
+    /**
+     * Cambia a una página específica si está dentro de los límites.
+     * @param nuevaPagina El número de la página a la que se quiere ir.
+     */
     private void cambiarPagina(int nuevaPagina) {
         if (nuevaPagina >= 1 && nuevaPagina <= totalPages) {
             page = nuevaPagina;
@@ -123,6 +127,10 @@ public class MiListaController {
         }
     }
 
+    /**
+     * Ajusta el tamaño de la página (pageSize) dinámicamente según el ancho del ScrollPane.
+     * @param scrollWidth El ancho actual del ScrollPane.
+     */
     private void ajustarPageSize(double scrollWidth) {
         if (scrollWidth <= 0) {
             pageSize = 1;
@@ -135,6 +143,9 @@ public class MiListaController {
         logger.log(Level.INFO, "Ajustando pageSize a " + pageSize + " para un ancho de " + scrollWidth);
     }
 
+    /**
+     * Actualiza el número total de páginas basándose en los filtros aplicados.
+     */
     private void actualizarTotalPaginas() {
         try {
             int total = miListaDAO.countPeliculas(usuario.getIdUsuario(), filtroYear, filtroRating, filtroGeneroId, filtroBusqueda);
@@ -147,6 +158,10 @@ public class MiListaController {
         }
     }
 
+    /**
+     * Inicia una búsqueda por título de película.
+     * @param filtro el texto a buscar en los títulos de las películas.
+     */
     private void buscar(String filtro) {
         logger.log(Level.INFO, "Iniciando búsqueda con filtro: '" + filtro + "'");
         this.filtroBusqueda = filtro;
@@ -155,6 +170,10 @@ public class MiListaController {
         cargarPagina(page);
     }
 
+    /**
+     * Carga y muestra una página específica de películas.
+     * @param pagina el número de página a cargar.
+     */
     private void cargarPagina(int pagina) {
         logger.log(Level.INFO, "Cargando página " + pagina + " de " + totalPages);
         try {
@@ -171,6 +190,11 @@ public class MiListaController {
         }
     }
 
+    /**
+     * Crea una tarjeta de película (VBox) para mostrar en la lista.
+     * @param p la película para la que se creará la tarjeta.
+     * @return un VBox que representa la tarjeta de la película.
+     */
     private VBox crearCardPelicula(Pelicula p) {
         VBox card = new VBox();
         card.getStyleClass().add("movie-card");
@@ -226,6 +250,9 @@ public class MiListaController {
         return card;
     }
 
+    /**
+     * Aplica los filtros seleccionados en los ComboBox y recarga la vista.
+     */
     private void aplicarFiltros() {
         logger.log(Level.INFO, "Aplicando filtros...");
         filtroYear = cbYear.getValue();
@@ -246,6 +273,9 @@ public class MiListaController {
         cargarPagina(page);
     }
 
+    /**
+     * Limpia todos los filtros aplicados y recarga la vista.
+     */
     private void limpiarFiltros() {
         logger.log(Level.INFO, "Limpiando filtros...");
         cbYear.setValue(null);

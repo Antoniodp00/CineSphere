@@ -132,6 +132,10 @@ public class LoginController {
         }
     }
 
+    /**
+     * Valida las precondiciones para intentar un login.
+     * @return true si las validaciones son correctas.
+     */
     private boolean validarPreLogin() {
         if (!isConnected) {
             AlertUtils.error("Por favor, conecta a una base de datos primero.");
@@ -144,6 +148,10 @@ public class LoginController {
         return true;
     }
 
+    /**
+     * Procede con el login una vez validado el usuario.
+     * @param u El usuario autenticado.
+     */
     private void realizarLoginExitoso(Usuario u) {
         SessionManager.getInstance().setUsuarioActual(u);
         logger.log(Level.INFO, "Inicio de sesión exitoso: " + u.getNombreUsuario());
@@ -152,6 +160,7 @@ public class LoginController {
 
     /**
      * Establece la conexión a la base de datos.
+     * @return true si la conexión se ha establecido correctamente, false en caso contrario.
      */
     private boolean establecerConexion() {
         String seleccion = cbBaseDatos.getValue();
@@ -176,6 +185,9 @@ public class LoginController {
         }
     }
 
+    /**
+     * Crea el usuario administrador por defecto si no existe.
+     */
     private void crearAdminPorDefecto() {
         // Ejecución en hilo separado para no bloquear UI si la DB es lenta (Opcional pero recomendado)
         new Thread(() -> {
@@ -197,6 +209,10 @@ public class LoginController {
         }).start();
     }
 
+    /**
+     * Habilita o deshabilita los campos del formulario de login.
+     * @param habilitar true para habilitar, false para deshabilitar.
+     */
     private void habilitarFormulario(boolean habilitar) {
         txtUsuario.setDisable(!habilitar);
         txtPassword.setDisable(!habilitar);

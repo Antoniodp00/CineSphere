@@ -36,8 +36,7 @@ public class PeliculaDAO {
             """;
     private static final String SQL_DELETE =
             "DELETE FROM pelicula WHERE idpelicula=?";
-    private static final String SQL_COUNT =
-            "SELECT COUNT(*) FROM pelicula";
+    private static final String SQL_COUNT_BASE = "SELECT COUNT(DISTINCT p.idpelicula) FROM pelicula p ";
     private static final String SQL_FIND_GENEROS_LOTE = """
             SELECT pg.idpelicula, g.idgenero, g.nombregenero
             FROM peliculagenero pg
@@ -46,15 +45,26 @@ public class PeliculaDAO {
             """;
 
 
-    private PeliculaGeneroDAO peliculaGeneroDAO = new PeliculaGeneroDAO();
-    private PeliculaActorDAO peliculaActorDAO = new PeliculaActorDAO();
-    private PeliculaDirectorDAO peliculaDirectorDAO = new PeliculaDirectorDAO();
+    //Consultas para el filtrado
+    private static final String SQL_FILTER_SELECT = "SELECT DISTINCT p.* FROM pelicula p ";
+    private static final String SQL_FILTER_JOIN_GENERO = "JOIN peliculagenero pg ON p.idpelicula = pg.idpelicula ";
+    private static final String SQL_FILTER_BASE_WHERE = "WHERE 1=1 ";
+
+    private static final String SQL_FILTER_AND_YEAR = "AND p.yearpelicula = ? ";
+    private static final String SQL_FILTER_AND_RATING = "AND p.ratingpelicula >= ? ";
+    private static final String SQL_FILTER_AND_GENERO = "AND pg.idgenero = ? ";
+
+    private static final String SQL_FILTER_PAGINATION = "ORDER BY p.idpelicula LIMIT ? OFFSET ?";
 
 
+    private final PeliculaGeneroDAO peliculaGeneroDAO = new PeliculaGeneroDAO();
+    private final PeliculaActorDAO peliculaActorDAO = new PeliculaActorDAO();
+    private final PeliculaDirectorDAO peliculaDirectorDAO = new PeliculaDirectorDAO();
 
 
     /**
      * Inserta una nueva película en la base de datos.
+     *
      * @param p la película a insertar.
      * @return la película insertada con su ID generado.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
@@ -94,6 +104,7 @@ public class PeliculaDAO {
 
     /**
      * Obtiene todas las películas de la base de datos (carga perezosa).
+     *
      * @return una lista de todas las películas.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
@@ -103,13 +114,7 @@ public class PeliculaDAO {
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
             while (rs.next()) {
-                Pelicula p = new Pelicula();
-                p.setIdPelicula(rs.getInt("idpelicula"));
-                p.setTituloPelicula(rs.getString("titulopelicula"));
-                p.setYearPelicula(rs.getInt("yearpelicula"));
-                p.setRatingPelicula(rs.getDouble("ratingpelicula"));
-                p.setDuracionPelicula(rs.getInt("duracionpelicula"));
-                p.setNombreClasificacion(rs.getString("nombreclasificacion"));
+                Pelicula p = mapeoPelicula(rs);
                 list.add(p);
             }
         }
@@ -118,6 +123,7 @@ public class PeliculaDAO {
 
     /**
      * Busca una película por su ID (carga perezosa).
+     *
      * @param idPelicula el ID de la película a buscar.
      * @return la película encontrada, o null si no se encuentra.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
@@ -128,13 +134,7 @@ public class PeliculaDAO {
             st.setInt(1, idPelicula);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    Pelicula p = new Pelicula();
-                    p.setIdPelicula(rs.getInt("idpelicula"));
-                    p.setTituloPelicula(rs.getString("titulopelicula"));
-                    p.setYearPelicula(rs.getObject("yearpelicula", Integer.class));
-                    p.setRatingPelicula(rs.getDouble("ratingpelicula"));
-                    p.setDuracionPelicula(rs.getObject("duracionpelicula", Integer.class));
-                    p.setNombreClasificacion(rs.getString("nombreclasificacion"));
+                    Pelicula p = mapeoPelicula(rs);
                     return p;
                 }
             }
@@ -144,8 +144,9 @@ public class PeliculaDAO {
 
     /**
      * Busca una película por su título y año.
+     *
      * @param titulo el título de la película.
-     * @param year el año de la película.
+     * @param year   el año de la película.
      * @return la película encontrada, o null si no se encuentra.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
@@ -156,13 +157,7 @@ public class PeliculaDAO {
             st.setInt(2, year);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    Pelicula p = new Pelicula();
-                    p.setIdPelicula(rs.getInt("idpelicula"));
-                    p.setTituloPelicula(rs.getString("titulopelicula"));
-                    p.setYearPelicula(rs.getObject("yearpelicula", Integer.class));
-                    p.setRatingPelicula(rs.getDouble("ratingpelicula"));
-                    p.setDuracionPelicula(rs.getObject("duracionpelicula", Integer.class));
-                    p.setNombreClasificacion(rs.getString("nombreclasificacion"));
+                    Pelicula p = mapeoPelicula(rs);
                     return p;
                 }
             }
@@ -172,6 +167,7 @@ public class PeliculaDAO {
 
     /**
      * Busca una película por su ID (carga ansiosa).
+     *
      * @param idPelicula el ID de la película a buscar.
      * @return la película encontrada, o null si no se encuentra.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
@@ -189,7 +185,8 @@ public class PeliculaDAO {
 
     /**
      * Obtiene una página de películas de la base de datos.
-     * @param page el número de página a obtener.
+     *
+     * @param page     el número de página a obtener.
      * @param pageSize el tamaño de la página.
      * @return una lista de películas de la página especificada.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
@@ -216,38 +213,46 @@ public class PeliculaDAO {
 
     /**
      * Cuenta el número total de películas que coinciden con los filtros especificados.
-     * @param year el año de la película.
+     *
+     * @param year      el año de la película.
      * @param ratingMin el rating mínimo de la película.
-     * @param idGenero el ID del género de la película.
+     * @param idGenero  el ID del género de la película.
      * @return el número total de películas que coinciden con los filtros.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public int countPeliculas(Integer year, Double ratingMin, Integer idGenero) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
-        StringBuilder sql = new StringBuilder("SELECT COUNT(DISTINCT p.idpelicula) FROM pelicula p ");
+
+        StringBuilder sql = new StringBuilder();
+        sql.append(SQL_COUNT_BASE);
+
         if (idGenero != null) {
-            sql.append("LEFT JOIN peliculaGenero pg ON p.idpelicula = pg.idpelicula ");
+            sql.append(SQL_FILTER_JOIN_GENERO);
         }
-        sql.append("WHERE 1=1 ");
+
+        sql.append(SQL_FILTER_BASE_WHERE);
 
         List<Object> params = new ArrayList<>();
+
         if (year != null) {
-            sql.append("AND p.yearpelicula = ? ");
+            sql.append(SQL_FILTER_AND_YEAR);
             params.add(year);
         }
         if (ratingMin != null) {
-            sql.append("AND p.ratingpelicula >= ? ");
+            sql.append(SQL_FILTER_AND_RATING);
             params.add(ratingMin);
         }
         if (idGenero != null) {
-            sql.append("AND pg.idgenero = ? ");
+            sql.append(SQL_FILTER_AND_GENERO);
             params.add(idGenero);
         }
 
         try (PreparedStatement st = conn.prepareStatement(sql.toString())) {
+
             for (int i = 0; i < params.size(); i++) {
                 st.setObject(i + 1, params.get(i));
             }
+
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1);
@@ -259,64 +264,73 @@ public class PeliculaDAO {
 
     /**
      * Obtiene una lista paginada de películas que coinciden con los filtros especificados.
-     * @param year el año de la película.
+     *
+     * @param year      el año de la película.
      * @param ratingMin el rating mínimo de la película.
-     * @param idGenero el ID del género de la película.
-     * @param page el número de página a obtener.
-     * @param pageSize el tamaño de la página.
+     * @param idGenero  el ID del género de la película.
+     * @param page      el número de página a obtener.
+     * @param pageSize  el tamaño de la página.
      * @return una lista de películas que coinciden con los filtros.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public List<Pelicula> findFiltered(Integer year, Double ratingMin, Integer idGenero, int page, int pageSize) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
         List<Pelicula> lista = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT DISTINCT p.* FROM pelicula p ");
+
+        StringBuilder sql = new StringBuilder();
+        sql.append(SQL_FILTER_SELECT);
+
         if (idGenero != null) {
-            sql.append("LEFT JOIN peliculaGenero pg ON p.idpelicula = pg.idpelicula ");
+            sql.append(SQL_FILTER_JOIN_GENERO);
         }
-        sql.append("WHERE 1=1 ");
+
+        sql.append(SQL_FILTER_BASE_WHERE);
 
         List<Object> params = new ArrayList<>();
+
         if (year != null) {
-            sql.append("AND p.yearpelicula = ? ");
+            sql.append(SQL_FILTER_AND_YEAR);
             params.add(year);
         }
         if (ratingMin != null) {
-            sql.append("AND p.ratingpelicula >= ? ");
+            sql.append(SQL_FILTER_AND_RATING);
             params.add(ratingMin);
         }
         if (idGenero != null) {
-            sql.append("AND pg.idgenero = ? ");
+            sql.append(SQL_FILTER_AND_GENERO);
             params.add(idGenero);
         }
 
-        sql.append("ORDER BY p.idpelicula LIMIT ? OFFSET ?");
+        sql.append(SQL_FILTER_PAGINATION);
         params.add(pageSize);
         params.add((page - 1) * pageSize);
 
         try (PreparedStatement st = conn.prepareStatement(sql.toString())) {
+
             for (int i = 0; i < params.size(); i++) {
                 st.setObject(i + 1, params.get(i));
             }
+
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
-                    Pelicula p = new Pelicula();
-                    p.setIdPelicula(rs.getInt("idpelicula"));
-                    p.setTituloPelicula(rs.getString("titulopelicula"));
-                    p.setYearPelicula(rs.getObject("yearpelicula", Integer.class));
-                    p.setRatingPelicula(rs.getDouble("ratingpelicula"));
-                    p.setDuracionPelicula(rs.getObject("duracionpelicula", Integer.class));
-                    p.setNombreClasificacion(rs.getString("nombreclasificacion"));
-                    lista.add(p);
+                    lista.add(mapeoPelicula(rs));
                 }
             }
         }
+
+
         cargarGenerosEnLote(lista);
+
         return lista;
     }
 
-    void cargarGenerosEnLote(List<Pelicula> peliculas) {
+    /**
+     * Carga los géneros de una lista de películas en un solo lote para optimizar las consultas a la base de datos.
+     * @param peliculas la lista de películas a la que se le cargarán los géneros.
+     */
+    public void cargarGenerosEnLote(List<Pelicula> peliculas) {
         if (peliculas.isEmpty()) return;
+        Connection conn = Conexion.getInstance().getConnection();
 
         Map<Integer, Pelicula> peliculasPorId = peliculas.stream()
                 .collect(Collectors.toMap(Pelicula::getIdPelicula, p -> p));
@@ -327,7 +341,7 @@ public class PeliculaDAO {
         String sqlFinal = String.format(SQL_FIND_GENEROS_LOTE, placeholders);
 
         try {
-            Connection conn = Conexion.getInstance().getConnection(); // Corrected: No try-with-resources here
+
             try (PreparedStatement ps = conn.prepareStatement(sqlFinal)) {
 
                 for (int i = 0; i < ids.size(); i++) {
@@ -355,9 +369,16 @@ public class PeliculaDAO {
             e.printStackTrace();
         }
     }
-    Pelicula mapeoPelicula(ResultSet rs) throws SQLException {
+
+    /**
+     * Mapea una fila de un ResultSet a un objeto Pelicula.
+     * @param rs el ResultSet del que obtener los datos.
+     * @return un objeto Pelicula con los datos de la fila.
+     * @throws SQLException si ocurre un error al acceder a los datos del ResultSet.
+     */
+    public Pelicula mapeoPelicula(ResultSet rs) throws SQLException {
         Pelicula p = new Pelicula();
-        p.setIdPelicula(rs.getInt("idpelicula")); // Usa nombres de columna, es más seguro que índices
+        p.setIdPelicula(rs.getInt("idpelicula"));
         p.setTituloPelicula(rs.getString("titulopelicula"));
         p.setYearPelicula(rs.getObject("yearpelicula", Integer.class));
         p.setRatingPelicula(rs.getDouble("ratingpelicula"));
