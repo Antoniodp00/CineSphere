@@ -247,6 +247,22 @@ public class SettingsController {
         colEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
         colRol.setCellValueFactory(new PropertyValueFactory<>("rol"));
 
+        // Habilitar selección de una sola fila
+        tablaUsuarios.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+        // Deshabilitar botones de acción inicialmente
+        btnHacerAdmin.setDisable(true);
+        btnHacerUser.setDisable(true);
+        btnEliminarUsuario.setDisable(true);
+
+        // Listener para habilitar/deshabilitar botones según la selección
+        tablaUsuarios.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            boolean isSelected = newSelection != null;
+            btnHacerAdmin.setDisable(!isSelected);
+            btnHacerUser.setDisable(!isSelected);
+            btnEliminarUsuario.setDisable(!isSelected);
+        });
+
         btnHacerAdmin.setOnAction(e -> cambiarRolSeleccionado(Rol.ADMIN));
         btnHacerUser.setOnAction(e -> cambiarRolSeleccionado(Rol.USER));
         btnEliminarUsuario.setOnAction(e -> eliminarUsuarioSeleccionado());

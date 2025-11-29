@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.TilePane?>
 
-<AnchorPane stylesheets="@../style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
+<AnchorPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="org.dam2.adp.cinesphere.controller.MiListaController">
 
     <!-- Barra de Búsqueda y Filtros -->
-    <HBox styleClass="toolbar" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+    <HBox AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" spacing="15" alignment="CENTER_LEFT">
         <padding>
-            <Insets bottom="15" left="15" right="15" top="15"/>
+            <Insets bottom="20" left="20" right="20" top="20"/>
         </padding>
 
         <!-- Búsqueda -->
-        <TextField fx:id="txtBuscar" promptText="Buscar título..." HBox.hgrow="ALWAYS"/>
-        <Button fx:id="btnBuscar" text="Buscar"/>
+        <TextField fx:id="txtBuscar" promptText="Buscar título..." HBox.hgrow="ALWAYS" styleClass="rounded"/>
+        <Button fx:id="btnBuscar" text="Buscar" styleClass="accent"/>
 
         <!-- Separador -->
         <Separator orientation="VERTICAL" prefHeight="30"/>
@@ -25,42 +32,40 @@
         <ComboBox fx:id="cbRating" promptText="Rating"/>
         <ComboBox fx:id="cbGenero" promptText="Género"/>
 
-        <Button fx:id="btnFiltrar" text="Filtrar" styleClass="accent-button"/>
-        <Button fx:id="btnLimpiar" text="Limpiar"/>
+        <Button fx:id="btnFiltrar" text="Filtrar" styleClass="accent"/>
+        <Button fx:id="btnLimpiar" text="Limpiar" styleClass="button-outlined"/>
     </HBox>
 
     <ScrollPane fx:id="scroll"
                 fitToWidth="true"
-                AnchorPane.topAnchor="60"
+                AnchorPane.topAnchor="80"
                 AnchorPane.leftAnchor="0"
                 AnchorPane.rightAnchor="0"
                 AnchorPane.bottomAnchor="50"
-                styleClass="no-border">
+                style="-fx-background-color: transparent;">
 
-        <FlowPane fx:id="flowPeliculas"
-                  hgap="20" vgap="25"
-                  prefWrapLength="1360" styleClass="cards-container">
+        <TilePane fx:id="tilePeliculas" hgap="20" vgap="25" prefColumns="0">
             <padding>
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
-        </FlowPane>
+        </TilePane>
 
     </ScrollPane>
 
     <!-- Paginación -->
-    <HBox fx:id="paginationBar" styleClass="pagination-bar"
+    <HBox fx:id="paginationBar"
           AnchorPane.bottomAnchor="5"
           AnchorPane.leftAnchor="0"
-          AnchorPane.rightAnchor="0">
+          AnchorPane.rightAnchor="0" spacing="5" alignment="CENTER">
         <padding>
             <Insets bottom="10" top="10"/>
         </padding>
 
-        <Button fx:id="btnFirst" text="&lt;&lt;"/>
-        <Button fx:id="btnPrev" text="&lt;"/>
-        <Label fx:id="lblPage" text="1"/>
-        <Button fx:id="btnNext" text="&gt;"/>
-        <Button fx:id="btnLast" text="&gt;&gt;"/>
+        <Button fx:id="btnFirst" text="&lt;&lt;" styleClass="flat, rounded"/>
+        <Button fx:id="btnPrev" text="&lt;" styleClass="flat, rounded"/>
+        <Label fx:id="lblPage" text="1" styleClass="text-muted, text-small"/>
+        <Button fx:id="btnNext" text="&gt;" styleClass="flat, rounded"/>
+        <Button fx:id="btnLast" text="&gt;&gt;" styleClass="flat, rounded"/>
     </HBox>
 
 </AnchorPane>

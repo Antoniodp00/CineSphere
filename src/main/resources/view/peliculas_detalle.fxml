@@ -13,11 +13,11 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane fitToWidth="true" styleClass="no-border" stylesheets="@../style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dam2.adp.cinesphere.controller.PeliculaDetalleController">
+<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dam2.adp.cinesphere.controller.PeliculaDetalleController">
     <content>
-        <GridPane hgap="40.0" styleClass="detail-container" vgap="20.0">
+        <GridPane hgap="40.0" vgap="20.0">
             <padding>
-                <Insets bottom="40.0" left="40.0" right="40.0" top="20.0" />
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
             <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" minWidth="300.0" />
@@ -29,21 +29,22 @@
 
             <!-- Columna 1, Fila 0: Título y Acciones -->
             <VBox spacing="20.0" GridPane.columnIndex="1">
-                <Label fx:id="lblTitulo" styleClass="title" wrapText="true" />
-                <Label fx:id="lblSubtitulo" styleClass="subtitle" />
+                <Label fx:id="lblTitulo" styleClass="title-2" wrapText="true" />
+                <Label fx:id="lblSubtitulo" styleClass="text-muted" />
 
                 <HBox alignment="CENTER_LEFT" spacing="15.0">
-                    <Label fx:id="lblRating" styleClass="movie-rating" />
+                    <!-- Reemplazado lblRating por un HBox para el display de estrellas -->
+                    <HBox fx:id="ratingContainer" alignment="CENTER_LEFT" spacing="5" />
                     <Label fx:id="lblClasificacion" styleClass="chip" />
                 </HBox>
 
                 <FlowPane fx:id="flowGeneros" hgap="10.0" vgap="10.0" />
 
                 <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="action-bar">
-                    <Button fx:id="btnMiLista" text="Añadir a mi lista" />
+                    <Button fx:id="btnMiLista" text="Añadir a mi lista" styleClass="accent" />
                     <ComboBox fx:id="cbEstado" promptText="Estado" />
                     <ComboBox fx:id="cbPuntuacion" promptText="Puntuación" />
-                    <Button fx:id="btnTrailer" styleClass="accent-button" text="Ver trailer" />
+                    <Button fx:id="btnTrailer" styleClass="accent" text="Ver trailer" />
                     <Region HBox.hgrow="ALWAYS" />
                 </HBox>
             </VBox>
@@ -51,18 +52,18 @@
             <!-- Columna 1, Fila 1: Sinopsis, Directores, Actores -->
             <VBox spacing="25.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <VBox spacing="10.0">
-                    <Label styleClass="section-title" text="Sinopsis" />
-                    <Label fx:id="lblSinopsis" styleClass="text-normal" wrapText="true" />
+                    <Label styleClass="title-3" text="Sinopsis" />
+                    <Label fx:id="lblSinopsis" styleClass="text-muted" wrapText="true" />
                 </VBox>
                 <VBox spacing="10.0">
-                    <Label styleClass="section-title" text="Directores" />
+                    <Label styleClass="title-3" text="Directores" />
                     <FlowPane fx:id="flowDirectores" hgap="10.0" vgap="10.0" />
                 </VBox>
                 <VBox spacing="10.0">
-                    <Label styleClass="section-title" text="Actores" />
+                    <Label styleClass="title-3" text="Actores" />
                     <FlowPane fx:id="flowActores" hgap="10.0" vgap="10.0" />
                 </VBox>
-                <Button fx:id="btnEliminarPelicula" styleClass="danger-button" text="Eliminar" visible="false" />
+                <Button fx:id="btnEliminarPelicula" styleClass="danger" text="Eliminar" visible="false" />
             </VBox>
         </GridPane>
     </content>

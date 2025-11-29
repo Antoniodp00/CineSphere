@@ -16,48 +16,48 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="20.0" stylesheets="@../style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dam2.adp.cinesphere.controller.SettingsController">
+<VBox spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dam2.adp.cinesphere.controller.SettingsController">
     <padding>
-        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
 
-    <Label styleClass="page-title" text="Ajustes" />
+    <Label styleClass="title-1" text="Ajustes" />
 
-    <TabPane fx:id="tabPane" styleClass="settings-tabs" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+    <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
         <Tab text="Mi Perfil">
             <content>
                 <VBox spacing="20.0">
                     <padding>
                         <Insets top="20.0" />
                     </padding>
-                    <VBox spacing="15.0" styleClass="card">
+                    <VBox spacing="15.0" styleClass="background-subtle">
                         <padding>
                             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                         </padding>
-                        <Label styleClass="section-title" text="Información de la Cuenta" />
+                        <Label styleClass="title-3" text="Información de la Cuenta" />
                         <GridPane hgap="15.0" vgap="15.0">
                             <columnConstraints>
                                 <ColumnConstraints minWidth="120.0" />
                                 <ColumnConstraints hgrow="ALWAYS" />
                             </columnConstraints>
-                            <Label styleClass="text-normal" text="Usuario:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                            <Label text="Usuario:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                             <TextField fx:id="txtUsuario" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                            <Label styleClass="text-normal" text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                            <Label text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                             <TextField fx:id="txtEmail" promptText="correo@ejemplo.com" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                            <Label styleClass="text-normal" text="Nueva Clave:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                            <Label text="Nueva Clave:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                             <PasswordField fx:id="txtPassword" promptText="Dejar vacío para mantener la actual" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                         </GridPane>
                         <HBox alignment="CENTER_RIGHT">
-                            <Button fx:id="btnGuardarPerfil" styleClass="accent-button" text="Guardar Cambios" />
+                            <Button fx:id="btnGuardarPerfil" styleClass="accent" text="Guardar Cambios" />
                         </HBox>
                     </VBox>
-                    <VBox styleClass="card-danger" spacing="10.0">
+                    <VBox spacing="10.0" styleClass="background-subtle">
                         <padding>
                             <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                         </padding>
-                        <Label styleClass="section-title" text="Zona de Peligro" />
-                        <Label styleClass="muted" text="Una vez elimines tu cuenta, no hay vuelta atrás. Por favor, ten cuidado." wrapText="true" />
-                        <Button fx:id="btnEliminarCuenta" styleClass="danger-button" text="Eliminar Cuenta" />
+                        <Label styleClass="title-3" text="Zona de Peligro" />
+                        <Label styleClass="text-muted, text-small" text="Una vez elimines tu cuenta, no hay vuelta atrás. Por favor, ten cuidado." wrapText="true" />
+                        <Button fx:id="btnEliminarCuenta" styleClass="danger" text="Eliminar Cuenta" />
                     </VBox>
                 </VBox>
             </content>
@@ -68,36 +68,36 @@
                     <padding>
                         <Insets top="20.0" />
                     </padding>
-                    <VBox spacing="15.0" styleClass="card">
+                    <VBox spacing="15.0" styleClass="background-subtle">
                         <padding>
                             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                         </padding>
-                        <Label styleClass="section-title" text="Cargar desde archivo" />
-                        <Label styleClass="text-normal" text="Importa películas desde un archivo CSV local (.csv) a tu base de datos." wrapText="true" />
+                        <Label styleClass="title-3" text="Cargar desde archivo" />
+                        <Label styleClass="text-muted, text-small" text="Importa películas desde un archivo CSV local (.csv) a tu base de datos." wrapText="true" />
                         <HBox alignment="CENTER_LEFT" spacing="15.0">
-                            <Button fx:id="btnImportarLocal" text="Buscar archivo CSV..." />
-                            <Button fx:id="btnDescargarPlantilla" text="Descargar Plantilla" />
-                            <Label fx:id="lblEstadoLocal" styleClass="muted" text="No se ha seleccionado archivo" />
+                            <Button fx:id="btnImportarLocal" text="Buscar archivo CSV..." styleClass="button-outlined" />
+                            <Button fx:id="btnDescargarPlantilla" text="Descargar Plantilla" styleClass="flat" />
+                            <Label fx:id="lblEstadoLocal" styleClass="text-muted, text-small" text="No se ha seleccionado archivo" />
                         </HBox>
                     </VBox>
-                    <VBox spacing="15.0" styleClass="card">
+                    <VBox spacing="15.0" styleClass="background-subtle">
                         <padding>
                             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                         </padding>
-                        <Label styleClass="section-title" text="Datasets de Ejemplo" />
-                        <Label styleClass="text-normal" text="Si no tienes un archivo, puedes cargar uno de nuestros catálogos predeterminados." wrapText="true" />
+                        <Label styleClass="title-3" text="Datasets de Ejemplo" />
+                        <Label styleClass="text-muted, text-small" text="Si no tienes un archivo, puedes cargar uno de nuestros catálogos predeterminados." wrapText="true" />
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                             <ComboBox fx:id="cbPredeterminados" promptText="Seleccionar catálogo..." />
-                            <Button fx:id="btnCargarPredeterminado" styleClass="accent-button" text="Cargar Dataset" />
+                            <Button fx:id="btnCargarPredeterminado" styleClass="accent" text="Cargar Dataset" />
                         </HBox>
                     </VBox>
-                    <VBox spacing="15.0" styleClass="card">
+                    <VBox spacing="15.0" styleClass="background-subtle">
                         <padding>
                             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                         </padding>
-                        <Label styleClass="section-title" text="Gestión Manual" />
-                        <Label styleClass="text-normal" text="Añade una nueva película al catálogo rellenando el formulario manualmente." wrapText="true" />
-                        <Button fx:id="btnNuevaPelicula" styleClass="accent-button" text="Nueva Película" />
+                        <Label styleClass="title-3" text="Gestión Manual" />
+                        <Label styleClass="text-muted, text-small" text="Añade una nueva película al catálogo rellenando el formulario manualmente." wrapText="true" />
+                        <Button fx:id="btnNuevaPelicula" styleClass="accent" text="Nueva Película" />
                     </VBox>
                 </VBox>
             </content>
@@ -106,10 +106,10 @@
             <content>
                 <VBox spacing="20.0">
                     <padding>
-                        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                     </padding>
-                    <Label styleClass="section-title" text="Directorio de Usuarios" />
-                    <Label styleClass="text-normal" text="Administra los permisos de los usuarios registrados en la plataforma." />
+                    <Label styleClass="title-3" text="Directorio de Usuarios" />
+                    <Label styleClass="text-muted, text-small" text="Administra los permisos de los usuarios registrados en la plataforma." />
                     <TableView fx:id="tablaUsuarios" VBox.vgrow="ALWAYS">
                         <columns>
                             <TableColumn fx:id="colId" prefWidth="50.0" text="ID" />
@@ -122,10 +122,10 @@
                         </columnResizePolicy>
                     </TableView>
                     <HBox alignment="CENTER_LEFT" spacing="15.0">
-                        <Button fx:id="btnHacerAdmin" styleClass="accent-button" text="⬆ Ascender a Admin" />
-                        <Button fx:id="btnHacerUser" text="⬇ Degradar a User" />
+                        <Button fx:id="btnHacerAdmin" styleClass="accent" text="⬆ Ascender a Admin" />
+                        <Button fx:id="btnHacerUser" styleClass="button-outlined" text="⬇ Degradar a User" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Button fx:id="btnEliminarUsuario" styleClass="danger-button" text="Eliminar Usuario" />
+                        <Button fx:id="btnEliminarUsuario" styleClass="danger" text="Eliminar Usuario" />
                     </HBox>
                 </VBox>
             </content>

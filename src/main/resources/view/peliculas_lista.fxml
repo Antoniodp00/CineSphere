@@ -7,43 +7,43 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="15.0" stylesheets="@../style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dam2.adp.cinesphere.controller.PeliculaListaController">
+<VBox spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dam2.adp.cinesphere.controller.PeliculaListaController">
     <padding>
-        <Insets bottom="15.0" left="25.0" right="25.0" top="15.0" />
+        <Insets bottom="20" left="20" right="20" top="20" />
     </padding>
 
     <!-- Barra de Búsqueda y Filtros -->
-    <HBox styleClass="toolbar">
-        <TextField fx:id="txtBuscar" promptText="Buscar título..." HBox.hgrow="ALWAYS" />
-        <Button fx:id="btnBuscar" text="Buscar" />
+    <HBox spacing="15" alignment="CENTER_LEFT">
+        <TextField fx:id="txtBuscar" promptText="Buscar título..." HBox.hgrow="ALWAYS" styleClass="rounded" />
+        <Button fx:id="btnBuscar" text="Buscar" styleClass="accent" />
         <Separator orientation="VERTICAL" />
         <ComboBox fx:id="cbYear" promptText="Año" />
         <ComboBox fx:id="cbRating" promptText="Rating" />
         <ComboBox fx:id="cbGenero" promptText="Género" />
-        <Button fx:id="btnFiltrar" styleClass="accent-button" text="Filtrar" />
-        <Button fx:id="btnLimpiar" text="Limpiar" />
+        <Button fx:id="btnFiltrar" styleClass="accent" text="Filtrar" />
+        <Button fx:id="btnLimpiar" text="Limpiar" styleClass="button-outlined" />
     </HBox>
 
     <!-- Contenedor de Películas -->
-    <ScrollPane fx:id="scroll" fitToWidth="true" styleClass="no-border" VBox.vgrow="ALWAYS">
-        <FlowPane fx:id="flowPeliculas" hgap="20.0" styleClass="cards-container" vgap="25.0">
+    <ScrollPane fx:id="scroll" fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+        <TilePane fx:id="tilePeliculas" hgap="20" vgap="25" prefColumns="0">
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
-        </FlowPane>
+        </TilePane>
     </ScrollPane>
 
     <!-- Paginación -->
-    <HBox fx:id="paginationBar" styleClass="pagination-bar">
-        <Button fx:id="btnFirst" text="&lt;&lt;" />
-        <Button fx:id="btnPrev" text="&lt;" />
-        <Label fx:id="lblPage" text="1 / 10" />
-        <Button fx:id="btnNext" text="&gt;" />
-        <Button fx:id="btnLast" text="&gt;&gt;" />
+    <HBox fx:id="paginationBar" spacing="5" alignment="CENTER">
+        <Button fx:id="btnFirst" text="&lt;&lt;" styleClass="flat, rounded" />
+        <Button fx:id="btnPrev" text="&lt;" styleClass="flat, rounded" />
+        <Label fx:id="lblPage" text="1 / 10" styleClass="text-muted, text-small" />
+        <Button fx:id="btnNext" text="&gt;" styleClass="flat, rounded" />
+        <Button fx:id="btnLast" text="&gt;&gt;" styleClass="flat, rounded" />
     </HBox>
 
 </VBox>

@@ -2,23 +2,19 @@ package org.dam2.adp.cinesphere.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.TilePane;
 import org.dam2.adp.cinesphere.DAO.GeneroDAO;
 import org.dam2.adp.cinesphere.DAO.PeliculaDAO;
+import org.dam2.adp.cinesphere.component.MovieCard;
 import org.dam2.adp.cinesphere.model.Genero;
 import org.dam2.adp.cinesphere.model.Pelicula;
 import org.dam2.adp.cinesphere.util.Navigation;
 import org.dam2.adp.cinesphere.util.SessionManager;
-import org.dam2.adp.cinesphere.util.Utils;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Controlador para la vista de lista de películas.
@@ -32,7 +28,7 @@ public class PeliculaListaController {
     @FXML private Button btnFiltrar;
     @FXML private Button btnLimpiar;
 
-    @FXML private FlowPane flowPeliculas;
+    @FXML private TilePane tilePeliculas;
     @FXML private ScrollPane scroll;
 
     @FXML private TextField txtBuscar;
@@ -47,29 +43,23 @@ public class PeliculaListaController {
 
     private final PeliculaDAO peliculaDAO = new PeliculaDAO();
     private final GeneroDAO generoDAO = new GeneroDAO();
-    // PeliculaGeneroDAO eliminado porque ya no se usa aquí (optimización)
 
     private int page = 1;
     private int pageSize = 18; // Default
     private int totalPages = 1;
 
+    private MovieCard selectedMovieCard = null; // Para gestionar el efecto neon-glow
+
     private static final Logger logger = Logger.getLogger(PeliculaListaController.class.getName());
 
-    /**
-     * Inicializa el controlador, configurando los componentes de la interfaz,
-     * cargando los datos iniciales y asignando los manejadores de eventos.
-     */
     @FXML
     private void initialize() {
         logger.log(Level.INFO, "Inicializando PeliculaListaController...");
 
-        // Listener responsive
         scroll.widthProperty().addListener((obs, oldVal, newVal) -> {
-
             if (newVal.doubleValue() > 0) {
                 int oldSize = pageSize;
                 ajustarPageSize(newVal.doubleValue());
-
                 if (oldSize != pageSize) {
                     actualizarTotalPaginas();
                     cargarPagina(page);
@@ -77,7 +67,6 @@ public class PeliculaListaController {
             }
         });
 
-        // Rellenar combos
         for (int y = 2024; y >= 1950; y--) cbYear.getItems().add(y);
         cbRating.getItems().addAll(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
 
@@ -87,7 +76,6 @@ public class PeliculaListaController {
             logger.log(Level.SEVERE, "Error al cargar géneros", e);
         }
 
-        // Listeners botones
         btnFiltrar.setOnAction(e -> aplicarFiltros());
         btnLimpiar.setOnAction(e -> limpiarFiltros());
         btnBuscar.setOnAction(e -> buscar(txtBuscar.getText()));
@@ -97,7 +85,6 @@ public class PeliculaListaController {
         btnNext.setOnAction(e -> cambiarPagina(page + 1));
         btnLast.setOnAction(e -> cambiarPagina(totalPages));
 
-        // Carga inicial
         ajustarPageSize(scroll.getWidth());
         actualizarTotalPaginas();
         cargarPagina(1);
@@ -105,10 +92,6 @@ public class PeliculaListaController {
         logger.log(Level.INFO, "PeliculaListaController inicializado.");
     }
 
-    /**
-     * Cambia a una página específica si está dentro de los límites.
-     * @param nuevaPagina El número de la página a la que se quiere ir.
-     */
     private void cambiarPagina(int nuevaPagina) {
         if (nuevaPagina >= 1 && nuevaPagina <= totalPages) {
             page = nuevaPagina;
@@ -116,46 +99,32 @@ public class PeliculaListaController {
         }
     }
 
-    /**
-     * Ajusta el tamaño de la página (pageSize) dinámicamente según el ancho del ScrollPane.
-     * @param scrollWidth El ancho actual del ScrollPane.
-     */
     private void ajustarPageSize(double scrollWidth) {
         if (scrollWidth <= 0) {
             pageSize = 18;
             return;
         }
-
-        int cardWidth = 190;
+        int cardWidth = 200; // Ancho de la tarjeta + hgap
         int numColumns = (int) Math.floor(scrollWidth / cardWidth);
         if (numColumns == 0) numColumns = 1;
-
         pageSize = numColumns * 3;
-
     }
 
-    /**
-     * Actualiza el número total de páginas basándose en los filtros aplicados.
-     */
     private void actualizarTotalPaginas() {
         try {
             int total = peliculaDAO.countPeliculas(filtroYear, filtroRating, filtroGeneroId);
             totalPages = (int) Math.ceil((double) total / pageSize);
             if (totalPages == 0) totalPages = 1;
-            // logger.log(Level.INFO, "Total páginas: " + totalPages);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error contando páginas", e);
             totalPages = 1;
         }
     }
 
-    /**
-     * Carga y muestra una página específica de películas.
-     * @param pagina el número de página a cargar.
-     */
     private void cargarPagina(int pagina) {
         try {
-            flowPeliculas.getChildren().clear();
+            tilePeliculas.getChildren().clear();
+            selectedMovieCard = null; // Resetear la selección al cargar nueva página
             List<Pelicula> lista;
 
             if (filtroYear != null || filtroRating != null || filtroGeneroId != null) {
@@ -165,7 +134,17 @@ public class PeliculaListaController {
             }
 
             for (Pelicula p : lista) {
-                flowPeliculas.getChildren().add(crearCardPelicula(p));
+                MovieCard card = new MovieCard(p);
+                card.setOnMouseClicked(event -> {
+                    if (selectedMovieCard != null) {
+                        selectedMovieCard.getStyleClass().remove("neon-glow");
+                    }
+                    card.getStyleClass().add("neon-glow");
+                    selectedMovieCard = card;
+                    SessionManager.getInstance().set("selectedPeliculaId", p.getIdPelicula());
+                    Navigation.navigate("peliculas_detalle.fxml");
+                });
+                tilePeliculas.getChildren().add(card);
             }
             lblPage.setText(pagina + " / " + totalPages);
 
@@ -174,94 +153,33 @@ public class PeliculaListaController {
         }
     }
 
-    /**
-     * Inicia una búsqueda por título de película.
-     * @param filtro el texto a buscar en los títulos de las películas.
-     */
     private void buscar(String filtro) {
         try {
-            // Nota: Idealmente esto también debería ser paginado en BBDD
             List<Pelicula> todas = peliculaDAO.findAllLazy();
             List<Pelicula> filtradas = todas.stream()
                     .filter(p -> p.getTituloPelicula().toLowerCase().contains(filtro.toLowerCase()))
                     .toList();
 
-            flowPeliculas.getChildren().clear();
-            filtradas.forEach(p -> flowPeliculas.getChildren().add(crearCardPelicula(p)));
+            tilePeliculas.getChildren().clear();
+            selectedMovieCard = null; // Resetear la selección al buscar
+            for (Pelicula p : filtradas) {
+                MovieCard card = new MovieCard(p);
+                card.setOnMouseClicked(event -> {
+                    if (selectedMovieCard != null) {
+                        selectedMovieCard.getStyleClass().remove("neon-glow");
+                    }
+                    card.getStyleClass().add("neon-glow");
+                    selectedMovieCard = card;
+                    SessionManager.getInstance().set("selectedPeliculaId", p.getIdPelicula());
+                    Navigation.navigate("peliculas_detalle.fxml");
+                });
+                tilePeliculas.getChildren().add(card);
+            }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error buscando", e);
         }
     }
 
-    /**
-     * Crea una tarjeta de película (VBox) para mostrar en la lista.
-     * @param p la película para la que se creará la tarjeta.
-     * @return un VBox que representa la tarjeta de la película.
-     */
-    private VBox crearCardPelicula(Pelicula p) {
-        VBox card = new VBox();
-        card.getStyleClass().add("movie-card");
-        card.setOnMouseClicked(event -> verDetalle(p.getIdPelicula()));
-
-        String textoGeneros = "Sin género";
-        String rutaImagen = "/img/noImage.png";
-
-        if (p.getGeneros() != null && !p.getGeneros().isEmpty()) {
-            textoGeneros = p.getGeneros().stream()
-                    .map(Genero::getNombreGenero)
-                    .limit(2)
-                    .collect(Collectors.joining(", "));
-
-            // Usamos el primer género para la imagen placeholder
-            rutaImagen = Utils.obtenerRutaImagenPorGenero(p.getGeneros().get(0).getNombreGenero());
-        }
-
-        ImageView img = new ImageView();
-        img.setFitWidth(150);
-        img.setFitHeight(220);
-        img.setPreserveRatio(false);
-
-        try {
-            // Background loading: TRUE
-            String fullPath = getClass().getResource(rutaImagen).toExternalForm();
-            img.setImage(new Image(fullPath, 0, 0, true, true, true));
-        } catch (Exception e) {
-            img.setImage(new Image(getClass().getResource("/img/noImage.png").toExternalForm()));
-        }
-
-        Label lblTitulo = new Label(p.getTituloPelicula());
-        lblTitulo.getStyleClass().add("movie-title");
-        lblTitulo.setTooltip(new Tooltip(p.getTituloPelicula()));
-
-        Label lblGeneros = new Label(textoGeneros);
-        lblGeneros.getStyleClass().add("movie-info");
-
-        Label lblYear = new Label(p.getYearPelicula() != null ? p.getYearPelicula().toString() : "—");
-        lblYear.getStyleClass().add("movie-info");
-
-        Label lblRating = new Label(p.getRatingPelicula() != null ? "★ " + p.getRatingPelicula() : "★ —");
-        lblRating.getStyleClass().add("movie-rating");
-
-        if (p.getRatingPelicula() != null && p.getRatingPelicula() >= 8.0) {
-            lblRating.setStyle("-fx-text-fill: #f1c40f;");
-        }
-
-        card.getChildren().addAll(img, lblTitulo, lblGeneros, lblYear, lblRating);
-        return card;
-    }
-
-    /**
-     * Navega a la vista de detalle de la película seleccionada.
-     * @param idPelicula el ID de la película a mostrar.
-     */
-    private void verDetalle(int idPelicula) {
-        SessionManager.getInstance().set("selectedPeliculaId", idPelicula);
-        Navigation.navigate("peliculas_detalle.fxml");
-    }
-
-    /**
-     * Aplica los filtros seleccionados en los ComboBox y recarga la vista.
-     */
     private void aplicarFiltros() {
         filtroYear = cbYear.getValue();
         filtroRating = cbRating.getValue();
@@ -279,9 +197,6 @@ public class PeliculaListaController {
         cargarPagina(page);
     }
 
-    /**
-     * Limpia todos los filtros aplicados y recarga la vista.
-     */
     private void limpiarFiltros() {
         cbYear.setValue(null);
         cbRating.setValue(null);

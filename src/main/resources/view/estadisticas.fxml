@@ -12,13 +12,13 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="20.0" stylesheets="@../style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dam2.adp.cinesphere.controller.EstadisticasController">
+<VBox spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dam2.adp.cinesphere.controller.EstadisticasController">
     <padding>
-        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
 
     <!-- Título -->
-    <Label styleClass="page-title" text="Estadísticas" />
+    <Label styleClass="title-2" text="Estadísticas" />
 
     <!-- KPIs -->
     <HBox spacing="20.0">
@@ -26,21 +26,21 @@
             <padding>
                 <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
             </padding>
-            <Label styleClass="section-title" text="Total Guardadas" />
+            <Label styleClass="title-3" text="Total Guardadas" />
             <Label fx:id="lblTotalGuardadas" styleClass="kpi-value" text="0" />
         </VBox>
         <VBox styleClass="card" HBox.hgrow="ALWAYS">
             <padding>
                 <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
             </padding>
-            <Label styleClass="section-title" text="Películas Vistas" />
+            <Label styleClass="title-3" text="Películas Vistas" />
             <Label fx:id="lblPeliculasVistas" styleClass="kpi-value" text="0" />
         </VBox>
         <VBox styleClass="card" HBox.hgrow="ALWAYS">
             <padding>
                 <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
             </padding>
-            <Label styleClass="section-title" text="Tiempo Total Visto" />
+            <Label styleClass="title-3" text="Tiempo Total Visto" />
             <Label fx:id="lblTiempoTotal" styleClass="kpi-value" text="0 h 0 min" />
         </VBox>
     </HBox>
@@ -58,20 +58,20 @@
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
-            <Label styleClass="section-title" text="Distribución por Estado" />
+            <Label styleClass="title-3" text="Distribución por Estado" />
             <PieChart fx:id="pieEstados" VBox.vgrow="ALWAYS" title=" " styleClass="chart-legend" />
         </VBox>
         <VBox styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="0">
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
-            <Label styleClass="section-title" text="Géneros Favoritos" />
+            <Label styleClass="title-3" text="Géneros Favoritos" />
             <BarChart fx:id="barGeneros" VBox.vgrow="ALWAYS" title=" " styleClass="chart-legend">
                 <xAxis>
-                    <CategoryAxis side="BOTTOM" styleClass="axis-label" tickLabelFill="black" />
+                    <CategoryAxis side="BOTTOM" styleClass="axis-label" />
                 </xAxis>
                 <yAxis>
-                    <NumberAxis side="LEFT" styleClass="axis-label" tickLabelFill="black" />
+                    <NumberAxis side="LEFT" styleClass="axis-label" />
                 </yAxis>
             </BarChart>
         </VBox>

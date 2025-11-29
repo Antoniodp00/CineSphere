@@ -1,5 +1,6 @@
 package org.dam2.adp.cinesphere;
 
+import atlantafx.base.theme.Dracula;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.dam2.adp.cinesphere.database.Conexion;
@@ -22,6 +23,7 @@ public class Main extends Application {
      */
     @Override
     public void start(Stage stage) throws Exception {
+        Application.setUserAgentStylesheet(new Dracula().getUserAgentStylesheet());
         logger.log(Level.INFO, "Iniciando la aplicación CineSphere...");
         Navigation.setStage(stage);
         stage.setTitle("CineSphere");

@@ -7,6 +7,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
+import javafx.scene.Scene; // Importar Scene
 
 import java.util.Optional;
 import java.util.logging.Level;
@@ -18,6 +19,22 @@ import java.util.logging.Logger;
 public class AlertUtils {
 
     private static final Logger logger = Logger.getLogger(AlertUtils.class.getName());
+
+    /**
+     * Aplica la hoja de estilos global a la escena de la alerta.
+     * @param alert La alerta a la que aplicar el estilo.
+     */
+    private static void applyGlobalStyle(Alert alert) {
+        // Obtener la escena del DialogPane de la alerta
+        Scene scene = alert.getDialogPane().getScene();
+        if (scene != null) {
+            // Asegurarse de que la hoja de estilos no se añada múltiples veces
+            String cssPath = AlertUtils.class.getResource("/style.css").toExternalForm();
+            if (!scene.getStylesheets().contains(cssPath)) {
+                scene.getStylesheets().add(cssPath);
+            }
+        }
+    }
 
     /**
      * Muestra una alerta de error.
@@ -35,12 +52,14 @@ public class AlertUtils {
      * @param mensaje El mensaje informativo.
      */
     public static void info(String mensaje) {
-        // Para info simple, el alert estándar suele bastar, pero lo hacemos redimensionable por si acaso
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Información");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.setResizable(true);
+
+        applyGlobalStyle(alert); // Aplicar estilo
+
         alert.showAndWait();
     }
 
@@ -52,31 +71,26 @@ public class AlertUtils {
         alert.setTitle(titulo);
         alert.setHeaderText(cabecera);
 
-        // Hacemos que el diálogo sea redimensionable
         alert.setResizable(true);
 
-        // Crear un TextArea para el contenido
-        // Esto permite seleccionar texto, copiarlo y hacer scroll
         TextArea textArea = new TextArea(contenido);
         textArea.setEditable(false);
         textArea.setWrapText(true);
 
-        // Configuración de tamaño para que se vea bien
         textArea.setMaxWidth(Double.MAX_VALUE);
         textArea.setMaxHeight(Double.MAX_VALUE);
         GridPane.setVgrow(textArea, Priority.ALWAYS);
         GridPane.setHgrow(textArea, Priority.ALWAYS);
 
-        // Insertamos el TextArea en un contenedor expandible
         GridPane expContent = new GridPane();
         expContent.setMaxWidth(Double.MAX_VALUE);
         expContent.add(new Label("Detalle del mensaje:"), 0, 0);
         expContent.add(textArea, 0, 1);
 
-        // Reemplazamos el panel de diálogo estándar
         alert.getDialogPane().setContent(expContent);
 
-        // Truco para asegurar que la ventana se centre sobre la aplicación
+        applyGlobalStyle(alert); // Aplicar estilo
+
         Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
         stage.setAlwaysOnTop(true);
 
@@ -96,6 +110,8 @@ public class AlertUtils {
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
+
+        applyGlobalStyle(alert); // Aplicar estilo
 
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == ButtonType.OK;

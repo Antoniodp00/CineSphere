@@ -1,10 +1,13 @@
 package org.dam2.adp.cinesphere.controller;
 
+import atlantafx.base.theme.Styles;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import org.dam2.adp.cinesphere.DAO.MiListaDAO;
 import org.dam2.adp.cinesphere.DAO.PeliculaDAO;
 import org.dam2.adp.cinesphere.model.MiLista;
@@ -35,7 +38,7 @@ public class PeliculaDetalleController {
     @FXML private ImageView imgPoster;
     @FXML private Label lblTitulo;
     @FXML private Label lblSubtitulo;
-    @FXML private Label lblRating;
+    @FXML private Label lblRating; // Este Label será reemplazado por el HBox de estrellas
     @FXML private Label lblClasificacion;
     @FXML private Label lblSinopsis;
     @FXML private FlowPane flowGeneros;
@@ -45,6 +48,7 @@ public class PeliculaDetalleController {
     @FXML private Button btnTrailer;
     @FXML private ComboBox<PeliculaEstado> cbEstado;
     @FXML private ComboBox<Integer> cbPuntuacion;
+    @FXML private HBox ratingContainer; // Contenedor para las estrellas y el rating numérico
 
     private final PeliculaDAO peliculaDAO = new PeliculaDAO();
     private final MiListaDAO miListaDAO = new MiListaDAO();
@@ -69,6 +73,14 @@ public class PeliculaDetalleController {
             Navigation.navigate("peliculas_lista.fxml");
             return;
         }
+
+        // Configurar FlowPanes
+        flowGeneros.setHgap(10);
+        flowGeneros.setVgap(10);
+        flowDirectores.setHgap(10);
+        flowDirectores.setVgap(10);
+        flowActores.setHgap(10);
+        flowActores.setVgap(10);
 
         setupComboBoxes();
         cargarDatos(idPelicula);
@@ -142,9 +154,16 @@ public class PeliculaDetalleController {
 
             lblTitulo.setText(pelicula.getTituloPelicula());
             lblSubtitulo.setText(pelicula.getYearPelicula() + " • " + pelicula.getNombreClasificacion());
-            lblRating.setText("★ " + (pelicula.getRatingPelicula() != null ? pelicula.getRatingPelicula() : "—"));
+            // lblRating.setText("★ " + (pelicula.getRatingPelicula() != null ? pelicula.getRatingPelicula() : "—")); // Eliminado
             lblClasificacion.setText(pelicula.getNombreClasificacion());
             lblSinopsis.setText("Sinopsis no disponible aún.");
+
+            // Nuevo: Mostrar rating con estrellas
+            if (ratingContainer != null) {
+                ratingContainer.getChildren().clear();
+                ratingContainer.getChildren().add(createRatingDisplay(pelicula.getRatingPelicula()));
+            }
+
 
             String rutaImagen = "/img/noImage.png";
 
@@ -164,9 +183,9 @@ public class PeliculaDetalleController {
             flowDirectores.getChildren().clear();
             flowActores.getChildren().clear();
 
-            pelicula.getGeneros().forEach(g -> flowGeneros.getChildren().add(chip(g.getNombreGenero())));
-            pelicula.getDirectores().forEach(d -> flowDirectores.getChildren().add(chip(d.getNombreDirector())));
-            pelicula.getActores().forEach(a -> flowActores.getChildren().add(chip(a.getNombreActor())));
+            pelicula.getGeneros().forEach(g -> flowGeneros.getChildren().add(createChip(g.getNombreGenero())));
+            pelicula.getDirectores().forEach(d -> flowDirectores.getChildren().add(createChip(d.getNombreDirector())));
+            pelicula.getActores().forEach(a -> flowActores.getChildren().add(createChip(a.getNombreActor())));
 
             actualizarEstadoMiLista();
             btnMiLista.setOnAction(e -> toggleMiLista());
@@ -213,11 +232,46 @@ public class PeliculaDetalleController {
      * @param text El contenido del chip.
      * @return Label configurado con estilo.
      */
-    private Label chip(String text) {
-        Label l = new Label(text);
-        l.getStyleClass().add("chip");
-        return l;
+    private Label createChip(String text) {
+        Label chip = new Label(text);
+        chip.getStyleClass().addAll("chip", Styles.TEXT_SMALL);
+        return chip;
     }
+
+    /**
+     * Crea y configura el display de rating con estrellas.
+     * @param rating El rating numérico de la película (0-10).
+     * @return Un HBox con las estrellas y el rating numérico.
+     */
+    private HBox createRatingDisplay(Double rating) {
+        HBox ratingBox = new HBox(2); // Espaciado de 2px entre estrellas
+        ratingBox.getStyleClass().add("rating"); // Clase padre para el CSS
+        ratingBox.setAlignment(Pos.CENTER_LEFT);
+
+        int numStars = 5;
+        int filledStars = (rating != null) ? (int) (rating / 2) : 0; // Convertir rating 0-10 a 0-5 estrellas
+
+        for (int i = 0; i < numStars; i++) {
+            Button star = new Button("★"); // Puedes usar un icono si lo tienes
+            star.getStyleClass().add("button"); // Clase base para todas las estrellas
+            star.getStyleClass().add(Styles.FLAT); // Para que no tenga el estilo de botón normal
+            star.setDisable(true); // Las estrellas no son interactivas aquí
+            if (i < filledStars) {
+                star.getStyleClass().add("strong"); // Clase para estrellas llenas
+            }
+            ratingBox.getChildren().add(star);
+        }
+        
+        // Mostrar el rating numérico al lado
+        if (rating != null) {
+            Label ratingValue = new Label(String.format("%.1f", rating));
+            ratingValue.getStyleClass().addAll(Styles.TEXT_SMALL, Styles.TEXT_MUTED);
+            ratingBox.getChildren().add(ratingValue);
+        }
+
+        return ratingBox;
+    }
+
 
     /**
      * Alterna la presencia de la película actual en la lista personal del usuario.

@@ -7,13 +7,15 @@ module org.dam2.adp.cinesphere {
     requires org.slf4j;
     requires org.apache.commons.csv;
     requires jbcrypt;
-    requires org.controlsfx.controls;
     requires java.desktop;
     requires java.logging;
+    requires atlantafx.base;
 
     opens org.dam2.adp.cinesphere to javafx.fxml;
     opens org.dam2.adp.cinesphere.controller to javafx.fxml;
     opens org.dam2.adp.cinesphere.model to javafx.base;
+    opens org.dam2.adp.cinesphere.component to javafx.fxml;
+
 
     exports org.dam2.adp.cinesphere;
 }

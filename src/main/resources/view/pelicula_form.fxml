@@ -12,14 +12,14 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="20.0" stylesheets="@../style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dam2.adp.cinesphere.controller.PeliculaFormController">
+<VBox spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.dam2.adp.cinesphere.controller.PeliculaFormController">
     <padding>
-        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
 
-    <Label styleClass="page-title" text="Nueva Película" />
+    <Label styleClass="title-2" text="Nueva Película" />
 
-    <ScrollPane fitToWidth="true" styleClass="no-border" VBox.vgrow="ALWAYS">
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
         <content>
             <VBox spacing="15.0" styleClass="card">
                 <padding>
@@ -27,7 +27,7 @@
                 </padding>
 
                 <VBox spacing="5.0">
-                    <Label styleClass="text-normal" text="Título" />
+                    <Label text="Título" />
                     <TextField fx:id="txtTitulo" promptText="Ej: El Padrino" />
                 </VBox>
 
@@ -37,19 +37,19 @@
                         <ColumnConstraints percentWidth="50.0" />
                     </columnConstraints>
                     <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                        <Label styleClass="text-normal" text="Año de lanzamiento" />
+                        <Label text="Año de lanzamiento" />
                         <TextField fx:id="txtYear" promptText="Ej: 1972" />
                     </VBox>
                     <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                        <Label styleClass="text-normal" text="Duración (minutos)" />
+                        <Label text="Duración (minutos)" />
                         <TextField fx:id="txtDuracion" promptText="Ej: 175" />
                     </VBox>
                     <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                        <Label styleClass="text-normal" text="Rating IMDb (0-10)" />
+                        <Label text="Rating IMDb (0-10)" />
                         <TextField fx:id="txtRating" promptText="Ej: 9.2" />
                     </VBox>
                     <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                        <Label styleClass="text-normal" text="Clasificación" />
+                        <Label text="Clasificación" />
                         <TextField fx:id="txtClasificacion" promptText="Ej: R, PG-13, A" />
                     </VBox>
                 </GridPane>
@@ -57,15 +57,15 @@
                 <Separator />
 
                 <VBox spacing="5.0">
-                    <Label styleClass="text-normal" text="Géneros (separados por coma)" />
+                    <Label text="Géneros (separados por coma)" />
                     <TextField fx:id="txtGeneros" promptText="Ej: Drama, Crimen" />
                 </VBox>
                 <VBox spacing="5.0">
-                    <Label styleClass="text-normal" text="Directores (separados por coma)" />
+                    <Label text="Directores (separados por coma)" />
                     <TextField fx:id="txtDirectores" promptText="Ej: Francis Ford Coppola" />
                 </VBox>
                 <VBox spacing="5.0">
-                    <Label styleClass="text-normal" text="Actores (separados por coma)" />
+                    <Label text="Actores (separados por coma)" />
                     <TextArea fx:id="txtActores" prefHeight="80.0" promptText="Ej: Marlon Brando, Al Pacino, James Caan" wrapText="true" />
                 </VBox>
             </VBox>
@@ -73,7 +73,7 @@
     </ScrollPane>
 
     <HBox alignment="CENTER_RIGHT" spacing="15.0">
-        <Button fx:id="btnCancelar" text="Cancelar" />
-        <Button fx:id="btnGuardar" styleClass="accent-button" text="Guardar Película" />
+        <Button fx:id="btnCancelar" text="Cancelar" styleClass="danger" />
+        <Button fx:id="btnGuardar" styleClass="accent" text="Guardar Película" />
     </HBox>
 </VBox>
