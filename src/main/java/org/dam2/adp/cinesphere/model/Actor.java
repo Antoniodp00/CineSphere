@@ -2,15 +2,20 @@ package org.dam2.adp.cinesphere.model;
 
 /**
  * Representa un actor en el sistema.
+ * Hereda de BaseSincronizable para permitir la sincronización de cambios (Soft Delete y Timestamps).
  */
-public class Actor {
+public class Actor extends BaseSincronizable {
+
     private int idActor;
     private String nombreActor;
 
     /**
      * Constructor por defecto.
+     * Inicializa explícitamente los campos de sincronización mediante super().
      */
-    public Actor() {}
+    public Actor() {
+        super();
+    }
 
     /**
      * Constructor con todos los campos.
@@ -18,6 +23,7 @@ public class Actor {
      * @param nombreActor el nombre del actor.
      */
     public Actor(int idActor, String nombreActor) {
+        super(); // Inicializa timestamps y estado eliminado
         this.idActor = idActor;
         this.nombreActor = nombreActor;
     }
@@ -27,6 +33,7 @@ public class Actor {
      * @param nombreActor el nombre del actor.
      */
     public Actor(String nombreActor) {
+        super(); // Inicializa timestamps y estado eliminado
         this.nombreActor = nombreActor;
     }
 

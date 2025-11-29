@@ -1,21 +1,28 @@
 package org.dam2.adp.cinesphere.model;
 
 /**
- * Representa una clasificación de película en el sistema.
+ * Representa la clasificación por edades de una película (ej. PG-13, R).
+ * Hereda de BaseSincronizable para permitir la sincronización de cambios.
  */
-public class Clasificacion {
+public class Clasificacion extends BaseSincronizable {
+
+    // En tu esquema de BBDD, el nombre es la Primary Key
     private String nombreClasificacion;
 
     /**
      * Constructor por defecto.
+     * Inicializa explícitamente los campos de sincronización mediante super().
      */
-    public Clasificacion() {}
+    public Clasificacion() {
+        super();
+    }
 
     /**
      * Constructor con el nombre de la clasificación.
-     * @param nombreClasificacion el nombre de la clasificación.
+     * @param nombreClasificacion el nombre de la clasificación (PK).
      */
     public Clasificacion(String nombreClasificacion) {
+        super(); // Inicializa timestamps y estado eliminado
         this.nombreClasificacion = nombreClasificacion;
     }
 
@@ -36,7 +43,7 @@ public class Clasificacion {
     }
 
     /**
-     * Devuelve una representación en cadena de la clasificación (su nombre).
+     * Devuelve una representación en cadena de la clasificación.
      * @return el nombre de la clasificación.
      */
     @Override

@@ -1,11 +1,13 @@
 package org.dam2.adp.cinesphere.model;
 
+
 import java.util.List;
 
 /**
  * Representa una película en el sistema.
+ * Hereda de BaseSincronizable para gestión de sincronización (Soft Delete).
  */
-public class Pelicula {
+public class Pelicula extends BaseSincronizable {
 
     private int idPelicula;
     private String tituloPelicula;
@@ -14,7 +16,7 @@ public class Pelicula {
     private Integer duracionPelicula;
     private String nombreClasificacion;
 
-    // EAGER opcional
+    // Relaciones (EAGER opcional)
     private Clasificacion clasificacion;
     private List<Director> directores;
     private List<Actor> actores;
@@ -23,32 +25,25 @@ public class Pelicula {
 
     /**
      * Constructor por defecto.
+     * Llamada explícita a super() para visualizar la inicialización de sincronización.
      */
-    public Pelicula() {}
+    public Pelicula() {
+        super();
+    }
 
     /**
-     * Constructor para carga perezosa.
+     * Constructor para carga perezosa (Lazy).
      * @param idPelicula el ID de la película.
      * @param tituloPelicula el título de la película.
      */
     public Pelicula(int idPelicula, String tituloPelicula) {
+        super(); // Inicializa atributos de BaseSincronizable (timestamps, eliminado)
         this.idPelicula = idPelicula;
         this.tituloPelicula = tituloPelicula;
     }
 
     /**
-     * Constructor para carga ansiosa.
-     * @param idPelicula el ID de la película.
-     * @param tituloPelicula el título de la película.
-     * @param yearPelicula el año de la película.
-     * @param ratingPelicula el rating de la película.
-     * @param duracionPelicula la duración de la película.
-     * @param nombreClasificacion el nombre de la clasificación.
-     * @param clasificacion la clasificación de la película.
-     * @param directores los directores de la película.
-     * @param actores los actores de la película.
-     * @param generos los géneros de la película.
-     * @param usuariosQueLaTienen los usuarios que tienen la película en su lista.
+     * Constructor completo (Eager).
      */
     public Pelicula(int idPelicula,
                     String tituloPelicula,
@@ -62,6 +57,7 @@ public class Pelicula {
                     List<Genero> generos,
                     List<MiLista> usuariosQueLaTienen) {
 
+        super(); // Inicializa atributos de BaseSincronizable antes que los propios
         this.idPelicula = idPelicula;
         this.tituloPelicula = tituloPelicula;
         this.yearPelicula = yearPelicula;
@@ -76,188 +72,96 @@ public class Pelicula {
         this.usuariosQueLaTienen = usuariosQueLaTienen;
     }
 
-    // Getters y setters
+    // --- Getters y Setters ---
 
-    /**
-     * Obtiene el ID de la película.
-     * @return el ID de la película.
-     */
     public int getIdPelicula() {
         return idPelicula;
     }
 
-    /**
-     * Establece el ID de la película.
-     * @param idPelicula el nuevo ID de la película.
-     */
     public void setIdPelicula(int idPelicula) {
         this.idPelicula = idPelicula;
     }
 
-    /**
-     * Obtiene el título de la película.
-     * @return el título de la película.
-     */
     public String getTituloPelicula() {
         return tituloPelicula;
     }
 
-    /**
-     * Establece el título de la película.
-     * @param tituloPelicula el nuevo título de la película.
-     */
     public void setTituloPelicula(String tituloPelicula) {
         this.tituloPelicula = tituloPelicula;
     }
 
-    /**
-     * Obtiene el año de la película.
-     * @return el año de la película.
-     */
     public Integer getYearPelicula() {
         return yearPelicula;
     }
 
-    /**
-     * Establece el año de la película.
-     * @param yearPelicula el nuevo año de la película.
-     */
     public void setYearPelicula(Integer yearPelicula) {
         this.yearPelicula = yearPelicula;
     }
 
-    /**
-     * Obtiene el rating de la película.
-     * @return el rating de la película.
-     */
     public Double getRatingPelicula() {
         return ratingPelicula;
     }
 
-    /**
-     * Establece el rating de la película.
-     * @param ratingPelicula el nuevo rating de la película.
-     */
     public void setRatingPelicula(Double ratingPelicula) {
         this.ratingPelicula = ratingPelicula;
     }
 
-    /**
-     * Obtiene la duración de la película.
-     * @return la duración de la película.
-     */
     public Integer getDuracionPelicula() {
         return duracionPelicula;
     }
 
-    /**
-     * Establece la duración de la película.
-     * @param duracionPelicula la nueva duración de la película.
-     */
     public void setDuracionPelicula(Integer duracionPelicula) {
         this.duracionPelicula = duracionPelicula;
     }
 
-    /**
-     * Obtiene el nombre de la clasificación de la película.
-     * @return el nombre de la clasificación de la película.
-     */
     public String getNombreClasificacion() {
         return nombreClasificacion;
     }
 
-    /**
-     * Establece el nombre de la clasificación de la película.
-     * @param nombreClasificacion el nuevo nombre de la clasificación de la película.
-     */
     public void setNombreClasificacion(String nombreClasificacion) {
         this.nombreClasificacion = nombreClasificacion;
     }
 
-    /**
-     * Obtiene la clasificación de la película.
-     * @return la clasificación de la película.
-     */
     public Clasificacion getClasificacion() {
         return clasificacion;
     }
 
-    /**
-     * Establece la clasificación de la película.
-     * @param clasificacion la nueva clasificación de la película.
-     */
     public void setClasificacion(Clasificacion clasificacion) {
         this.clasificacion = clasificacion;
     }
 
-    /**
-     * Obtiene los directores de la película.
-     * @return una lista de los directores de la película.
-     */
     public List<Director> getDirectores() {
         return directores;
     }
 
-    /**
-     * Establece los directores de la película.
-     * @param directores la nueva lista de directores de la película.
-     */
     public void setDirectores(List<Director> directores) {
         this.directores = directores;
     }
 
-    /**
-     * Obtiene los actores de la película.
-     * @return una lista de los actores de la película.
-     */
     public List<Actor> getActores() {
         return actores;
     }
 
-    /**
-     * Establece los actores de la película.
-     * @param actores la nueva lista de actores de la película.
-     */
     public void setActores(List<Actor> actores) {
         this.actores = actores;
     }
 
-    /**
-     * Obtiene los géneros de la película.
-     * @return una lista de los géneros de la película.
-     */
     public List<Genero> getGeneros() {
         return generos;
     }
 
-    /**
-     * Establece los géneros de la película.
-     * @param generos la nueva lista de géneros de la película.
-     */
     public void setGeneros(List<Genero> generos) {
         this.generos = generos;
     }
 
-    /**
-     * Obtiene los usuarios que tienen la película en su lista.
-     * @return una lista de los usuarios que tienen la película en su lista.
-     */
     public List<MiLista> getUsuariosQueLaTienen() {
         return usuariosQueLaTienen;
     }
 
-    /**
-     * Establece los usuarios que tienen la película en su lista.
-     * @param usuariosQueLaTienen la nueva lista de usuarios que tienen la película en su lista.
-     */
     public void setUsuariosQueLaTienen(List<MiLista> usuariosQueLaTienen) {
         this.usuariosQueLaTienen = usuariosQueLaTienen;
     }
 
-    /**
-     * Devuelve una representación en cadena de la película (su título).
-     * @return el título de la película.
-     */
     @Override
     public String toString() {
         return tituloPelicula;

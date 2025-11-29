@@ -4,8 +4,9 @@ import java.time.LocalDateTime;
 
 /**
  * Representa una entrada en la lista de películas de un usuario.
+ * Hereda de BaseSincronizable para permitir la sincronización de cambios (Soft Delete y Timestamps).
  */
-public class MiLista {
+public class MiLista extends BaseSincronizable {
 
     private Pelicula pelicula;
     private Usuario usuario;
@@ -17,33 +18,37 @@ public class MiLista {
 
     /**
      * Constructor por defecto.
+     * Inicializa explícitamente los campos de sincronización mediante super().
      */
-    public MiLista() {}
+    public MiLista() {
+        super();
+    }
 
     /**
-     * Constructor para carga perezosa.
-     * @param pelicula la película.
-     * @param usuario el usuario.
+     * Constructor para carga perezosa (Lazy).
+     * @param pelicula la película asociada.
+     * @param usuario el usuario propietario de la lista.
      */
     public MiLista(Pelicula pelicula, Usuario usuario) {
+        super(); // Inicializa timestamps y estado eliminado
         this.pelicula = pelicula;
         this.usuario = usuario;
         this.fechaAnadido = LocalDateTime.now();
     }
 
     /**
-     * Constructor para carga ansiosa.
+     * Constructor completo (Eager).
      * @param pelicula la película.
      * @param usuario el usuario.
-     * @param estado el estado de la película.
-     * @param puntuacion la puntuación de la película.
-     * @param urlImg la URL de la imagen de la película.
-     * @param fechaAnadido la fecha en que se añadió la película.
+     * @param estado el estado de visualización.
+     * @param puntuacion la puntuación personal (0-10).
+     * @param urlImg la URL de la imagen (opcional).
+     * @param fechaAnadido la fecha de inclusión en la lista.
      */
     public MiLista(Pelicula pelicula, Usuario usuario,
                    PeliculaEstado estado, Integer puntuacion,
                    String urlImg, LocalDateTime fechaAnadido) {
-
+        super(); // Inicializa timestamps y estado eliminado
         this.pelicula = pelicula;
         this.usuario = usuario;
         this.estado = estado;
@@ -52,82 +57,56 @@ public class MiLista {
         this.fechaAnadido = fechaAnadido;
     }
 
-    /**
-     * Obtiene la película.
-     * @return la película.
-     */
-    public Pelicula getPelicula() { return pelicula; }
+    // --- Getters y Setters ---
 
-    /**
-     * Establece la película.
-     * @param pelicula la nueva película.
-     */
-    public void setPelicula(Pelicula pelicula) { this.pelicula = pelicula; }
+    public Pelicula getPelicula() {
+        return pelicula;
+    }
 
-    /**
-     * Obtiene el usuario.
-     * @return el usuario.
-     */
-    public Usuario getUsuario() { return usuario; }
+    public void setPelicula(Pelicula pelicula) {
+        this.pelicula = pelicula;
+    }
 
-    /**
-     * Establece el usuario.
-     * @param usuario el nuevo usuario.
-     */
-    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+    public Usuario getUsuario() {
+        return usuario;
+    }
 
-    /**
-     * Obtiene el estado de la película.
-     * @return el estado de la película.
-     */
-    public PeliculaEstado getEstado() { return estado; }
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
 
-    /**
-     * Establece el estado de la película.
-     * @param estado el nuevo estado de la película.
-     */
-    public void setEstado(PeliculaEstado estado) { this.estado = estado; }
+    public PeliculaEstado getEstado() {
+        return estado;
+    }
 
-    /**
-     * Obtiene la puntuación de la película.
-     * @return la puntuación de la película.
-     */
-    public Integer getPuntuacion() { return puntuacion; }
+    public void setEstado(PeliculaEstado estado) {
+        this.estado = estado;
+    }
 
-    /**
-     * Establece la puntuación de la película.
-     * @param puntuacion la nueva puntuación de la película.
-     */
-    public void setPuntuacion(Integer puntuacion) { this.puntuacion = puntuacion; }
+    public Integer getPuntuacion() {
+        return puntuacion;
+    }
 
-    /**
-     * Obtiene la URL de la imagen de la película.
-     * @return la URL de la imagen de la película.
-     */
-    public String getUrlImg() { return urlImg; }
+    public void setPuntuacion(Integer puntuacion) {
+        this.puntuacion = puntuacion;
+    }
 
-    /**
-     * Establece la URL de la imagen de la película.
-     * @param urlImg la nueva URL de la imagen de la película.
-     */
-    public void setUrlImg(String urlImg) { this.urlImg = urlImg; }
+    public String getUrlImg() {
+        return urlImg;
+    }
 
-    /**
-     * Obtiene la fecha en que se añadió la película.
-     * @return la fecha en que se añadió la película.
-     */
-    public LocalDateTime getFechaAnadido() { return fechaAnadido; }
+    public void setUrlImg(String urlImg) {
+        this.urlImg = urlImg;
+    }
 
-    /**
-     * Establece la fecha en que se añadió la película.
-     * @param fechaAnadido la nueva fecha en que se añadió la película.
-     */
-    public void setFechaAnadido(LocalDateTime fechaAnadido) { this.fechaAnadido = fechaAnadido; }
+    public LocalDateTime getFechaAnadido() {
+        return fechaAnadido;
+    }
 
-    /**
-     * Devuelve una representación en cadena de la entrada de la lista (título de la película y estado).
-     * @return una cadena con el título de la película y su estado.
-     */
+    public void setFechaAnadido(LocalDateTime fechaAnadido) {
+        this.fechaAnadido = fechaAnadido;
+    }
+
     @Override
     public String toString() {
         return pelicula.getTituloPelicula() + " (" + (estado != null ? estado.getDisplayValue() : "Sin estado") + ")";

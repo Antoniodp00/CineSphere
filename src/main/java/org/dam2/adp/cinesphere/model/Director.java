@@ -1,16 +1,21 @@
 package org.dam2.adp.cinesphere.model;
 
 /**
- * Representa un director de película en el sistema.
+ * Representa un director de cine en el sistema.
+ * Hereda de BaseSincronizable para permitir la sincronización de cambios (Soft Delete y Timestamps).
  */
-public class Director {
+public class Director extends BaseSincronizable {
+
     private int idDirector;
     private String nombreDirector;
 
     /**
      * Constructor por defecto.
+     * Inicializa explícitamente los campos de sincronización mediante super().
      */
-    public Director() {}
+    public Director() {
+        super();
+    }
 
     /**
      * Constructor con todos los campos.
@@ -18,15 +23,17 @@ public class Director {
      * @param nombreDirector el nombre del director.
      */
     public Director(int idDirector, String nombreDirector) {
+        super(); // Inicializa timestamps y estado eliminado
         this.idDirector = idDirector;
         this.nombreDirector = nombreDirector;
     }
 
     /**
-     * Constructor sin el campo ID.
+     * Constructor sin el campo ID (para nuevos registros antes de insertar en BD).
      * @param nombreDirector el nombre del director.
      */
     public Director(String nombreDirector) {
+        super(); // Inicializa timestamps y estado eliminado
         this.nombreDirector = nombreDirector;
     }
 

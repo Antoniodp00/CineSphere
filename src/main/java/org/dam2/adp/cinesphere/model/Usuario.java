@@ -5,8 +5,9 @@ import java.util.List;
 
 /**
  * Representa un usuario en el sistema.
+ * Hereda de BaseSincronizable para permitir la sincronización de cambios (Soft Delete y Timestamps).
  */
-public class Usuario {
+public class Usuario extends BaseSincronizable {
 
     private int idUsuario;
     private String nombreUsuario;
@@ -20,8 +21,11 @@ public class Usuario {
 
     /**
      * Constructor por defecto.
+     * Inicializa explícitamente los campos de sincronización mediante super().
      */
-    public Usuario() {}
+    public Usuario() {
+        super();
+    }
 
     /**
      * Constructor para carga perezosa.
@@ -29,6 +33,7 @@ public class Usuario {
      * @param nombreUsuario el nombre de usuario.
      */
     public Usuario(int idUsuario, String nombreUsuario) {
+        super(); // Inicializa timestamps y estado eliminado
         this.idUsuario = idUsuario;
         this.nombreUsuario = nombreUsuario;
     }
@@ -45,7 +50,7 @@ public class Usuario {
      */
     public Usuario(int idUsuario, String nombreUsuario, String email, String passw,
                    LocalDate bornDate, List<MiLista> misPeliculas, Rol rol) {
-
+        super(); // Inicializa timestamps y estado eliminado
         this.idUsuario = idUsuario;
         this.nombreUsuario = nombreUsuario;
         this.email = email;
@@ -54,6 +59,8 @@ public class Usuario {
         this.misPeliculas = misPeliculas;
         this.rol = rol;
     }
+
+    // --- Getters y Setters ---
 
     /**
      * Obtiene el ID del usuario.

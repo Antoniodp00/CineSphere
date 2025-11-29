@@ -2,15 +2,19 @@ package org.dam2.adp.cinesphere.model;
 
 /**
  * Representa un género de película en el sistema.
+ * Hereda de BaseSincronizable para permitir la sincronización de cambios (Soft Delete y Timestamps).
  */
-public class Genero {
+public class Genero extends BaseSincronizable {
     private int idGenero;
     private String nombreGenero;
 
     /**
      * Constructor por defecto.
+     * Inicializa explícitamente los campos de sincronización mediante super().
      */
-    public Genero() {}
+    public Genero() {
+        super();
+    }
 
     /**
      * Constructor con todos los campos.
@@ -18,6 +22,7 @@ public class Genero {
      * @param nombreGenero el nombre del género.
      */
     public Genero(int idGenero, String nombreGenero) {
+        super(); // Inicializa timestamps y estado eliminado
         this.idGenero = idGenero;
         this.nombreGenero = nombreGenero;
     }
@@ -27,6 +32,7 @@ public class Genero {
      * @param nombreGenero el nombre del género.
      */
     public Genero(String nombreGenero) {
+        super(); // Inicializa timestamps y estado eliminado
         this.nombreGenero = nombreGenero;
     }
 
