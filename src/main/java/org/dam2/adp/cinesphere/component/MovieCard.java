@@ -74,18 +74,11 @@ public class MovieCard extends VBox {
         HBox metadataBox = new HBox(yearLabel, spacer, genreLabel);
         metadataBox.setAlignment(Pos.CENTER_LEFT);
 
-        // Rating numérico simple para la tarjeta
-        Label lblRating = new Label(pelicula.getRatingPelicula() != null ? "★ " + pelicula.getRatingPelicula() : "★ —");
-        lblRating.getStyleClass().add(Styles.TEXT_SMALL); // Usar un estilo de texto pequeño
-        if (pelicula.getRatingPelicula() != null && pelicula.getRatingPelicula() >= 8.0) {
-            lblRating.getStyleClass().add(Styles.ACCENT); // O un estilo específico para ratings altos
-        } else {
-            lblRating.getStyleClass().add(Styles.TEXT_MUTED);
-        }
-
+        // REFACTORIZACIÓN: Usar el componente RatingDisplay
+        RatingDisplay ratingDisplay = new RatingDisplay(pelicula.getRatingPelicula());
 
         // 4. --- Ensamblaje y Acción ---
-        getChildren().addAll(imageContainer, titleLabel, metadataBox, lblRating);
+        getChildren().addAll(imageContainer, titleLabel, metadataBox, ratingDisplay); // Añadir ratingDisplay
 
         setOnMouseClicked(event -> {
             SessionManager.getInstance().set("selectedPeliculaId", pelicula.getIdPelicula());

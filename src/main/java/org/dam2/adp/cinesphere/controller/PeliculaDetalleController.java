@@ -1,8 +1,6 @@
 package org.dam2.adp.cinesphere.controller;
 
-import atlantafx.base.theme.Styles;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -10,6 +8,8 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import org.dam2.adp.cinesphere.DAO.MiListaDAO;
 import org.dam2.adp.cinesphere.DAO.PeliculaDAO;
+import org.dam2.adp.cinesphere.component.Chip;
+import org.dam2.adp.cinesphere.component.RatingDisplay;
 import org.dam2.adp.cinesphere.model.MiLista;
 import org.dam2.adp.cinesphere.model.Pelicula;
 import org.dam2.adp.cinesphere.model.PeliculaEstado;
@@ -38,7 +38,6 @@ public class PeliculaDetalleController {
     @FXML private ImageView imgPoster;
     @FXML private Label lblTitulo;
     @FXML private Label lblSubtitulo;
-    @FXML private Label lblRating; // Este Label será reemplazado por el HBox de estrellas
     @FXML private Label lblClasificacion;
     @FXML private Label lblSinopsis;
     @FXML private FlowPane flowGeneros;
@@ -48,7 +47,7 @@ public class PeliculaDetalleController {
     @FXML private Button btnTrailer;
     @FXML private ComboBox<PeliculaEstado> cbEstado;
     @FXML private ComboBox<Integer> cbPuntuacion;
-    @FXML private HBox ratingContainer; // Contenedor para las estrellas y el rating numérico
+    @FXML private HBox ratingContainer;
 
     private final PeliculaDAO peliculaDAO = new PeliculaDAO();
     private final MiListaDAO miListaDAO = new MiListaDAO();
@@ -74,7 +73,6 @@ public class PeliculaDetalleController {
             return;
         }
 
-        // Configurar FlowPanes
         flowGeneros.setHgap(10);
         flowGeneros.setVgap(10);
         flowDirectores.setHgap(10);
@@ -97,7 +95,6 @@ public class PeliculaDetalleController {
 
     /**
      * Configura los valores y listeners de los componentes de selección.
-     * Establece la lógica reactiva entre el estado de visualización y la posibilidad de puntuar.
      */
     private void setupComboBoxes() {
         cbEstado.getItems().setAll(PeliculaEstado.values());
@@ -123,25 +120,15 @@ public class PeliculaDetalleController {
 
     /**
      * Controla la habilitación del selector de puntuación basándose en el estado de la película.
-     * Solo permite puntuar si el estado es VISTA.
-     *
-     * @param estado El estado actual de la película en la lista del usuario.
      */
     private void gestionarAccesibilidadPuntuacion(PeliculaEstado estado) {
         boolean esVista = (estado == PeliculaEstado.TERMINADA);
         cbPuntuacion.setDisable(!esVista);
-
-        if (!esVista) {
-            cbPuntuacion.setPromptText("Marca como terminada para puntuar");
-        } else {
-            cbPuntuacion.setPromptText("Nota");
-        }
+        cbPuntuacion.setPromptText(esVista ? "Nota" : "Marca como terminada para puntuar");
     }
 
     /**
      * Recupera la información de la película desde la base de datos y actualiza la interfaz gráfica.
-     *
-     * @param idPelicula Identificador único de la película.
      */
     private void cargarDatos(int idPelicula) {
         logger.log(Level.INFO, "Cargando datos para la película ID: " + idPelicula);
@@ -154,23 +141,17 @@ public class PeliculaDetalleController {
 
             lblTitulo.setText(pelicula.getTituloPelicula());
             lblSubtitulo.setText(pelicula.getYearPelicula() + " • " + pelicula.getNombreClasificacion());
-            // lblRating.setText("★ " + (pelicula.getRatingPelicula() != null ? pelicula.getRatingPelicula() : "—")); // Eliminado
             lblClasificacion.setText(pelicula.getNombreClasificacion());
             lblSinopsis.setText("Sinopsis no disponible aún.");
 
-            // Nuevo: Mostrar rating con estrellas
             if (ratingContainer != null) {
                 ratingContainer.getChildren().clear();
-                ratingContainer.getChildren().add(createRatingDisplay(pelicula.getRatingPelicula()));
+                ratingContainer.getChildren().add(new RatingDisplay(pelicula.getRatingPelicula()));
             }
 
-
-            String rutaImagen = "/img/noImage.png";
-
-            if (pelicula.getGeneros() != null && !pelicula.getGeneros().isEmpty()) {
-                String primerGenero = pelicula.getGeneros().get(0).getNombreGenero();
-                rutaImagen = Utils.obtenerRutaImagenPorGenero(primerGenero);
-            }
+            String rutaImagen = pelicula.getGeneros().stream().findFirst()
+                    .map(g -> Utils.obtenerRutaImagenPorGenero(g.getNombreGenero()))
+                    .orElse("/img/noImage.png");
 
             try {
                 imgPoster.setImage(new Image(getClass().getResource(rutaImagen).toExternalForm()));
@@ -179,13 +160,15 @@ public class PeliculaDetalleController {
                 imgPoster.setImage(new Image(getClass().getResource("/img/noImage.png").toExternalForm()));
             }
 
-            flowGeneros.getChildren().clear();
-            flowDirectores.getChildren().clear();
-            flowActores.getChildren().clear();
-
-            pelicula.getGeneros().forEach(g -> flowGeneros.getChildren().add(createChip(g.getNombreGenero())));
-            pelicula.getDirectores().forEach(d -> flowDirectores.getChildren().add(createChip(d.getNombreDirector())));
-            pelicula.getActores().forEach(a -> flowActores.getChildren().add(createChip(a.getNombreActor())));
+            flowGeneros.getChildren().setAll(
+                pelicula.getGeneros().stream().map(g -> new Chip(g.getNombreGenero())).collect(Collectors.toList())
+            );
+            flowDirectores.getChildren().setAll(
+                pelicula.getDirectores().stream().map(d -> new Chip(d.getNombreDirector())).collect(Collectors.toList())
+            );
+            flowActores.getChildren().setAll(
+                pelicula.getActores().stream().map(a -> new Chip(a.getNombreActor())).collect(Collectors.toList())
+            );
 
             actualizarEstadoMiLista();
             btnMiLista.setOnAction(e -> toggleMiLista());
@@ -200,90 +183,33 @@ public class PeliculaDetalleController {
 
     /**
      * Sincroniza los controles de UI con el estado actual de la película en la lista del usuario.
-     * Habilita o deshabilita componentes según la existencia del registro en la base de datos.
-     *
-     * @throws Exception Si ocurre un error de acceso a datos.
      */
     private void actualizarEstadoMiLista() throws Exception {
         MiLista ml = miListaDAO.findAll(usuario.getIdUsuario(), pelicula.getIdPelicula());
         boolean enLista = ml != null;
 
+        btnMiLista.setText(enLista ? "En tu lista" : "Añadir a mi lista");
+        cbEstado.setDisable(!enLista);
+        cbPuntuacion.setDisable(!enLista || (enLista && ml.getEstado() != PeliculaEstado.TERMINADA));
+
         if (enLista) {
-            btnMiLista.setText("En tu lista");
             cbEstado.setValue(ml.getEstado());
             cbPuntuacion.setValue(ml.getPuntuacion());
-
-            gestionarAccesibilidadPuntuacion(ml.getEstado());
-            cbEstado.setDisable(false);
         } else {
-            btnMiLista.setText("Añadir a mi lista");
             cbEstado.setValue(null);
             cbPuntuacion.setValue(null);
-
-            cbEstado.setDisable(true);
-            cbPuntuacion.setDisable(true);
         }
         logger.log(Level.INFO, "Estado de 'Mi Lista' actualizado. Película en lista: " + enLista);
     }
 
     /**
-     * Genera un componente visual tipo etiqueta (Chip) para mostrar metadatos.
-     *
-     * @param text El contenido del chip.
-     * @return Label configurado con estilo.
-     */
-    private Label createChip(String text) {
-        Label chip = new Label(text);
-        chip.getStyleClass().addAll("chip", Styles.TEXT_SMALL);
-        return chip;
-    }
-
-    /**
-     * Crea y configura el display de rating con estrellas.
-     * @param rating El rating numérico de la película (0-10).
-     * @return Un HBox con las estrellas y el rating numérico.
-     */
-    private HBox createRatingDisplay(Double rating) {
-        HBox ratingBox = new HBox(2); // Espaciado de 2px entre estrellas
-        ratingBox.getStyleClass().add("rating"); // Clase padre para el CSS
-        ratingBox.setAlignment(Pos.CENTER_LEFT);
-
-        int numStars = 5;
-        int filledStars = (rating != null) ? (int) (rating / 2) : 0; // Convertir rating 0-10 a 0-5 estrellas
-
-        for (int i = 0; i < numStars; i++) {
-            Button star = new Button("★"); // Puedes usar un icono si lo tienes
-            star.getStyleClass().add("button"); // Clase base para todas las estrellas
-            star.getStyleClass().add(Styles.FLAT); // Para que no tenga el estilo de botón normal
-            star.setDisable(true); // Las estrellas no son interactivas aquí
-            if (i < filledStars) {
-                star.getStyleClass().add("strong"); // Clase para estrellas llenas
-            }
-            ratingBox.getChildren().add(star);
-        }
-        
-        // Mostrar el rating numérico al lado
-        if (rating != null) {
-            Label ratingValue = new Label(String.format("%.1f", rating));
-            ratingValue.getStyleClass().addAll(Styles.TEXT_SMALL, Styles.TEXT_MUTED);
-            ratingBox.getChildren().add(ratingValue);
-        }
-
-        return ratingBox;
-    }
-
-
-    /**
      * Alterna la presencia de la película actual en la lista personal del usuario.
-     * Inserta o elimina el registro según corresponda y refresca la interfaz.
      */
     private void toggleMiLista() {
         try {
             MiLista ml = miListaDAO.findAll(usuario.getIdUsuario(), pelicula.getIdPelicula());
             if (ml == null) {
-                miListaDAO.insert(new MiLista(
-                        pelicula, usuario, PeliculaEstado.PENDIENTE, null, null, LocalDateTime.now()
-                ));
+                miListaDAO.insert(new MiLista(pelicula, usuario, PeliculaEstado.PENDIENTE, null, null, LocalDateTime.now()));
                 logger.log(Level.INFO, "Película '" + pelicula.getTituloPelicula() + "' añadida a Mi Lista.");
             } else {
                 miListaDAO.delete(usuario.getIdUsuario(), pelicula.getIdPelicula());
@@ -297,8 +223,6 @@ public class PeliculaDetalleController {
 
     /**
      * Actualiza el estado de visualización de la película en la base de datos.
-     *
-     * @param estado El nuevo estado seleccionado.
      */
     private void cambiarEstado(PeliculaEstado estado) {
         try {
@@ -311,8 +235,6 @@ public class PeliculaDetalleController {
 
     /**
      * Actualiza la puntuación personal de la película en la base de datos.
-     *
-     * @param puntuacion La nueva puntuación asignada (1-10).
      */
     private void cambiarPuntuacion(int puntuacion) {
         try {
@@ -328,8 +250,7 @@ public class PeliculaDetalleController {
      */
     private void abrirTrailer() {
         try {
-            String url = "https://www.youtube.com/results?search_query=" +
-                    pelicula.getTituloPelicula().replace(" ", "+") + "+trailer";
+            String url = "https://www.youtube.com/results?search_query=" + pelicula.getTituloPelicula().replace(" ", "+") + "+trailer";
             Desktop.getDesktop().browse(new URI(url));
             logger.log(Level.INFO, "Abriendo trailer para: " + pelicula.getTituloPelicula());
         } catch (Exception ex) {
@@ -339,7 +260,6 @@ public class PeliculaDetalleController {
 
     /**
      * Ejecuta el proceso de eliminación física de la película de la base de datos.
-     * Requiere confirmación previa del usuario administrador.
      */
     private void eliminarPelicula() {
         if (AlertUtils.confirmation("Eliminar Película", "¿Borrar '" + pelicula.getTituloPelicula() + "'?", "Esta acción es irreversible y la eliminará de las listas de todos los usuarios.")) {

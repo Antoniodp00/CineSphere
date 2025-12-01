@@ -232,36 +232,77 @@
 }
 
 
-/* TableView */
+/* ===================================================================
+ * TableView - Corrección Definitiva de Selección y Texto
+ * =================================================================== */
+
+/* 1. Estructura Base de la Tabla */
 .table-view {
     -fx-background-color: -color-bg-subtle;
     -fx-border-color: -color-border-default;
-    -fx-border-width: 1;
-    -fx-border-radius: 10;
-    -fx-background-radius: 10;
+    -fx-table-cell-border-color: transparent; /* Quita líneas verticales entre celdas */
 }
-.table-view .column-header-background {
-    -fx-background-color: -color-bg-default;
-    -fx-background-radius: 10 10 0 0;
-}
-.table-view .column-header .label {
+
+/* 2. ESTADO NORMAL (No seleccionado) */
+/* Forzamos el color gris claro en la celda y en el texto interno explícitamente */
+.table-view .table-row-cell:filled .table-cell,
+.table-view .table-row-cell:filled .table-cell .text,
+.table-view .table-row-cell:filled .table-cell .label {
     -fx-text-fill: -color-text-default;
-    -fx-font-weight: bold;
+    -fx-fill: -color-text-default; /* Propiedad para nodos Text */
+    -fx-background-color: transparent; /* Deja ver el color de la fila */
 }
-.table-view .table-cell {
+
+/* 3. ESTADO SELECCIONADO */
+/* Fondo azul y texto blanco */
+.table-view .table-row-cell:filled:selected {
+    -fx-background-color: -color-accent-emphasis;
+    -fx-background-insets: 0;
+}
+
+/* Forzamos BLANCO en el texto cuando la fila está seleccionada */
+.table-view .table-row-cell:filled:selected .table-cell .text,
+.table-view .table-row-cell:filled:selected .table-cell .label,
+.table-view .table-row-cell:filled:selected .table-cell {
+    -fx-text-fill: -color-text-on-accent;
+    -fx-fill: -color-text-on-accent;
+}
+
+/* 4. ESTADO HOVER (Pasar el ratón sin seleccionar) */
+.table-view .table-row-cell:filled:hover {
+    -fx-background-color: -color-bg-hover;
+}
+
+/* Aseguramos que el hover no cambie el texto a blanco prematuramente */
+.table-view .table-row-cell:filled:hover .table-cell .text,
+.table-view .table-row-cell:filled:hover .table-cell .label {
+    -fx-fill: -color-text-default;
     -fx-text-fill: -color-text-default;
-    -fx-background-color: -color-bg-subtle;
-    -fx-border-color: transparent; /* Eliminar bordes de celda */
-    -fx-padding: 8 10;
 }
-/* MODIFICACIÓN: Resaltado de fila seleccionada en TableView */
-.table-view .table-row-cell:selected {
-    -fx-background-color: derive(-color-accent-emphasis, -20%); /* Un azul más oscuro y sólido */
-    -fx-text-fill: -color-text-on-accent; /* Texto blanco para contraste */
+
+/* Corrección extra: Si seleccionas y pasas el ratón por encima, mantén el blanco */
+.table-view .table-row-cell:filled:selected:hover .table-cell .text,
+.table-view .table-row-cell:filled:selected:hover .table-cell .label {
+    -fx-fill: -color-text-on-accent;
+    -fx-text-fill: -color-text-on-accent;
 }
-.table-view .table-row-cell:selected .table-cell {
-    -fx-text-fill: -color-text-on-accent; /* Asegura que el texto de las celdas también sea blanco */
+
+/* ===================================================================
+ * CORRECCIÓN PARA ATLANTAFX:
+ * Resaltado de fila seleccionada en TableView usando ID para mayor especificidad.
+ * AtlantaFX tiene reglas muy específicas que sobreescriben los estilos genéricos.
+ * Usar el fx:id de la tabla (#tablaUsuarios) asegura que nuestra regla gane.
+ * =================================================================== */
+#tablaUsuarios .table-row-cell:selected {
+    -fx-background-color: -color-accent-emphasis; /* Usamos el azul de acento principal y sólido */
 }
+
+/* Aseguramos que el texto de las celdas sea blanco para un buen contraste */
+#tablaUsuarios .table-row-cell:selected .table-cell,
+#tablaUsuarios .table-row-cell:selected .text {
+    -fx-text-fill: -color-text-on-accent;
+}
+
 .table-view .table-row-cell:hover {
     -fx-background-color: -color-bg-hover;
 }
@@ -388,7 +429,7 @@
 
 /* Botón de 'Iniciar Sesión' (Clase .button-accent mejorada) */
 .button-accent {
-    -fx-background-color: linear-gradient(to bottom, derive(-color-accent-emphasis, 30%), -color-accent-emphasis);
+    -fx-background-color: linear-gradient(to bottom, -color-accent-emphasis, -color-accent-emphasis);
     -fx-text-fill: -color-text-on-accent; /* Texto blanco sobre el acento */
     -fx-font-weight: bold;
     -fx-font-size: 1.3em; /* Más grande y prominente */
@@ -400,7 +441,7 @@
 }
 
 .button-accent:hover {
-    -fx-background-color: linear-gradient(to bottom, derive(-color-accent-emphasis, 40%), derive(-color-accent-emphasis, 10%));
+    -fx-background-color: linear-gradient(to bottom, -color-accent-emphasis, -color-accent-emphasis 10%);
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 20, 0, 0, 4); /* Sombra más fuerte al pasar el ratón */
 }
 
