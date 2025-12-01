@@ -6,7 +6,6 @@ import javafx.scene.layout.TilePane;
 import org.dam2.adp.cinesphere.DAO.GeneroDAO;
 import org.dam2.adp.cinesphere.DAO.PeliculaDAO;
 import org.dam2.adp.cinesphere.component.MovieCard;
-import org.dam2.adp.cinesphere.model.Genero;
 import org.dam2.adp.cinesphere.model.Pelicula;
 import org.dam2.adp.cinesphere.util.Navigation;
 import org.dam2.adp.cinesphere.util.SessionManager;
@@ -21,25 +20,37 @@ import java.util.logging.Logger;
  */
 public class PeliculaListaController {
 
-    @FXML private ComboBox<Integer> cbYear;
-    @FXML private ComboBox<Double> cbRating;
-    @FXML private ComboBox<String> cbGenero;
+    @FXML
+    private ComboBox<Integer> cbYear;
+    @FXML
+    private ComboBox<Double> cbRating;
+    @FXML
+    private ComboBox<String> cbGenero;
 
-    @FXML private Button btnFiltrar;
-    @FXML private Button btnLimpiar;
+    @FXML
+    private Button btnFiltrar;
+    @FXML
+    private Button btnLimpiar;
 
-    @FXML private TilePane tilePeliculas;
-    @FXML private ScrollPane scroll;
+    @FXML
+    private TilePane tilePeliculas;
+    @FXML
+    private ScrollPane scroll;
 
-    @FXML private TextField txtBuscar;
-    @FXML private Button btnBuscar;
+    @FXML
+    private TextField txtBuscar;
+    @FXML
+    private Button btnBuscar;
 
-    @FXML private Button btnFirst, btnPrev, btnNext, btnLast;
-    @FXML private Label lblPage;
+    @FXML
+    private Button btnFirst, btnPrev, btnNext, btnLast;
+    @FXML
+    private Label lblPage;
 
     private Integer filtroYear = null;
     private Double filtroRating = null;
     private Integer filtroGeneroId = null;
+    private String filtroTitulo = null;
 
     private final PeliculaDAO peliculaDAO = new PeliculaDAO();
     private final GeneroDAO generoDAO = new GeneroDAO();
@@ -70,7 +81,9 @@ public class PeliculaListaController {
             }
         });
 
-        for (int y = 2024; y >= 1950; y--) cbYear.getItems().add(y);
+        for (int y = 2024; y >= 1950; y--) {
+            cbYear.getItems().add(y);
+        }
         cbRating.getItems().addAll(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
 
         try {
@@ -81,7 +94,7 @@ public class PeliculaListaController {
 
         btnFiltrar.setOnAction(e -> aplicarFiltros());
         btnLimpiar.setOnAction(e -> limpiarFiltros());
-        btnBuscar.setOnAction(e -> buscar(txtBuscar.getText()));
+        btnBuscar.setOnAction(e -> aplicarFiltros());
 
         btnFirst.setOnAction(e -> cambiarPagina(1));
         btnPrev.setOnAction(e -> cambiarPagina(page - 1));
@@ -97,6 +110,7 @@ public class PeliculaListaController {
 
     /**
      * Cambia a una página específica si está dentro de los límites.
+     *
      * @param nuevaPagina El número de la página a la que se quiere navegar.
      */
     private void cambiarPagina(int nuevaPagina) {
@@ -108,6 +122,7 @@ public class PeliculaListaController {
 
     /**
      * Ajusta el número de películas por página basándose en el ancho del ScrollPane.
+     *
      * @param scrollWidth El ancho actual del ScrollPane.
      */
     private void ajustarPageSize(double scrollWidth) {
@@ -117,7 +132,9 @@ public class PeliculaListaController {
         }
         int cardWidth = 200;
         int numColumns = (int) Math.floor(scrollWidth / cardWidth);
-        if (numColumns == 0) numColumns = 1;
+        if (numColumns == 0) {
+            numColumns = 1;
+        }
         pageSize = numColumns * 3;
     }
 
@@ -126,9 +143,11 @@ public class PeliculaListaController {
      */
     private void actualizarTotalPaginas() {
         try {
-            int total = peliculaDAO.countPeliculas(filtroYear, filtroRating, filtroGeneroId);
+            int total = peliculaDAO.countPeliculas(filtroYear, filtroRating, filtroGeneroId, filtroTitulo);
             totalPages = (int) Math.ceil((double) total / pageSize);
-            if (totalPages == 0) totalPages = 1;
+            if (totalPages == 0) {
+                totalPages = 1;
+            }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error contando páginas", e);
             totalPages = 1;
@@ -137,6 +156,7 @@ public class PeliculaListaController {
 
     /**
      * Carga y muestra las películas de una página específica, aplicando los filtros actuales.
+     *
      * @param pagina El número de página a cargar.
      */
     private void cargarPagina(int pagina) {
@@ -145,8 +165,10 @@ public class PeliculaListaController {
             selectedMovieCard = null;
             List<Pelicula> lista;
 
-            if (filtroYear != null || filtroRating != null || filtroGeneroId != null) {
-                lista = peliculaDAO.findFiltered(filtroYear, filtroRating, filtroGeneroId, pagina, pageSize);
+            boolean hasFilters = filtroYear != null || filtroRating != null || filtroGeneroId != null || (filtroTitulo != null && !filtroTitulo.isEmpty());
+
+            if (hasFilters) {
+                lista = peliculaDAO.findFiltered(filtroYear, filtroRating, filtroGeneroId, filtroTitulo, pagina, pageSize);
             } else {
                 lista = peliculaDAO.findPage(pagina, pageSize);
             }
@@ -172,42 +194,12 @@ public class PeliculaListaController {
     }
 
     /**
-     * Inicia una búsqueda por título de película.
-     * @param filtro El texto a buscar en los títulos de las películas.
-     */
-    private void buscar(String filtro) {
-        try {
-            List<Pelicula> todas = peliculaDAO.findAllLazy();
-            List<Pelicula> filtradas = todas.stream()
-                    .filter(p -> p.getTituloPelicula().toLowerCase().contains(filtro.toLowerCase()))
-                    .toList();
-
-            tilePeliculas.getChildren().clear();
-            selectedMovieCard = null;
-            for (Pelicula p : filtradas) {
-                MovieCard card = new MovieCard(p);
-                card.setOnMouseClicked(event -> {
-                    if (selectedMovieCard != null) {
-                        selectedMovieCard.getStyleClass().remove("neon-glow");
-                    }
-                    card.getStyleClass().add("neon-glow");
-                    selectedMovieCard = card;
-                    SessionManager.getInstance().set("selectedPeliculaId", p.getIdPelicula());
-                    Navigation.navigate("peliculas_detalle.fxml");
-                });
-                tilePeliculas.getChildren().add(card);
-            }
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error buscando", e);
-        }
-    }
-
-    /**
      * Aplica los filtros seleccionados en los ComboBox y recarga la vista.
      */
     private void aplicarFiltros() {
         filtroYear = cbYear.getValue();
         filtroRating = cbRating.getValue();
+        filtroTitulo = txtBuscar.getText().trim();
 
         if (cbGenero.getValue() != null) {
             try {
@@ -215,7 +207,9 @@ public class PeliculaListaController {
             } catch (Exception e) {
                 filtroGeneroId = null;
             }
-        } else filtroGeneroId = null;
+        } else {
+            filtroGeneroId = null;
+        }
 
         page = 1;
         actualizarTotalPaginas();
@@ -229,9 +223,11 @@ public class PeliculaListaController {
         cbYear.setValue(null);
         cbRating.setValue(null);
         cbGenero.setValue(null);
+        txtBuscar.clear();
         filtroYear = null;
         filtroRating = null;
         filtroGeneroId = null;
+        filtroTitulo = null;
         page = 1;
         actualizarTotalPaginas();
         cargarPagina(page);

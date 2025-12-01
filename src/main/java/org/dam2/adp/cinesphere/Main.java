@@ -4,7 +4,7 @@ import atlantafx.base.theme.Dracula;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.dam2.adp.cinesphere.database.Conexion;
-import org.dam2.adp.cinesphere.util.log.LoggingConfig; // Importar la clase
+import org.dam2.adp.cinesphere.util.log.LoggingConfig;
 import org.dam2.adp.cinesphere.util.Navigation;
 
 import java.util.logging.Level;

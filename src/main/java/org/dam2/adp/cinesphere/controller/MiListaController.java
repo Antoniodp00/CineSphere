@@ -25,19 +25,30 @@ import java.util.logging.Logger;
  */
 public class MiListaController {
 
-    @FXML private TilePane tilePeliculas;
-    @FXML private ScrollPane scroll;
+    @FXML
+    private TilePane tilePeliculas;
+    @FXML
+    private ScrollPane scroll;
 
-    @FXML private TextField txtBuscar;
-    @FXML private Button btnBuscar;
-    @FXML private ComboBox<Integer> cbYear;
-    @FXML private ComboBox<Double> cbRating;
-    @FXML private ComboBox<String> cbGenero;
-    @FXML private Button btnFiltrar;
-    @FXML private Button btnLimpiar;
+    @FXML
+    private TextField txtBuscar;
+    @FXML
+    private Button btnBuscar;
+    @FXML
+    private ComboBox<Integer> cbYear;
+    @FXML
+    private ComboBox<Double> cbRating;
+    @FXML
+    private ComboBox<String> cbGenero;
+    @FXML
+    private Button btnFiltrar;
+    @FXML
+    private Button btnLimpiar;
 
-    @FXML private Button btnFirst, btnPrev, btnNext, btnLast;
-    @FXML private Label lblPage;
+    @FXML
+    private Button btnFirst, btnPrev, btnNext, btnLast;
+    @FXML
+    private Label lblPage;
 
     private final MiListaDAO miListaDAO = new MiListaDAO();
     private final GeneroDAO generoDAO = new GeneroDAO();
@@ -83,7 +94,7 @@ public class MiListaController {
 
         btnFiltrar.setOnAction(e -> aplicarFiltros());
         btnLimpiar.setOnAction(e -> limpiarFiltros());
-        btnBuscar.setOnAction(e -> buscar(txtBuscar.getText()));
+        btnBuscar.setOnAction(e -> aplicarFiltros());
 
         btnFirst.setOnAction(e -> cambiarPagina(1));
         btnPrev.setOnAction(e -> cambiarPagina(page - 1));
@@ -98,6 +109,7 @@ public class MiListaController {
 
     /**
      * Cambia a una página específica si está dentro de los límites.
+     *
      * @param nuevaPagina El número de la página a la que se quiere navegar.
      */
     private void cambiarPagina(int nuevaPagina) {
@@ -109,6 +121,7 @@ public class MiListaController {
 
     /**
      * Ajusta el número de películas por página basándose en el ancho del ScrollPane.
+     *
      * @param scrollWidth El ancho actual del ScrollPane.
      */
     private void ajustarPageSize(double scrollWidth) {
@@ -137,18 +150,8 @@ public class MiListaController {
     }
 
     /**
-     * Inicia una búsqueda por título de película.
-     * @param filtro El texto a buscar en los títulos de las películas.
-     */
-    private void buscar(String filtro) {
-        this.filtroBusqueda = filtro;
-        page = 1;
-        actualizarTotalPaginas();
-        cargarPagina(page);
-    }
-
-    /**
      * Carga y muestra las películas de una página específica, aplicando los filtros actuales.
+     *
      * @param pagina El número de página a cargar.
      */
     private void cargarPagina(int pagina) {
@@ -157,7 +160,12 @@ public class MiListaController {
             List<Pelicula> lista = miListaDAO.findFiltered(usuario.getIdUsuario(), filtroYear, filtroRating, filtroGeneroId, filtroBusqueda, pagina, pageSize);
 
             for (Pelicula p : lista) {
-                tilePeliculas.getChildren().add(new MovieCard(p));
+                MovieCard card = new MovieCard(p);
+                card.setOnMouseClicked(event -> {
+                    SessionManager.getInstance().set("selectedPeliculaId", p.getIdPelicula());
+                    Navigation.navigate("peliculas_detalle.fxml");
+                });
+                tilePeliculas.getChildren().add(card);
             }
             lblPage.setText(pagina + " / " + totalPages);
 
@@ -172,6 +180,7 @@ public class MiListaController {
     private void aplicarFiltros() {
         filtroYear = cbYear.getValue();
         filtroRating = cbRating.getValue();
+        filtroBusqueda = txtBuscar.getText().trim();
 
         if (cbGenero.getValue() != null) {
             try {

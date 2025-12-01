@@ -58,7 +58,7 @@ public class LoginController {
         cbBaseDatos.getItems().addAll("PostgreSQL (Online)", "SQLite (Local)");
         cbBaseDatos.getSelectionModel().selectFirst();
 
-        // Listener: Si cambia la selección, forzamos la desconexión visual y lógica
+        // Si cambia la selección, se fuerza la desconexión visual y lógica
         cbBaseDatos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
                 resetearEstadoConexion();
@@ -72,7 +72,7 @@ public class LoginController {
     private void resetearEstadoConexion() {
         isConnected = false;
         lblEstadoConexion.setText("Estado: Desconectado (Selección cambiada)");
-        lblEstadoConexion.setStyle("-fx-text-fill: #7f8c8d;"); // Gris para estado neutro/aviso
+        lblEstadoConexion.setStyle("-fx-text-fill: #7f8c8d;");
         habilitarFormulario(false);
         logger.log(Level.INFO, "Selección de BD cambiada. Estado reseteado a desconectado.");
     }
@@ -98,10 +98,10 @@ public class LoginController {
 
         if (exito) {
             lblEstadoConexion.setText("Estado: Conectado");
-            lblEstadoConexion.setStyle("-fx-text-fill: #2ecc71;"); // Verde
+            lblEstadoConexion.setStyle("-fx-text-fill: #2ecc71;");
         } else {
             lblEstadoConexion.setText("Estado: Error de conexión");
-            lblEstadoConexion.setStyle("-fx-text-fill: #e74c3c;"); // Rojo
+            lblEstadoConexion.setStyle("-fx-text-fill: #e74c3c;");
         }
     }
 
@@ -189,8 +189,6 @@ public class LoginController {
      * Crea el usuario administrador por defecto si no existe.
      */
     private void crearAdminPorDefecto() {
-        // Ejecución en hilo separado para no bloquear UI si la DB es lenta (Opcional pero recomendado)
-        new Thread(() -> {
             try {
                 UsuarioDAO dao = new UsuarioDAO();
                 if (dao.findByName("admin") == null) {
@@ -206,7 +204,6 @@ public class LoginController {
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Error creando admin", e);
             }
-        }).start();
     }
 
     /**

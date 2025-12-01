@@ -52,6 +52,7 @@ public class PeliculaDAO {
     private static final String SQL_FILTER_AND_YEAR = "AND p.yearpelicula = ? ";
     private static final String SQL_FILTER_AND_RATING = "AND p.ratingpelicula >= ? ";
     private static final String SQL_FILTER_AND_GENERO = "AND pg.idgenero = ? ";
+    private static final String SQL_FILTER_AND_TITULO = "AND LOWER(p.titulopelicula) LIKE LOWER(?) ";
 
     private static final String SQL_FILTER_PAGINATION = "ORDER BY p.idpelicula LIMIT ? OFFSET ?";
 
@@ -213,25 +214,24 @@ public class PeliculaDAO {
     /**
      * Cuenta el número total de películas que coinciden con los filtros especificados.
      *
-     * @param year      el año de la película.
-     * @param ratingMin el rating mínimo de la película.
-     * @param idGenero  el ID del género de la película.
+     * @param year         el año de la película.
+     * @param ratingMin    el rating mínimo de la película.
+     * @param idGenero     el ID del género de la película.
+     * @param filtroTitulo el título a buscar.
      * @return el número total de películas que coinciden con los filtros.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
-    public int countPeliculas(Integer year, Double ratingMin, Integer idGenero) throws SQLException {
+    public int countPeliculas(Integer year, Double ratingMin, Integer idGenero, String filtroTitulo) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
 
-        StringBuilder sql = new StringBuilder();
-        sql.append(SQL_COUNT_BASE);
+        StringBuilder sql = new StringBuilder(SQL_COUNT_BASE);
+        List<Object> params = new ArrayList<>();
 
         if (idGenero != null) {
             sql.append(SQL_FILTER_JOIN_GENERO);
         }
 
         sql.append(SQL_FILTER_BASE_WHERE);
-
-        List<Object> params = new ArrayList<>();
 
         if (year != null) {
             sql.append(SQL_FILTER_AND_YEAR);
@@ -245,9 +245,12 @@ public class PeliculaDAO {
             sql.append(SQL_FILTER_AND_GENERO);
             params.add(idGenero);
         }
+        if (filtroTitulo != null && !filtroTitulo.isBlank()) {
+            sql.append(SQL_FILTER_AND_TITULO);
+            params.add("%" + filtroTitulo + "%");
+        }
 
         try (PreparedStatement st = conn.prepareStatement(sql.toString())) {
-
             for (int i = 0; i < params.size(); i++) {
                 st.setObject(i + 1, params.get(i));
             }
@@ -264,28 +267,27 @@ public class PeliculaDAO {
     /**
      * Obtiene una lista paginada de películas que coinciden con los filtros especificados.
      *
-     * @param year      el año de la película.
-     * @param ratingMin el rating mínimo de la película.
-     * @param idGenero  el ID del género de la película.
-     * @param page      el número de página a obtener.
-     * @param pageSize  el tamaño de la página.
+     * @param year         el año de la película.
+     * @param ratingMin    el rating mínimo de la película.
+     * @param idGenero     el ID del género de la película.
+     * @param filtroTitulo el título a buscar.
+     * @param page         el número de página a obtener.
+     * @param pageSize     el tamaño de la página.
      * @return una lista de películas que coinciden con los filtros.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
-    public List<Pelicula> findFiltered(Integer year, Double ratingMin, Integer idGenero, int page, int pageSize) throws SQLException {
+    public List<Pelicula> findFiltered(Integer year, Double ratingMin, Integer idGenero, String filtroTitulo, int page, int pageSize) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
         List<Pelicula> lista = new ArrayList<>();
 
-        StringBuilder sql = new StringBuilder();
-        sql.append(SQL_FILTER_SELECT);
+        StringBuilder sql = new StringBuilder(SQL_FILTER_SELECT);
+        List<Object> params = new ArrayList<>();
 
         if (idGenero != null) {
             sql.append(SQL_FILTER_JOIN_GENERO);
         }
 
         sql.append(SQL_FILTER_BASE_WHERE);
-
-        List<Object> params = new ArrayList<>();
 
         if (year != null) {
             sql.append(SQL_FILTER_AND_YEAR);
@@ -299,13 +301,16 @@ public class PeliculaDAO {
             sql.append(SQL_FILTER_AND_GENERO);
             params.add(idGenero);
         }
+        if (filtroTitulo != null && !filtroTitulo.isBlank()) {
+            sql.append(SQL_FILTER_AND_TITULO);
+            params.add("%" + filtroTitulo + "%");
+        }
 
         sql.append(SQL_FILTER_PAGINATION);
         params.add(pageSize);
         params.add((page - 1) * pageSize);
 
         try (PreparedStatement st = conn.prepareStatement(sql.toString())) {
-
             for (int i = 0; i < params.size(); i++) {
                 st.setObject(i + 1, params.get(i));
             }
@@ -317,7 +322,6 @@ public class PeliculaDAO {
             }
         }
 
-
         cargarGenerosEnLote(lista);
 
         return lista;
@@ -325,6 +329,7 @@ public class PeliculaDAO {
 
     /**
      * Carga los géneros de una lista de películas en un solo lote para optimizar las consultas a la base de datos.
+     *
      * @param peliculas la lista de películas a la que se le cargarán los géneros.
      */
     public void cargarGenerosEnLote(List<Pelicula> peliculas) {
@@ -371,6 +376,7 @@ public class PeliculaDAO {
 
     /**
      * Mapea una fila de un ResultSet a un objeto Pelicula.
+     *
      * @param rs el ResultSet del que obtener los datos.
      * @return un objeto Pelicula con los datos de la fila.
      * @throws SQLException si ocurre un error al acceder a los datos del ResultSet.

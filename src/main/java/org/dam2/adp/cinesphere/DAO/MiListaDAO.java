@@ -218,7 +218,7 @@ public class MiListaDAO {
     private void construirFiltrosComunes(StringBuilder sql, List<Object> params, int idUsuario, Integer year, Double ratingMin, Integer idGenero, String searchQuery) {
 
         if (idGenero != null) {
-            sql.append("LEFT JOIN peliculagenero pg ON p.idpelicula = pg.idpelicula ");
+            sql.append("INNER JOIN peliculagenero pg ON p.idpelicula = pg.idpelicula ");
         }
 
         sql.append("WHERE ml.idusuario = ? ");

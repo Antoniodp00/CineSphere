@@ -55,7 +55,7 @@ public class MainController {
     /**
      * Carga una vista FXML en el área de contenido principal.
      *
-     * @param fxml el nombre del archivo FXML a cargar (ej. "peliculas_lista.fxml").
+     * @param fxml el nombre del archivo FXML a cargar.
      */
     public void loadView(String fxml) {
         try {

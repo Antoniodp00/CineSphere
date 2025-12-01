@@ -58,11 +58,13 @@ public class MovieCard extends VBox {
         titleLabel.setTooltip(new Tooltip(pelicula.getTituloPelicula()));
         titleLabel.setMaxWidth(CARD_WIDTH);
         titleLabel.setPrefHeight(40);
-
-        String generos = pelicula.getGeneros().stream()
-                .map(g -> g.getNombreGenero())
-                .limit(1)
-                .collect(Collectors.joining());
+        String generos = "";
+        if (pelicula.getGeneros() != null) {
+            generos = pelicula.getGeneros().stream()
+                    .map(g -> g.getNombreGenero())
+                    .limit(1)
+                    .collect(Collectors.joining());
+        }
 
         Label yearLabel = new Label(String.valueOf(pelicula.getYearPelicula()));
         yearLabel.getStyleClass().add(Styles.TEXT_MUTED);
@@ -91,9 +93,11 @@ public class MovieCard extends VBox {
      * @return Un ImageView configurado.
      */
     private ImageView createImageView(Pelicula pelicula) {
-        String rutaImagen = Utils.obtenerRutaImagenPorGenero(
-            pelicula.getGeneros().isEmpty() ? "" : pelicula.getGeneros().get(0).getNombreGenero()
-        );
+        String nombreGenero = "";
+        if (pelicula.getGeneros() != null && !pelicula.getGeneros().isEmpty()) {
+            nombreGenero = pelicula.getGeneros().get(0).getNombreGenero();
+        }
+        String rutaImagen = Utils.obtenerRutaImagenPorGenero(nombreGenero);
 
         Image image = new Image(
             getClass().getResource(rutaImagen).toExternalForm(), 
