@@ -80,6 +80,19 @@ public class Navigation {
             }
 
             primaryStage.setScene(scene);
+
+            // Cuando se carga una vista que no es de login/registro, se asume que es la principal.
+            if (fxml.equals("login.fxml") || fxml.equals("register.fxml")) {
+                primaryStage.setResizable(false);
+                primaryStage.setMaximized(false); // Salir del modo maximizado si se vuelve al login
+                primaryStage.sizeToScene();
+                primaryStage.centerOnScreen();
+            } else {
+                // Para la vista principal (MainController), maximizar la ventana.
+                primaryStage.setResizable(true);
+                primaryStage.setMaximized(true);
+            }
+
             primaryStage.show();
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Error al cargar FXML para la escena " + fxml, e);

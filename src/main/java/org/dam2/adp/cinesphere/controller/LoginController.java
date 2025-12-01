@@ -164,7 +164,7 @@ public class LoginController {
      */
     private boolean establecerConexion() {
         String seleccion = cbBaseDatos.getValue();
-        // Operador ternario para seleccionar configuración
+
         String archivoConfig = seleccion.startsWith("SQLite")
                 ? "config-sqlite.properties"
                 : "config-postgres.properties";
@@ -172,7 +172,7 @@ public class LoginController {
         logger.log(Level.INFO, "Conectando a: " + seleccion);
 
         try {
-            Conexion.getInstance().disconnect(); // Aseguramos desconexión previa
+            Conexion.getInstance().disconnect();
             Conexion.getInstance().connect(archivoConfig);
             DatabaseSchema.inicializar();
             crearAdminPorDefecto();
