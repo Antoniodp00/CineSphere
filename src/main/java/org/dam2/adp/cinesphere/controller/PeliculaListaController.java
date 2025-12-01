@@ -45,13 +45,16 @@ public class PeliculaListaController {
     private final GeneroDAO generoDAO = new GeneroDAO();
 
     private int page = 1;
-    private int pageSize = 18; // Default
+    private int pageSize = 18;
     private int totalPages = 1;
 
-    private MovieCard selectedMovieCard = null; // Para gestionar el efecto neon-glow
+    private MovieCard selectedMovieCard = null;
 
     private static final Logger logger = Logger.getLogger(PeliculaListaController.class.getName());
 
+    /**
+     * Inicializa el controlador, configurando los listeners y cargando la primera página de películas.
+     */
     @FXML
     private void initialize() {
         logger.log(Level.INFO, "Inicializando PeliculaListaController...");
@@ -92,6 +95,10 @@ public class PeliculaListaController {
         logger.log(Level.INFO, "PeliculaListaController inicializado.");
     }
 
+    /**
+     * Cambia a una página específica si está dentro de los límites.
+     * @param nuevaPagina El número de la página a la que se quiere navegar.
+     */
     private void cambiarPagina(int nuevaPagina) {
         if (nuevaPagina >= 1 && nuevaPagina <= totalPages) {
             page = nuevaPagina;
@@ -99,17 +106,24 @@ public class PeliculaListaController {
         }
     }
 
+    /**
+     * Ajusta el número de películas por página basándose en el ancho del ScrollPane.
+     * @param scrollWidth El ancho actual del ScrollPane.
+     */
     private void ajustarPageSize(double scrollWidth) {
         if (scrollWidth <= 0) {
             pageSize = 18;
             return;
         }
-        int cardWidth = 200; // Ancho de la tarjeta + hgap
+        int cardWidth = 200;
         int numColumns = (int) Math.floor(scrollWidth / cardWidth);
         if (numColumns == 0) numColumns = 1;
         pageSize = numColumns * 3;
     }
 
+    /**
+     * Calcula y actualiza el número total de páginas basándose en los filtros actuales.
+     */
     private void actualizarTotalPaginas() {
         try {
             int total = peliculaDAO.countPeliculas(filtroYear, filtroRating, filtroGeneroId);
@@ -121,10 +135,14 @@ public class PeliculaListaController {
         }
     }
 
+    /**
+     * Carga y muestra las películas de una página específica, aplicando los filtros actuales.
+     * @param pagina El número de página a cargar.
+     */
     private void cargarPagina(int pagina) {
         try {
             tilePeliculas.getChildren().clear();
-            selectedMovieCard = null; // Resetear la selección al cargar nueva página
+            selectedMovieCard = null;
             List<Pelicula> lista;
 
             if (filtroYear != null || filtroRating != null || filtroGeneroId != null) {
@@ -153,6 +171,10 @@ public class PeliculaListaController {
         }
     }
 
+    /**
+     * Inicia una búsqueda por título de película.
+     * @param filtro El texto a buscar en los títulos de las películas.
+     */
     private void buscar(String filtro) {
         try {
             List<Pelicula> todas = peliculaDAO.findAllLazy();
@@ -161,7 +183,7 @@ public class PeliculaListaController {
                     .toList();
 
             tilePeliculas.getChildren().clear();
-            selectedMovieCard = null; // Resetear la selección al buscar
+            selectedMovieCard = null;
             for (Pelicula p : filtradas) {
                 MovieCard card = new MovieCard(p);
                 card.setOnMouseClicked(event -> {
@@ -180,6 +202,9 @@ public class PeliculaListaController {
         }
     }
 
+    /**
+     * Aplica los filtros seleccionados en los ComboBox y recarga la vista.
+     */
     private void aplicarFiltros() {
         filtroYear = cbYear.getValue();
         filtroRating = cbRating.getValue();
@@ -197,6 +222,9 @@ public class PeliculaListaController {
         cargarPagina(page);
     }
 
+    /**
+     * Limpia todos los filtros aplicados y recarga la vista a su estado inicial.
+     */
     private void limpiarFiltros() {
         cbYear.setValue(null);
         cbRating.setValue(null);

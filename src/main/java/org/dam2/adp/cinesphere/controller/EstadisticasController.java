@@ -41,7 +41,6 @@ public class EstadisticasController {
         Usuario usuario = SessionManager.getInstance().getUsuarioActual();
         if (usuario == null) {
             logger.log(Level.WARNING, "No hay usuario en sesión. Mostrando estadísticas vacías.");
-            // No hay usuario en sesión, evita NPE y muestra ceros
             setKPIs(0, 0, 0);
             pieEstados.setData(FXCollections.observableArrayList());
             barGeneros.setData(FXCollections.observableArrayList());

@@ -49,7 +49,7 @@ public class Utils {
             case "War":
                 return "/img/War.png";
             case "Mystery":
-                return "/img/Mistey.png"; // Ojo: tu archivo se llama "Mistey.png"
+                return "/img/Mistey.png";
             case "History":
                 return "/img/History.png";
             case "Western":
@@ -61,7 +61,7 @@ public class Utils {
             case "Film-Noir":
                 return "/img/Film-noir.png";
             case "Musical":
-                return "/img/musical.png"; // Ojo: tu archivo empieza con minúscula
+                return "/img/musical.png";
             default:
                 return "/img/noImage.png";
         }
@@ -82,25 +82,23 @@ public class Utils {
 
         LocalDate fechaActual = LocalDate.now();
 
-        // Validar que no sea fecha futura
         if (fechaNacimiento.isAfter(fechaActual)) {
             return false;
         }
 
-        // Calcular edad y comparar
         int edad = Period.between(fechaNacimiento, fechaActual).getYears();
         return edad >= edadMinima;
     }
 
     /**
      * Valida el formato de un correo electrónico usando expresiones regulares.
-     * * @param email El texto del correo a validar.
+     * @param email El texto del correo a validar.
      * @return true si el formato es correcto, false si es nulo o incorrecto.
      */
     public static boolean esEmailValido(String email) {
         if (email == null || email.isBlank()) {
             return false;
         }
-        return EMAIL_REGEX.matches(email);
+        return email.matches(EMAIL_REGEX);
     }
 }

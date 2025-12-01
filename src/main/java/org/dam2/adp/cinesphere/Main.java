@@ -4,6 +4,7 @@ import atlantafx.base.theme.Dracula;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.dam2.adp.cinesphere.database.Conexion;
+import org.dam2.adp.cinesphere.util.log.LoggingConfig; // Importar la clase
 import org.dam2.adp.cinesphere.util.Navigation;
 
 import java.util.logging.Level;
@@ -23,6 +24,9 @@ public class Main extends Application {
      */
     @Override
     public void start(Stage stage) throws Exception {
+        // Configurar el sistema de logging ANTES de cualquier otra cosa
+        LoggingConfig.setup();
+
         Application.setUserAgentStylesheet(new Dracula().getUserAgentStylesheet());
         logger.log(Level.INFO, "Iniciando la aplicación CineSphere...");
         Navigation.setStage(stage);

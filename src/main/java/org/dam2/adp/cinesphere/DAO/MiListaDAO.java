@@ -13,7 +13,6 @@ import java.util.*;
  */
 public class MiListaDAO {
 
-    // CRUD BASICO
     private static final String SQL_INSERT =
             "INSERT INTO milista(idusuario, idpelicula, estado, puntuacion, urlimg, fecha_anadido) VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -32,7 +31,6 @@ public class MiListaDAO {
     private static final String SQL_DELETE =
             "DELETE FROM milista WHERE idusuario=? AND idpelicula=?";
 
-    // Estadisticas
     private static final String SQL_COUNT_GUARDADAS =
             "SELECT COUNT(*) FROM milista WHERE idusuario = ?";
 
@@ -48,8 +46,6 @@ public class MiListaDAO {
     private static final String SQL_COUNT_GENEROS_BY_USER =
             "SELECT g.nombregenero, COUNT(*) AS total FROM milista m JOIN peliculagenero pg ON m.idpelicula = pg.idpelicula JOIN genero g ON g.idgenero = pg.idgenero WHERE m.idusuario = ? GROUP BY g.nombregenero ORDER BY total DESC";
 
-    // Filtrado
-    // JOIN con milista para restringir resultados solo al usuario
     private static final String SQL_FILTER_BASE =
             "SELECT DISTINCT p.* FROM pelicula p JOIN milista ml ON p.idpelicula = ml.idpelicula ";
 
@@ -58,7 +54,7 @@ public class MiListaDAO {
 
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
-    private final PeliculaDAO peliculaDAO = new PeliculaDAO(); // Se usa para reutilizar mapeos
+    private final PeliculaDAO peliculaDAO = new PeliculaDAO();
 
 
     /**
@@ -166,7 +162,6 @@ public class MiListaDAO {
             }
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
-                    // REUTILIZACIÓN: Usamos el mapeo estándar de PeliculaDAO
                     lista.add(peliculaDAO.mapeoPelicula(rs));
                 }
             }
@@ -317,7 +312,6 @@ public class MiListaDAO {
                             PeliculaEstado estado = PeliculaEstado.fromString(estadoStr);
                             mapa.put(estado, total);
                         } catch (IllegalArgumentException ex) {
-                            // Ignorar estados inválidos/antiguos
                         }
                     }
                 }

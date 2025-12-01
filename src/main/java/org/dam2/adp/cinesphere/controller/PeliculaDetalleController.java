@@ -120,6 +120,7 @@ public class PeliculaDetalleController {
 
     /**
      * Controla la habilitación del selector de puntuación basándose en el estado de la película.
+     * @param estado El estado actual de la película.
      */
     private void gestionarAccesibilidadPuntuacion(PeliculaEstado estado) {
         boolean esVista = (estado == PeliculaEstado.TERMINADA);
@@ -129,6 +130,7 @@ public class PeliculaDetalleController {
 
     /**
      * Recupera la información de la película desde la base de datos y actualiza la interfaz gráfica.
+     * @param idPelicula El ID de la película a cargar.
      */
     private void cargarDatos(int idPelicula) {
         logger.log(Level.INFO, "Cargando datos para la película ID: " + idPelicula);
@@ -183,6 +185,7 @@ public class PeliculaDetalleController {
 
     /**
      * Sincroniza los controles de UI con el estado actual de la película en la lista del usuario.
+     * @throws Exception si ocurre un error al acceder a la base de datos.
      */
     private void actualizarEstadoMiLista() throws Exception {
         MiLista ml = miListaDAO.findAll(usuario.getIdUsuario(), pelicula.getIdPelicula());
@@ -223,6 +226,7 @@ public class PeliculaDetalleController {
 
     /**
      * Actualiza el estado de visualización de la película en la base de datos.
+     * @param estado El nuevo estado de la película.
      */
     private void cambiarEstado(PeliculaEstado estado) {
         try {
@@ -235,6 +239,7 @@ public class PeliculaDetalleController {
 
     /**
      * Actualiza la puntuación personal de la película en la base de datos.
+     * @param puntuacion La nueva puntuación de la película.
      */
     private void cambiarPuntuacion(int puntuacion) {
         try {

@@ -9,16 +9,19 @@ import javafx.scene.control.Label;
  */
 public class Chip extends Label {
 
+    /**
+     * Constructor del componente Chip.
+     * @param text El texto que se mostrará en el chip.
+     */
     public Chip(String text) {
         super(text);
         initialize();
     }
 
+    /**
+     * Inicializa el estilo del componente.
+     */
     private void initialize() {
         getStyleClass().addAll("chip", Styles.TEXT_SMALL);
-        // Si necesitas que el texto sea visible, asegúrate de que no haya un GRAPHIC_ONLY
-        // Si el estilo CSS global tiene GRAPHIC_ONLY, este componente lo heredará.
-        // Si quieres forzar el texto, podrías añadir:
-        // setContentDisplay(ContentDisplay.TEXT_ONLY);
     }
 }

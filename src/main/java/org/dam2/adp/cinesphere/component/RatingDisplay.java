@@ -11,29 +11,36 @@ import javafx.scene.layout.HBox;
  */
 public class RatingDisplay extends HBox {
 
+    /**
+     * Constructor del componente RatingDisplay.
+     * @param rating El rating numérico (de 0 a 10) a mostrar.
+     */
     public RatingDisplay(Double rating) {
-        super(2); // Espaciado de 2px entre elementos
+        super(2);
         initialize(rating);
     }
 
+    /**
+     * Inicializa y construye el componente visual de rating.
+     * @param rating El rating numérico a visualizar.
+     */
     private void initialize(Double rating) {
         getStyleClass().add("rating");
         setAlignment(Pos.CENTER_LEFT);
 
         int numStars = 5;
-        int filledStars = (rating != null) ? (int) (rating / 2) : 0; // Convertir rating 0-10 a 0-5 estrellas
+        int filledStars = (rating != null) ? (int) (rating / 2) : 0;
 
         for (int i = 0; i < numStars; i++) {
             Button star = new Button("★");
             star.getStyleClass().addAll("button", Styles.FLAT);
-            star.setDisable(true); // Las estrellas no son interactivas aquí
+            star.setDisable(true);
             if (i < filledStars) {
                 star.getStyleClass().add("strong");
             }
             getChildren().add(star);
         }
 
-        // Mostrar el rating numérico al lado
         if (rating != null) {
             Label ratingValue = new Label(String.format("%.1f", rating));
             ratingValue.getStyleClass().addAll(Styles.TEXT_SMALL, Styles.TEXT_MUTED);

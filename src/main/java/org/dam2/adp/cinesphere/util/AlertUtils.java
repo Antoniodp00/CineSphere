@@ -7,7 +7,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
-import javafx.scene.Scene; // Importar Scene
+import javafx.scene.Scene;
 
 import java.util.Optional;
 import java.util.logging.Level;
@@ -25,10 +25,8 @@ public class AlertUtils {
      * @param alert La alerta a la que aplicar el estilo.
      */
     private static void applyGlobalStyle(Alert alert) {
-        // Obtener la escena del DialogPane de la alerta
         Scene scene = alert.getDialogPane().getScene();
         if (scene != null) {
-            // Asegurarse de que la hoja de estilos no se añada múltiples veces
             String cssPath = AlertUtils.class.getResource("/style.css").toExternalForm();
             if (!scene.getStylesheets().contains(cssPath)) {
                 scene.getStylesheets().add(cssPath);
@@ -58,13 +56,17 @@ public class AlertUtils {
         alert.setContentText(mensaje);
         alert.setResizable(true);
 
-        applyGlobalStyle(alert); // Aplicar estilo
+        applyGlobalStyle(alert);
 
         alert.showAndWait();
     }
 
     /**
-     * Método interno para construir una alerta robusta con TextArea.
+     * Método interno para construir y mostrar una alerta personalizada y robusta.
+     * @param tipo El tipo de alerta (ERROR, INFORMATION, etc.).
+     * @param titulo El título de la ventana de la alerta.
+     * @param cabecera El texto de la cabecera de la alerta.
+     * @param contenido El mensaje principal, que se mostrará en un TextArea.
      */
     private static void mostrarAlertaPersonalizada(Alert.AlertType tipo, String titulo, String cabecera, String contenido) {
         Alert alert = new Alert(tipo);
@@ -89,7 +91,7 @@ public class AlertUtils {
 
         alert.getDialogPane().setContent(expContent);
 
-        applyGlobalStyle(alert); // Aplicar estilo
+        applyGlobalStyle(alert);
 
         Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
         stage.setAlwaysOnTop(true);
@@ -111,7 +113,7 @@ public class AlertUtils {
         alert.setHeaderText(header);
         alert.setContentText(content);
 
-        applyGlobalStyle(alert); // Aplicar estilo
+        applyGlobalStyle(alert);
 
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == ButtonType.OK;

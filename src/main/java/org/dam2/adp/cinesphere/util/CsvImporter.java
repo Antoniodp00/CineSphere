@@ -26,19 +26,16 @@ public class CsvImporter {
             "Duration", "Censor-board-rating", "ReleaseYear"
     );
 
-    // DAOs
     private static final PeliculaDAO peliculaDAO = new PeliculaDAO();
     private static final DirectorDAO directorDAO = new DirectorDAO();
     private static final ActorDAO actorDAO = new ActorDAO();
     private static final GeneroDAO generoDAO = new GeneroDAO();
     private static final ClasificacionDAO clasificacionDAO = new ClasificacionDAO();
 
-    // DAOs de relación
     private static final PeliculaDirectorDAO peliculaDirectorDAO = new PeliculaDirectorDAO();
     private static final PeliculaActorDAO peliculaActorDAO = new PeliculaActorDAO();
     private static final PeliculaGeneroDAO peliculaGeneroDAO = new PeliculaGeneroDAO();
 
-    // Cachés para minimizar consultas a BBDD durante la carga masiva
     private static final Map<String, Director> cacheDirectores = new HashMap<>();
     private static final Map<String, Actor> cacheActores = new HashMap<>();
     private static final Map<String, Genero> cacheGeneros = new HashMap<>();

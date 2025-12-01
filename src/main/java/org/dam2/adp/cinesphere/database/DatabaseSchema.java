@@ -22,19 +22,13 @@ public class DatabaseSchema {
             boolean isSQLite = Conexion.getInstance().isSQLite();
             logger.log(Level.INFO, "Iniciando inicialización del esquema para " + (isSQLite ? "SQLite" : "PostgreSQL"));
 
-            // Definimos la sintaxis del ID según la base de datos
             String AUTO_INCREMENT = isSQLite ? "INTEGER PRIMARY KEY AUTOINCREMENT" : "SERIAL PRIMARY KEY";
-
-            // SQLite no tiene tipo 'BOOL', se usa INTEGER (0/1), aunque suele tragar BOOLEAN.
-            // PostgreSQL usa DOUBLE PRECISION, SQLite usa REAL o DOUBLE. (DOUBLE funciona en ambos).
 
             Statement stmt = conn.createStatement();
 
-            // 1. Tablas Catálogo
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS clasificacion (nombreclasificacion VARCHAR(50) PRIMARY KEY)");
             logger.log(Level.FINE, "Tabla 'clasificacion' creada o ya existente.");
 
-            // Usamos la variable AUTO_INCREMENT en lugar de 'SERIAL PRIMARY KEY'
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS genero (idgenero " + AUTO_INCREMENT + ", nombregenero VARCHAR(100) NOT NULL)");
             logger.log(Level.FINE, "Tabla 'genero' creada o ya existente.");
 
@@ -44,7 +38,6 @@ public class DatabaseSchema {
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS director (iddirector " + AUTO_INCREMENT + ", nombredirector VARCHAR(100) NOT NULL)");
             logger.log(Level.FINE, "Tabla 'director' creada o ya existente.");
 
-            // 2. Tabla Usuario
             stmt.executeUpdate("""
                 CREATE TABLE IF NOT EXISTS usuario (
                     idusuario %s,
@@ -54,10 +47,9 @@ public class DatabaseSchema {
                     borndate DATE,
                     rol VARCHAR(20) DEFAULT 'USER'
                 )
-            """.formatted(AUTO_INCREMENT)); // Usamos formatted para inyectar el tipo de ID
+            """.formatted(AUTO_INCREMENT));
             logger.log(Level.FINE, "Tabla 'usuario' creada o ya existente.");
 
-            // 3. Tabla Película
             stmt.executeUpdate("""
                 CREATE TABLE IF NOT EXISTS pelicula (
                     idpelicula %s,
@@ -70,8 +62,6 @@ public class DatabaseSchema {
             """.formatted(AUTO_INCREMENT));
             logger.log(Level.FINE, "Tabla 'pelicula' creada o ya existente.");
 
-            // 4. Tablas Intermedias
-            // Pelicula - Genero
             stmt.executeUpdate("""
                 CREATE TABLE IF NOT EXISTS peliculagenero (
                     idpelicula INTEGER NOT NULL,
@@ -83,7 +73,6 @@ public class DatabaseSchema {
             """);
             logger.log(Level.FINE, "Tabla 'peliculagenero' creada o ya existente.");
 
-            // Pelicula - Actor
             stmt.executeUpdate("""
                 CREATE TABLE IF NOT EXISTS peliculaactor (
                     idpelicula INTEGER NOT NULL,
@@ -95,7 +84,6 @@ public class DatabaseSchema {
             """);
             logger.log(Level.FINE, "Tabla 'peliculaactor' creada o ya existente.");
 
-            // Pelicula - Director
             stmt.executeUpdate("""
                 CREATE TABLE IF NOT EXISTS peliculadirector (
                     idpelicula INTEGER NOT NULL,
@@ -107,8 +95,6 @@ public class DatabaseSchema {
             """);
             logger.log(Level.FINE, "Tabla 'peliculadirector' creada o ya existente.");
 
-            // 5. Tabla MiLista
-            // Nota: TIMESTAMP DEFAULT CURRENT_TIMESTAMP funciona en ambos
             stmt.executeUpdate("""
                 CREATE TABLE IF NOT EXISTS milista (
                     idusuario INTEGER NOT NULL,

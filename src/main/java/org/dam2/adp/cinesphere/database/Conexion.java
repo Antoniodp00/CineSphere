@@ -60,11 +60,8 @@ public class Conexion {
 
             Class.forName(driver);
 
-            // --- LÓGICA ESPECÍFICA PARA SQLITE ---
             if (url.startsWith("jdbc:sqlite")) {
                 logger.log(Level.INFO, "Detectada base de datos SQLite.");
-                // Asegurar que la carpeta existe para evitar error de "path not found"
-                // Asumiendo url tipo "jdbc:sqlite:database/archivo.db"
                 File dbDir = new File("database");
                 if (!dbDir.exists()) {
                     dbDir.mkdirs();
@@ -73,14 +70,12 @@ public class Conexion {
 
                 connection = DriverManager.getConnection(url);
 
-                // Activar Foreign Keys en SQLite (por defecto están OFF)
                 try (Statement st = connection.createStatement()) {
                     st.execute("PRAGMA foreign_keys = ON");
                     logger.log(Level.INFO, "PRAGMA foreign_keys = ON ejecutado para SQLite.");
                 }
 
             } else {
-                // Lógica PostgreSQL (o MySQL)
                 logger.log(Level.INFO, "Conectando a base de datos SQL estándar.");
                 connection = DriverManager.getConnection(url, user, password);
             }

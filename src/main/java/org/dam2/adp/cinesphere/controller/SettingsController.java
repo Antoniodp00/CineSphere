@@ -195,7 +195,6 @@ public class SettingsController {
             };
 
             if (rutaRecurso != null) {
-                // Llamada síncrona directa: Recurso = true
                 ejecutarImportacion(rutaRecurso, true);
             } else {
                 AlertUtils.error("Recurso no encontrado para: " + seleccion);
@@ -204,7 +203,7 @@ public class SettingsController {
     }
 
     /**
-     * Ejecuta la importación en el hilo principal (Síncrono, sin Task/Thread).
+     * Ejecuta la importación en el hilo principal.
      * @param ruta Ruta del archivo o recurso.
      * @param esRecursoInterno true si está en el classpath, false si es disco local.
      */
@@ -232,7 +231,6 @@ public class SettingsController {
             AlertUtils.error("Error al importar: " + e.getMessage());
             lblEstadoLocal.setText("Error en la importación.");
         } finally {
-            // Siempre reactivamos los botones
             btnImportarLocal.setDisable(false);
             btnCargarPredeterminado.setDisable(false);
         }
@@ -247,15 +245,12 @@ public class SettingsController {
         colEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
         colRol.setCellValueFactory(new PropertyValueFactory<>("rol"));
 
-        // Habilitar selección de una sola fila
         tablaUsuarios.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
-        // Deshabilitar botones de acción inicialmente
         btnHacerAdmin.setDisable(true);
         btnHacerUser.setDisable(true);
         btnEliminarUsuario.setDisable(true);
 
-        // Listener para habilitar/deshabilitar botones según la selección
         tablaUsuarios.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             boolean isSelected = newSelection != null;
             btnHacerAdmin.setDisable(!isSelected);

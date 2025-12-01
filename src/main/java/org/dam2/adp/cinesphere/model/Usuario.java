@@ -15,7 +15,7 @@ public class Usuario {
     private LocalDate bornDate;
     private Rol rol;
 
-    // RELACIÓN EAGER opcional
+
     private List<MiLista> misPeliculas;
 
     /**

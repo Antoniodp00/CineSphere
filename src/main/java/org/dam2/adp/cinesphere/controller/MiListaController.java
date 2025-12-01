@@ -54,6 +54,9 @@ public class MiListaController {
 
     private static final Logger logger = Logger.getLogger(MiListaController.class.getName());
 
+    /**
+     * Inicializa el controlador, configurando los listeners y cargando la primera página de películas.
+     */
     @FXML
     private void initialize() {
         logger.log(Level.INFO, "Inicializando MiListaController...");
@@ -93,6 +96,10 @@ public class MiListaController {
         logger.log(Level.INFO, "MiListaController inicializado correctamente.");
     }
 
+    /**
+     * Cambia a una página específica si está dentro de los límites.
+     * @param nuevaPagina El número de la página a la que se quiere navegar.
+     */
     private void cambiarPagina(int nuevaPagina) {
         if (nuevaPagina >= 1 && nuevaPagina <= totalPages) {
             page = nuevaPagina;
@@ -100,17 +107,24 @@ public class MiListaController {
         }
     }
 
+    /**
+     * Ajusta el número de películas por página basándose en el ancho del ScrollPane.
+     * @param scrollWidth El ancho actual del ScrollPane.
+     */
     private void ajustarPageSize(double scrollWidth) {
         if (scrollWidth <= 0) {
             pageSize = 18;
             return;
         }
-        int cardWidth = 200; // Ancho de la tarjeta + hgap
+        int cardWidth = 200;
         int numColumns = (int) Math.floor(scrollWidth / cardWidth);
         if (numColumns == 0) numColumns = 1;
         pageSize = numColumns * 3;
     }
 
+    /**
+     * Calcula y actualiza el número total de páginas basándose en los filtros actuales.
+     */
     private void actualizarTotalPaginas() {
         try {
             int total = miListaDAO.countPeliculas(usuario.getIdUsuario(), filtroYear, filtroRating, filtroGeneroId, filtroBusqueda);
@@ -122,6 +136,10 @@ public class MiListaController {
         }
     }
 
+    /**
+     * Inicia una búsqueda por título de película.
+     * @param filtro El texto a buscar en los títulos de las películas.
+     */
     private void buscar(String filtro) {
         this.filtroBusqueda = filtro;
         page = 1;
@@ -129,6 +147,10 @@ public class MiListaController {
         cargarPagina(page);
     }
 
+    /**
+     * Carga y muestra las películas de una página específica, aplicando los filtros actuales.
+     * @param pagina El número de página a cargar.
+     */
     private void cargarPagina(int pagina) {
         try {
             tilePeliculas.getChildren().clear();
@@ -144,6 +166,9 @@ public class MiListaController {
         }
     }
 
+    /**
+     * Aplica los filtros seleccionados en los ComboBox y recarga la vista.
+     */
     private void aplicarFiltros() {
         filtroYear = cbYear.getValue();
         filtroRating = cbRating.getValue();
@@ -162,6 +187,9 @@ public class MiListaController {
         cargarPagina(page);
     }
 
+    /**
+     * Limpia todos los filtros aplicados y recarga la vista a su estado inicial.
+     */
     private void limpiarFiltros() {
         cbYear.setValue(null);
         cbRating.setValue(null);

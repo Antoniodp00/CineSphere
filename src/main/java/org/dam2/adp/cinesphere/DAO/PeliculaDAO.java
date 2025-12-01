@@ -45,7 +45,6 @@ public class PeliculaDAO {
             """;
 
 
-    //Consultas para el filtrado
     private static final String SQL_FILTER_SELECT = "SELECT DISTINCT p.* FROM pelicula p ";
     private static final String SQL_FILTER_JOIN_GENERO = "JOIN peliculagenero pg ON p.idpelicula = pg.idpelicula ";
     private static final String SQL_FILTER_BASE_WHERE = "WHERE 1=1 ";
@@ -201,7 +200,7 @@ public class PeliculaDAO {
             st.setInt(2, offset);
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
-                    Pelicula p = mapeoPelicula(rs); // Extraemos el mapeo a un método helper
+                    Pelicula p = mapeoPelicula(rs);
                     lista.add(p);
                 }
             }

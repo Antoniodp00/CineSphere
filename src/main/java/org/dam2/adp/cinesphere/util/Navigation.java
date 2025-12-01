@@ -20,21 +20,30 @@ public class Navigation {
     private static MainController mainController;
     private static final Logger logger = Logger.getLogger(Navigation.class.getName());
 
-    // --- CAMBIO 1: DEFINIR LA RUTA DE TU CSS PERSONALIZADO ---
-    // Asegúrate de que "styles.css" esté en la raíz de src/main/resources
-    // Si lo tienes en una carpeta, cambia esto a "/css/styles.css" o "/org/dam2/.../styles.css"
     private static final String STYLES_PATH = "/style.css";
 
+    /**
+     * Establece el escenario principal de la aplicación.
+     * @param stage El escenario principal.
+     */
     public static void setStage(Stage stage) {
         primaryStage = stage;
         logger.log(Level.INFO, "Primary stage establecido.");
     }
 
+    /**
+     * Establece el controlador principal de la aplicación.
+     * @param controller El controlador principal.
+     */
     public static void setMainController(MainController controller) {
         mainController = controller;
         logger.log(Level.INFO, "Main controller establecido.");
     }
 
+    /**
+     * Navega a una vista dentro del área de contenido principal.
+     * @param fxml El archivo FXML de la vista a cargar.
+     */
     public static void navigate(String fxml) {
         logger.log(Level.INFO, "Navegando a sub-vista: " + fxml);
         if (mainController != null) {
@@ -46,7 +55,8 @@ public class Navigation {
     }
 
     /**
-     * Cambia la escena actual por una nueva e INYECTA EL CSS PERSONALIZADO.
+     * Cambia la escena actual por una nueva e inyecta el CSS personalizado.
+     * @param fxml El archivo FXML de la escena a cargar.
      */
     public static void switchScene(String fxml) {
         if (primaryStage == null) {
@@ -56,13 +66,11 @@ public class Navigation {
         try {
             logger.log(Level.INFO, "Cambiando a la escena completa: " + fxml);
 
-            // Nota: Asumo que tus vistas están en /view/. Ajusta si es diferente.
             FXMLLoader loader = new FXMLLoader(Navigation.class.getResource("/view/" + fxml));
             Parent root = loader.load();
 
             Scene scene = new Scene(root);
 
-            // --- CAMBIO 2: CARGAR EL CSS PERSONALIZADO (OVERRIDE) ---
             URL cssUrl = Navigation.class.getResource(STYLES_PATH);
             if (cssUrl != null) {
                 scene.getStylesheets().add(cssUrl.toExternalForm());
@@ -70,7 +78,6 @@ public class Navigation {
             } else {
                 logger.log(Level.WARNING, "No se encontró el archivo de estilos en: " + STYLES_PATH);
             }
-            // --------------------------------------------------------
 
             primaryStage.setScene(scene);
             primaryStage.show();
