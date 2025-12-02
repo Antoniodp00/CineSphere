@@ -23,10 +23,9 @@ public class Main extends Application {
      */
     @Override
     public void start(Stage stage) throws Exception {
-        // Configurar el sistema de logging ANTES de cualquier otra cosa
+
         LoggingConfig.setup();
 
-        // Aplicar los estilos base de la aplicación (AtlantaFX)
         Navigation.applyApplicationStyles();
 
         logger.log(Level.INFO, "Iniciando la aplicación CineSphere...");

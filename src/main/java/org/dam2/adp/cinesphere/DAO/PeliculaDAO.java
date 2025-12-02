@@ -36,24 +36,14 @@ public class PeliculaDAO {
             """;
     private static final String SQL_DELETE =
             "DELETE FROM pelicula WHERE idpelicula=?";
-    private static final String SQL_COUNT_BASE = "SELECT COUNT(DISTINCT p.idpelicula) FROM pelicula p ";
     private static final String SQL_FIND_GENEROS_LOTE = """
             SELECT pg.idpelicula, g.idgenero, g.nombregenero
             FROM peliculagenero pg
             JOIN genero g ON pg.idgenero = g.idgenero
             WHERE pg.idpelicula IN (%s)
             """;
-
-
+    private static final String SQL_COUNT_BASE = "SELECT COUNT(DISTINCT p.idpelicula) FROM pelicula p ";
     private static final String SQL_FILTER_SELECT = "SELECT DISTINCT p.* FROM pelicula p ";
-    private static final String SQL_FILTER_JOIN_GENERO = "JOIN peliculagenero pg ON p.idpelicula = pg.idpelicula ";
-    private static final String SQL_FILTER_BASE_WHERE = "WHERE 1=1 ";
-
-    private static final String SQL_FILTER_AND_YEAR = "AND p.yearpelicula = ? ";
-    private static final String SQL_FILTER_AND_RATING = "AND p.ratingpelicula >= ? ";
-    private static final String SQL_FILTER_AND_GENERO = "AND pg.idgenero = ? ";
-    private static final String SQL_FILTER_AND_TITULO = "AND LOWER(p.titulopelicula) LIKE LOWER(?) ";
-
     private static final String SQL_FILTER_PAGINATION = "ORDER BY p.idpelicula LIMIT ? OFFSET ?";
 
 
@@ -224,36 +214,11 @@ public class PeliculaDAO {
     public int countPeliculas(Integer year, Double ratingMin, Integer idGenero, String filtroTitulo) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
 
-        StringBuilder sql = new StringBuilder(SQL_COUNT_BASE);
-        List<Object> params = new ArrayList<>();
+        FiltroContexto contexto = construirCondicionesFiltro(year, ratingMin, idGenero, filtroTitulo);
+        String sql = SQL_COUNT_BASE + contexto.sqlPart;
 
-        if (idGenero != null) {
-            sql.append(SQL_FILTER_JOIN_GENERO);
-        }
-
-        sql.append(SQL_FILTER_BASE_WHERE);
-
-        if (year != null) {
-            sql.append(SQL_FILTER_AND_YEAR);
-            params.add(year);
-        }
-        if (ratingMin != null) {
-            sql.append(SQL_FILTER_AND_RATING);
-            params.add(ratingMin);
-        }
-        if (idGenero != null) {
-            sql.append(SQL_FILTER_AND_GENERO);
-            params.add(idGenero);
-        }
-        if (filtroTitulo != null && !filtroTitulo.isBlank()) {
-            sql.append(SQL_FILTER_AND_TITULO);
-            params.add("%" + filtroTitulo + "%");
-        }
-
-        try (PreparedStatement st = conn.prepareStatement(sql.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                st.setObject(i + 1, params.get(i));
-            }
+        try (PreparedStatement st = conn.prepareStatement(sql)) {
+            asignarParametros(st, contexto.params);
 
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
@@ -265,55 +230,29 @@ public class PeliculaDAO {
     }
 
     /**
-     * Obtiene una lista paginada de películas que coinciden con los filtros especificados.
+     * Busca y devuelve una lista paginada de películas aplicando filtros dinámicos.
      *
-     * @param year         el año de la película.
-     * @param ratingMin    el rating mínimo de la película.
-     * @param idGenero     el ID del género de la película.
-     * @param filtroTitulo el título a buscar.
-     * @param page         el número de página a obtener.
-     * @param pageSize     el tamaño de la página.
-     * @return una lista de películas que coinciden con los filtros.
+     * @param year         El año para filtrar (opcional).
+     * @param ratingMin    El rating mínimo para filtrar (opcional).
+     * @param idGenero     El ID del género para filtrar (opcional).
+     * @param filtroTitulo El término de búsqueda para el título (opcional).
+     * @param page         El número de página para la paginación.
+     * @param pageSize     El tamaño de cada página.
+     * @return Una lista de objetos {@link Pelicula} que coinciden con los criterios.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public List<Pelicula> findFiltered(Integer year, Double ratingMin, Integer idGenero, String filtroTitulo, int page, int pageSize) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
         List<Pelicula> lista = new ArrayList<>();
 
-        StringBuilder sql = new StringBuilder(SQL_FILTER_SELECT);
-        List<Object> params = new ArrayList<>();
+        FiltroContexto contexto = construirCondicionesFiltro(year, ratingMin, idGenero, filtroTitulo);
+        String sql = SQL_FILTER_SELECT + contexto.sqlPart + SQL_FILTER_PAGINATION;
 
-        if (idGenero != null) {
-            sql.append(SQL_FILTER_JOIN_GENERO);
-        }
+        contexto.params.add(pageSize);
+        contexto.params.add((page - 1) * pageSize);
 
-        sql.append(SQL_FILTER_BASE_WHERE);
-
-        if (year != null) {
-            sql.append(SQL_FILTER_AND_YEAR);
-            params.add(year);
-        }
-        if (ratingMin != null) {
-            sql.append(SQL_FILTER_AND_RATING);
-            params.add(ratingMin);
-        }
-        if (idGenero != null) {
-            sql.append(SQL_FILTER_AND_GENERO);
-            params.add(idGenero);
-        }
-        if (filtroTitulo != null && !filtroTitulo.isBlank()) {
-            sql.append(SQL_FILTER_AND_TITULO);
-            params.add("%" + filtroTitulo + "%");
-        }
-
-        sql.append(SQL_FILTER_PAGINATION);
-        params.add(pageSize);
-        params.add((page - 1) * pageSize);
-
-        try (PreparedStatement st = conn.prepareStatement(sql.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                st.setObject(i + 1, params.get(i));
-            }
+        try (PreparedStatement st = conn.prepareStatement(sql)) {
+            asignarParametros(st, contexto.params);
 
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
@@ -323,8 +262,77 @@ public class PeliculaDAO {
         }
 
         cargarGenerosEnLote(lista);
-
         return lista;
+    }
+
+    /**
+     * Centraliza la lógica de construcción de las cláusulas SQL dinámicas (JOIN y WHERE) para los filtros.
+     *
+     * @param year         El año para filtrar.
+     * @param ratingMin    El rating mínimo para filtrar.
+     * @param idGenero     El ID del género para filtrar.
+     * @param filtroTitulo El término de búsqueda para el título.
+     * @return Un objeto {@link FiltroContexto} que contiene el fragmento de SQL y la lista de parámetros.
+     */
+    private FiltroContexto construirCondicionesFiltro(Integer year, Double ratingMin, Integer idGenero, String filtroTitulo) {
+        StringBuilder sqlBuilder = new StringBuilder();
+        List<Object> params = new ArrayList<>();
+
+        if (idGenero != null) {
+            sqlBuilder.append("JOIN peliculagenero pg ON p.idpelicula = pg.idpelicula ");
+        }
+
+        List<String> conditions = new ArrayList<>();
+
+        if (year != null) {
+            conditions.add("p.yearpelicula = ?");
+            params.add(year);
+        }
+        if (ratingMin != null) {
+            conditions.add("p.ratingpelicula >= ?");
+            params.add(ratingMin);
+        }
+        if (idGenero != null) {
+            conditions.add("pg.idgenero = ?");
+            params.add(idGenero);
+        }
+        if (filtroTitulo != null && !filtroTitulo.isBlank()) {
+            conditions.add("p.titulopelicula ILIKE ?");
+            params.add("%" + filtroTitulo + "%");
+        }
+
+        if (!conditions.isEmpty()) {
+            sqlBuilder.append("WHERE ").append(String.join(" AND ", conditions));
+        }
+
+        return new FiltroContexto(sqlBuilder.toString(), params);
+    }
+
+    /**
+     * Asigna una lista de parámetros a un PreparedStatement.
+     *
+     * @param st     El PreparedStatement al que se le asignarán los parámetros.
+     * @param params La lista de parámetros a asignar.
+     * @throws SQLException si ocurre un error al asignar un parámetro.
+     */
+    private void asignarParametros(PreparedStatement st, List<Object> params) throws SQLException {
+        for (int i = 0; i < params.size(); i++) {
+            st.setObject(i + 1, params.get(i));
+        }
+    }
+
+    /**
+     * Clase interna para encapsular el resultado de la construcción de filtros:
+     * el fragmento de SQL y la lista de parámetros correspondiente.
+     */
+    private static class FiltroContexto {
+        String sqlPart;
+        List<Object> params;
+
+        public FiltroContexto(String sqlPart, List<Object> params) {
+            this.sqlPart = sqlPart;
+            this.params = params;
+        }
     }
 
     /**
