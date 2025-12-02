@@ -132,7 +132,7 @@ public class CsvImporter {
         p.setYearPelicula(year);
         p.setRatingPelicula(rating);
         p.setDuracionPelicula(duracion);
-        p.setNombreClasificacion(clasificacion.getNombreClasificacion());
+        p.setClasificacion(clasificacion);
 
         peliculaDAO.insert(p);
 

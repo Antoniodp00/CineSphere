@@ -27,7 +27,7 @@ public class AlertUtils {
     private static void applyGlobalStyle(Alert alert) {
         Scene scene = alert.getDialogPane().getScene();
         if (scene != null) {
-            String cssPath = AlertUtils.class.getResource("/style.css").toExternalForm();
+            String cssPath = AlertUtils.class.getResource("/css/style.css").toExternalForm();
             if (!scene.getStylesheets().contains(cssPath)) {
                 scene.getStylesheets().add(cssPath);
             }

@@ -1,5 +1,7 @@
 package org.dam2.adp.cinesphere.util;
 
+import atlantafx.base.theme.Dracula;
+import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,7 +22,7 @@ public class Navigation {
     private static MainController mainController;
     private static final Logger logger = Logger.getLogger(Navigation.class.getName());
 
-    private static final String STYLES_PATH = "/style.css";
+    private static final String CUSTOM_CSS_PATH = "/css/style.css";
 
     /**
      * Establece el escenario principal de la aplicación.
@@ -69,26 +71,19 @@ public class Navigation {
             FXMLLoader loader = new FXMLLoader(Navigation.class.getResource("/view/" + fxml));
             Parent root = loader.load();
 
+            // Aplicar estilos a nivel de aplicación y luego a la escena
+            applyApplicationStyles();
             Scene scene = new Scene(root);
-
-            URL cssUrl = Navigation.class.getResource(STYLES_PATH);
-            if (cssUrl != null) {
-                scene.getStylesheets().add(cssUrl.toExternalForm());
-                logger.log(Level.INFO, "Estilos personalizados cargados: " + STYLES_PATH);
-            } else {
-                logger.log(Level.WARNING, "No se encontró el archivo de estilos en: " + STYLES_PATH);
-            }
+            applyCineSphereStyles(scene);
 
             primaryStage.setScene(scene);
 
-            // Cuando se carga una vista que no es de login/registro, se asume que es la principal.
             if (fxml.equals("login.fxml") || fxml.equals("register.fxml")) {
                 primaryStage.setResizable(false);
-                primaryStage.setMaximized(false); // Salir del modo maximizado si se vuelve al login
+                primaryStage.setMaximized(false);
                 primaryStage.sizeToScene();
                 primaryStage.centerOnScreen();
             } else {
-                // Para la vista principal (MainController), maximizar la ventana.
                 primaryStage.setResizable(true);
                 primaryStage.setMaximized(true);
             }
@@ -96,6 +91,28 @@ public class Navigation {
             primaryStage.show();
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Error al cargar FXML para la escena " + fxml, e);
+        }
+    }
+
+    /**
+     * Aplica los estilos base de la aplicación (AtlantaFX).
+     */
+    public static void applyApplicationStyles() {
+        Application.setUserAgentStylesheet(new Dracula().getUserAgentStylesheet());
+        logger.log(Level.INFO, "Tema Dracula de AtlantaFX aplicado a nivel de aplicación.");
+    }
+
+    /**
+     * Aplica el CSS personalizado de CineSphere a una escena específica.
+     * @param scene La Scene a la que se aplicará el estilo.
+     */
+    public static void applyCineSphereStyles(Scene scene) {
+        URL cssUrl = Navigation.class.getResource(CUSTOM_CSS_PATH);
+        if (cssUrl != null) {
+            scene.getStylesheets().add(cssUrl.toExternalForm());
+            logger.log(Level.INFO, "Estilos personalizados cargados en la escena: " + CUSTOM_CSS_PATH);
+        } else {
+            logger.log(Level.WARNING, "No se encontró el archivo de estilos en: " + CUSTOM_CSS_PATH);
         }
     }
 }

@@ -10,10 +10,7 @@ import org.dam2.adp.cinesphere.DAO.MiListaDAO;
 import org.dam2.adp.cinesphere.DAO.PeliculaDAO;
 import org.dam2.adp.cinesphere.component.Chip;
 import org.dam2.adp.cinesphere.component.RatingDisplay;
-import org.dam2.adp.cinesphere.model.MiLista;
-import org.dam2.adp.cinesphere.model.Pelicula;
-import org.dam2.adp.cinesphere.model.PeliculaEstado;
-import org.dam2.adp.cinesphere.model.Usuario;
+import org.dam2.adp.cinesphere.model.*;
 import org.dam2.adp.cinesphere.util.AlertUtils;
 import org.dam2.adp.cinesphere.util.Navigation;
 import org.dam2.adp.cinesphere.util.SessionManager;
@@ -22,7 +19,6 @@ import org.dam2.adp.cinesphere.util.Utils;
 import java.awt.Desktop;
 import java.net.URI;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -141,9 +137,13 @@ public class PeliculaDetalleController {
                 return;
             }
 
+            String clasificacionStr = (pelicula.getClasificacion() != null && pelicula.getClasificacion().getNombreClasificacion() != null)
+                    ? pelicula.getClasificacion().getNombreClasificacion()
+                    : "Sin clasificar";
+
             lblTitulo.setText(pelicula.getTituloPelicula());
-            lblSubtitulo.setText(pelicula.getYearPelicula() + " • " + pelicula.getNombreClasificacion());
-            lblClasificacion.setText(pelicula.getNombreClasificacion());
+            lblSubtitulo.setText(pelicula.getYearPelicula() + " • " + clasificacionStr);
+            lblClasificacion.setText(clasificacionStr);
             lblSinopsis.setText("Sinopsis no disponible aún.");
 
             if (ratingContainer != null) {
@@ -173,7 +173,7 @@ public class PeliculaDetalleController {
             );
 
             actualizarEstadoMiLista();
-            btnMiLista.setOnAction(e -> toggleMiLista());
+            btnMiLista.setOnAction(e -> addDeleteEnMiLista());
             btnTrailer.setOnAction(e -> abrirTrailer());
 
             logger.log(Level.INFO, "Datos de la película '" + pelicula.getTituloPelicula() + "' cargados correctamente.");
@@ -193,7 +193,7 @@ public class PeliculaDetalleController {
 
         btnMiLista.setText(enLista ? "En tu lista" : "Añadir a mi lista");
         cbEstado.setDisable(!enLista);
-        cbPuntuacion.setDisable(!enLista || (enLista && ml.getEstado() != PeliculaEstado.TERMINADA));
+        cbPuntuacion.setDisable(!enLista || ml.getEstado() != PeliculaEstado.TERMINADA);
 
         if (enLista) {
             cbEstado.setValue(ml.getEstado());
@@ -208,11 +208,11 @@ public class PeliculaDetalleController {
     /**
      * Alterna la presencia de la película actual en la lista personal del usuario.
      */
-    private void toggleMiLista() {
+    private void addDeleteEnMiLista() {
         try {
             MiLista ml = miListaDAO.findAll(usuario.getIdUsuario(), pelicula.getIdPelicula());
             if (ml == null) {
-                miListaDAO.insert(new MiLista(pelicula, usuario, PeliculaEstado.PENDIENTE, null, null, LocalDateTime.now()));
+                miListaDAO.insert(new MiLista(pelicula, usuario, PeliculaEstado.PENDIENTE, null, null));
                 logger.log(Level.INFO, "Película '" + pelicula.getTituloPelicula() + "' añadida a Mi Lista.");
             } else {
                 miListaDAO.delete(usuario.getIdUsuario(), pelicula.getIdPelicula());

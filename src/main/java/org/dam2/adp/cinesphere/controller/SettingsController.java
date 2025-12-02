@@ -338,7 +338,9 @@ public class SettingsController {
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Añadir Película");
-            stage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            Navigation.applyCineSphereStyles(scene); // Aplicar estilos centralizados
+            stage.setScene(scene);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
             stage.showAndWait();

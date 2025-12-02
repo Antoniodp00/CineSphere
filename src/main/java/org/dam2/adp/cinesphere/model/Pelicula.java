@@ -12,7 +12,6 @@ public class Pelicula {
     private Integer yearPelicula;
     private Double ratingPelicula;
     private Integer duracionPelicula;
-    private String nombreClasificacion;
 
     // EAGER opcional
     private Clasificacion clasificacion;
@@ -27,23 +26,32 @@ public class Pelicula {
     public Pelicula() {}
 
     /**
-     * Constructor para carga perezosa.
-     * @param idPelicula el ID de la película.
-     * @param tituloPelicula el título de la película.
-     */
-    public Pelicula(int idPelicula, String tituloPelicula) {
-        this.idPelicula = idPelicula;
-        this.tituloPelicula = tituloPelicula;
-    }
-
-    /**
-     * Constructor para carga ansiosa.
+     * Constructor para carga lazy (datos principales de la película).
      * @param idPelicula el ID de la película.
      * @param tituloPelicula el título de la película.
      * @param yearPelicula el año de la película.
      * @param ratingPelicula el rating de la película.
      * @param duracionPelicula la duración de la película.
-     * @param nombreClasificacion el nombre de la clasificación.
+     */
+    public Pelicula(int idPelicula,
+                    String tituloPelicula,
+                    Integer yearPelicula,
+                    Double ratingPelicula,
+                    Integer duracionPelicula) {
+        this.idPelicula = idPelicula;
+        this.tituloPelicula = tituloPelicula;
+        this.yearPelicula = yearPelicula;
+        this.ratingPelicula = ratingPelicula;
+        this.duracionPelicula = duracionPelicula;
+    }
+
+    /**
+     * Constructor para carga eager.
+     * @param idPelicula el ID de la película.
+     * @param tituloPelicula el título de la película.
+     * @param yearPelicula el año de la película.
+     * @param ratingPelicula el rating de la película.
+     * @param duracionPelicula la duración de la película.
      * @param clasificacion la clasificación de la película.
      * @param directores los directores de la película.
      * @param actores los actores de la película.
@@ -55,28 +63,19 @@ public class Pelicula {
                     Integer yearPelicula,
                     Double ratingPelicula,
                     Integer duracionPelicula,
-                    String nombreClasificacion,
                     Clasificacion clasificacion,
                     List<Director> directores,
                     List<Actor> actores,
                     List<Genero> generos,
                     List<MiLista> usuariosQueLaTienen) {
 
-        this.idPelicula = idPelicula;
-        this.tituloPelicula = tituloPelicula;
-        this.yearPelicula = yearPelicula;
-        this.ratingPelicula = ratingPelicula;
-        this.duracionPelicula = duracionPelicula;
-        this.nombreClasificacion = nombreClasificacion;
-
+        this(idPelicula, tituloPelicula, yearPelicula, ratingPelicula, duracionPelicula);
         this.clasificacion = clasificacion;
         this.directores = directores;
         this.actores = actores;
         this.generos = generos;
         this.usuariosQueLaTienen = usuariosQueLaTienen;
     }
-
-    // Getters y setters
 
     /**
      * Obtiene el ID de la película.
@@ -156,22 +155,6 @@ public class Pelicula {
      */
     public void setDuracionPelicula(Integer duracionPelicula) {
         this.duracionPelicula = duracionPelicula;
-    }
-
-    /**
-     * Obtiene el nombre de la clasificación de la película.
-     * @return el nombre de la clasificación de la película.
-     */
-    public String getNombreClasificacion() {
-        return nombreClasificacion;
-    }
-
-    /**
-     * Establece el nombre de la clasificación de la película.
-     * @param nombreClasificacion el nuevo nombre de la clasificación de la película.
-     */
-    public void setNombreClasificacion(String nombreClasificacion) {
-        this.nombreClasificacion = nombreClasificacion;
     }
 
     /**

@@ -76,7 +76,7 @@ public class PeliculaDAO {
             st.setObject(2, p.getYearPelicula());
             st.setObject(3, p.getRatingPelicula());
             st.setObject(4, p.getDuracionPelicula());
-            st.setString(5, p.getNombreClasificacion());
+            st.setString(5, p.getClasificacion().getNombreClasificacion());
             st.executeUpdate();
 
             try (ResultSet keys = st.getGeneratedKeys()) {
@@ -388,7 +388,11 @@ public class PeliculaDAO {
         p.setYearPelicula(rs.getObject("yearpelicula", Integer.class));
         p.setRatingPelicula(rs.getDouble("ratingpelicula"));
         p.setDuracionPelicula(rs.getObject("duracionpelicula", Integer.class));
-        p.setNombreClasificacion(rs.getString("nombreclasificacion"));
+
+        Clasificacion c = new Clasificacion();
+        c.setNombreClasificacion(rs.getString("nombreclasificacion"));
+        p.setClasificacion(c);
+
         return p;
     }
 }

@@ -57,7 +57,8 @@ public class DatabaseSchema {
                             yearpelicula INTEGER,
                             ratingpelicula DOUBLE PRECISION,
                             duracionpelicula INTEGER,
-                            nombreclasificacion VARCHAR(50)
+                            nombreclasificacion VARCHAR(50),
+                            FOREIGN KEY (nombreclasificacion) REFERENCES clasificacion(nombreclasificacion) ON DELETE SET NULL ON UPDATE CASCADE
                         )
                     """.formatted(AUTO_INCREMENT));
             logger.log(Level.FINE, "Tabla 'pelicula' creada o ya existente.");

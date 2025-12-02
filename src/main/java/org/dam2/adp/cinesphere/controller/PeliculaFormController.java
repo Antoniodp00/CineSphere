@@ -114,7 +114,7 @@ public class PeliculaFormController {
             p.setYearPelicula(year);
             p.setRatingPelicula(rating);
             p.setDuracionPelicula(duracion);
-            p.setNombreClasificacion(clasificacion.getNombreClasificacion());
+            p.setClasificacion(clasificacion);
 
             peliculaDAO.insert(p);
             logger.log(Level.INFO, "Película insertada en la base de datos: " + p.getTituloPelicula());

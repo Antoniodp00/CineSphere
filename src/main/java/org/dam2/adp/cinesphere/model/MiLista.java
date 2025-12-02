@@ -24,10 +24,16 @@ public class MiLista {
      * Constructor para carga perezosa.
      * @param pelicula la película.
      * @param usuario el usuario.
+     * @param estado el estado de la película.
+     * @param puntuacion la puntuación de la película.
+     * @param urlImg la URL de la imagen de la película.
      */
-    public MiLista(Pelicula pelicula, Usuario usuario) {
+    public MiLista(Pelicula pelicula, Usuario usuario, PeliculaEstado estado, Integer puntuacion, String urlImg) {
         this.pelicula = pelicula;
         this.usuario = usuario;
+        this.estado = estado;
+        this.puntuacion = puntuacion;
+        this.urlImg = urlImg;
         this.fechaAnadido = LocalDateTime.now();
     }
 

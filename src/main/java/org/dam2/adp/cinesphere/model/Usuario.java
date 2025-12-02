@@ -24,35 +24,37 @@ public class Usuario {
     public Usuario() {}
 
     /**
-     * Constructor para carga perezosa.
-     * @param idUsuario el ID del usuario.
-     * @param nombreUsuario el nombre de usuario.
-     */
-    public Usuario(int idUsuario, String nombreUsuario) {
-        this.idUsuario = idUsuario;
-        this.nombreUsuario = nombreUsuario;
-    }
-
-    /**
-     * Constructor para carga ansiosa.
+     * Constructor para carga lazy (datos principales del usuario).
      * @param idUsuario el ID del usuario.
      * @param nombreUsuario el nombre de usuario.
      * @param email el correo electrónico del usuario.
      * @param passw la contraseña del usuario.
      * @param bornDate la fecha de nacimiento del usuario.
-     * @param misPeliculas la lista de películas del usuario.
      * @param rol el rol del usuario.
      */
-    public Usuario(int idUsuario, String nombreUsuario, String email, String passw,
-                   LocalDate bornDate, List<MiLista> misPeliculas, Rol rol) {
-
+    public Usuario(int idUsuario, String nombreUsuario, String email, String passw, LocalDate bornDate, Rol rol) {
         this.idUsuario = idUsuario;
         this.nombreUsuario = nombreUsuario;
         this.email = email;
         this.passw = passw;
         this.bornDate = bornDate;
-        this.misPeliculas = misPeliculas;
         this.rol = rol;
+    }
+
+    /**
+     * Constructor para carga eager (incluye la lista de películas).
+     * @param idUsuario el ID del usuario.
+     * @param nombreUsuario el nombre de usuario.
+     * @param email el correo electrónico del usuario.
+     * @param passw la contraseña del usuario.
+     * @param bornDate la fecha de nacimiento del usuario.
+     * @param rol el rol del usuario.
+     * @param misPeliculas la lista de películas del usuario.
+     */
+    public Usuario(int idUsuario, String nombreUsuario, String email, String passw,
+                   LocalDate bornDate, Rol rol, List<MiLista> misPeliculas) {
+        this(idUsuario, nombreUsuario, email, passw, bornDate, rol);
+        this.misPeliculas = misPeliculas;
     }
 
     /**
