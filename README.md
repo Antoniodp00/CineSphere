@@ -7,6 +7,8 @@
 **CineSphere** es una aplicación de escritorio moderna desarrollada en **Java** y **JavaFX** para la gestión integral de catálogos de cine. Permite a los usuarios explorar películas, gestionar su lista personal de "vistos/pendientes", consultar estadísticas detalladas y administrar la base de datos de contenido.
 
 ---
+![img.png](src/main/resources/img/img.png)
+---
 
 ## Características Principales
 
