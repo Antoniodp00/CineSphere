@@ -36,13 +36,11 @@ public class PeliculaDAO {
             """;
     private static final String SQL_DELETE =
             "DELETE FROM pelicula WHERE idpelicula=?";
-
-    //(%s) es para añadir los placeholders (?)
     private static final String SQL_FIND_GENEROS_LOTE = """
             SELECT pg.idpelicula, g.idgenero, g.nombregenero
             FROM peliculagenero pg
             JOIN genero g ON pg.idgenero = g.idgenero
-            WHERE pg.idpelicula IN (%s) 
+            WHERE pg.idpelicula IN (%s)
             """;
     private static final String SQL_COUNT_BASE = "SELECT COUNT(DISTINCT p.idpelicula) FROM pelicula p ";
     private static final String SQL_FILTER_SELECT = "SELECT DISTINCT p.* FROM pelicula p ";
@@ -258,7 +256,7 @@ public class PeliculaDAO {
         // 2. Se construye el fragmento de SQL dinámico (JOINs y WHERE) y se llena la lista de parámetros.
         String sqlPart = construirCondicionesFiltro(year, ratingMin, idGenero, filtroTitulo, parametros);
         // 3. Se combina el SQL base, el fragmento dinámico y la paginación.
-        String sql = SQL_FILTER_SELECT + sqlPart + SQL_FILTER_PAGINATION;
+        String sql = SQL_FILTER_SELECT + sqlPart + " " + SQL_FILTER_PAGINATION;
 
         // 4. Se añaden los parámetros de paginación a la lista.
         parametros.add(pageSize);
@@ -288,7 +286,7 @@ public class PeliculaDAO {
      * @param ratingMin    El rating mínimo para filtrar.
      * @param idGenero     El ID del género para filtrar.
      * @param filtroTitulo El término de búsqueda para el título.
-     * @param parametros       La lista de parámetros que se llenará.
+     * @param parametros   La lista de parámetros que se llenará.
      * @return Un String que contiene el fragmento de SQL generado.
      */
     private String construirCondicionesFiltro(Integer year, Double ratingMin, Integer idGenero, String filtroTitulo, List<Object> parametros) {
@@ -316,11 +314,11 @@ public class PeliculaDAO {
             parametros.add(idGenero);
         }
         if (filtroTitulo != null && !filtroTitulo.isBlank()) {
-            condiciones.add("p.titulopelicula ILIKE ?");
-            parametros.add("%" + filtroTitulo + "%");//Uso de % para que filtre por similitud
+            condiciones.add("LOWER(p.titulopelicula) LIKE LOWER(?)");
+            parametros.add("%" + filtroTitulo + "%");
         }
 
-        // Si hay condiciones, se unen con el uso de join que recorre la lista añadiendo AND de separacion entre condiciones.
+        // Si hay condiciones, se unen con "AND" y se añaden a la cláusula WHERE.
         if (!condiciones.isEmpty()) {
             consultaConstruida.append("WHERE ").append(String.join(" AND ", condiciones));
         }
@@ -342,8 +340,8 @@ public class PeliculaDAO {
 
         List<Integer> ids = new ArrayList<>(peliculasPorId.keySet());
 
-        String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));// crea tantos "?," como tamaño de ids tenga
-        String sqlFinal = String.format(SQL_FIND_GENEROS_LOTE, placeholders); //se une el placeholders ("?,?,?") con el SQL base
+        String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
+        String sqlFinal = String.format(SQL_FIND_GENEROS_LOTE, placeholders);
 
         try {
 

@@ -28,7 +28,7 @@ public enum PeliculaEstado {
      * Obtiene el valor a mostrar en la interfaz.
      * @return el valor a mostrar.
      */
-    public String getEstado() {
+    public String getEstadoValor() {
         return estado;
     }
 

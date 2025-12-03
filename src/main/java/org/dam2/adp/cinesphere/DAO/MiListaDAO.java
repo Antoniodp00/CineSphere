@@ -67,7 +67,7 @@ public class MiListaDAO {
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT)) {
             st.setInt(1, miLista.getUsuario().getIdUsuario());
             st.setInt(2, miLista.getPelicula().getIdPelicula());
-            st.setString(3, miLista.getEstado() != null ? miLista.getEstado().getEstado() : null);
+            st.setString(3, miLista.getEstado() != null ? miLista.getEstado().getEstadoValor() : null);
             st.setObject(4, miLista.getPuntuacion());
             st.setString(5, miLista.getUrlImg());
             st.setObject(6, miLista.getFechaAnadido());
@@ -145,15 +145,20 @@ public class MiListaDAO {
     public List<Pelicula> findFiltered(int idUsuario, Integer year, Double ratingMin, Integer idGenero, String searchQuery, int page, int pageSize) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
         List<Pelicula> peliculasFiltradas = new ArrayList<>();
+        // 1. Se crea una lista para almacenar los parámetros que se usarán en la consulta.
         List<Object> parametros = new ArrayList<>();
 
+        // 2. Se construye el fragmento de SQL dinámico (JOINs y WHERE) y se llena la lista de parámetros.
         String sqlPart = construirCondicionesFiltro(idUsuario, year, ratingMin, idGenero, searchQuery, parametros);
+        // 3. Se combina el SQL base, el fragmento dinámico y la paginación.
         String sql = SQL_FILTER_BASE + sqlPart + " ORDER BY p.idpelicula LIMIT ? OFFSET ?";
 
+        // 4. Se añaden los parámetros de paginación a la lista.
         parametros.add(pageSize);
         parametros.add((page - 1) * pageSize);
 
         try (PreparedStatement st = conn.prepareStatement(sql)) {
+            // 5. Se asignan todos los parámetros (filtros + paginación) a la consulta preparada.
             for (int i = 0; i < parametros.size(); i++) {
                 st.setObject(i + 1, parametros.get(i));
             }
@@ -181,14 +186,18 @@ public class MiListaDAO {
      */
     public int countPeliculas(int idUsuario, Integer year, Double ratingMin, Integer idGenero, String searchQuery) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
-        List<Object> params = new ArrayList<>();
+        // 1. Se crea una lista para almacenar los parámetros que se usarán en la consulta.
+        List<Object> parametros = new ArrayList<>();
 
-        String sqlPart = construirCondicionesFiltro(idUsuario, year, ratingMin, idGenero, searchQuery, params);
+        // 2. Se construye el fragmento de SQL dinámico (JOINs y WHERE) y se llena la lista de parámetros.
+        String sqlPart = construirCondicionesFiltro(idUsuario, year, ratingMin, idGenero, searchQuery, parametros);
+        // 3. Se combina el SQL base con el fragmento dinámico.
         String sql = SQL_COUNT_FILTER_BASE + sqlPart;
 
         try (PreparedStatement st = conn.prepareStatement(sql.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                st.setObject(i + 1, params.get(i));
+            // 4. Se asignan los parámetros a la consulta preparada.
+            for (int i = 0; i < parametros.size(); i++) {
+                st.setObject(i + 1, parametros.get(i));
             }
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
@@ -212,34 +221,39 @@ public class MiListaDAO {
     private String construirCondicionesFiltro(int idUsuario, Integer year, Double ratingMin, Integer idGenero, String searchQuery, List<Object> parametros) {
         StringBuilder consultaConstruida = new StringBuilder();
 
+        // Si se filtra por género, se necesita hacer un JOIN con la tabla de relación.
         if (idGenero != null) {
             consultaConstruida.append("INNER JOIN peliculagenero pg ON p.idpelicula = pg.idpelicula ");
         }
 
-        List<String> conditions = new ArrayList<>();
+        List<String> condiciones = new ArrayList<>();
         
-        conditions.add("ml.idusuario = ?");
+        // El primer filtro siempre es el ID del usuario.
+        condiciones.add("ml.idusuario = ?");
         parametros.add(idUsuario);
 
+        // Para cada filtro que no sea nulo, se añade la condición SQL a una lista
+        // y el valor del filtro a la lista de parámetros.
         if (year != null) {
-            conditions.add("p.yearpelicula = ?");
+            condiciones.add("p.yearpelicula = ?");
             parametros.add(year);
         }
         if (ratingMin != null) {
-            conditions.add("p.ratingpelicula >= ?");
+            condiciones.add("p.ratingpelicula >= ?");
             parametros.add(ratingMin);
         }
         if (idGenero != null) {
-            conditions.add("pg.idgenero = ?");
+            condiciones.add("pg.idgenero = ?");
             parametros.add(idGenero);
         }
         if (searchQuery != null && !searchQuery.isBlank()) {
-            conditions.add("p.titulopelicula ILIKE ?");
+            condiciones.add("LOWER(p.titulopelicula) LIKE LOWER(?)");
             parametros.add("%" + searchQuery + "%");
         }
 
-        if (!conditions.isEmpty()) {
-            consultaConstruida.append("WHERE ").append(String.join(" AND ", conditions));
+        // Si hay condiciones, se unen con "AND" y se añaden a la cláusula WHERE.
+        if (!condiciones.isEmpty()) {
+            consultaConstruida.append("WHERE ").append(String.join(" AND ", condiciones));
         }
 
         return consultaConstruida.toString();
@@ -255,7 +269,7 @@ public class MiListaDAO {
     public void updateEstado(int idUsuario, int idPelicula, PeliculaEstado estado) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_UPDATE_ESTADO)) {
-            st.setString(1, estado.getEstado());
+            st.setString(1, estado.getEstadoValor());
             st.setInt(2, idUsuario);
             st.setInt(3, idPelicula);
             st.executeUpdate();
@@ -350,7 +364,7 @@ public class MiListaDAO {
         Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_COUNT_BY_ESTADOS)) {
             st.setInt(1, idUsuario);
-            st.setString(2, estado.getEstado());
+            st.setString(2, estado.getEstadoValor());
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) return rs.getInt(1);
             }
@@ -368,7 +382,7 @@ public class MiListaDAO {
         Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_COUNT_DURACION_TERMINADAS)) {
             st.setInt(1, idUsuario);
-            st.setString(2, PeliculaEstado.TERMINADA.getEstado());
+            st.setString(2, PeliculaEstado.TERMINADA.getEstadoValor());
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) return rs.getInt(1);
             }

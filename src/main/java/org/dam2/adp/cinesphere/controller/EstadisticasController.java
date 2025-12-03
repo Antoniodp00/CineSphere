@@ -108,7 +108,7 @@ public class EstadisticasController {
         ObservableList<PieChart.Data> datos = FXCollections.observableArrayList();
         int suma = 0;
         for (Map.Entry<PeliculaEstado, Integer> e : mapa.entrySet()) {
-            datos.add(new PieChart.Data(e.getKey().getEstado(), e.getValue()));//añade los datos a la tarta
+            datos.add(new PieChart.Data(e.getKey().getEstadoValor(), e.getValue()));//añade los datos a la tarta
             suma += e.getValue();
         }
 

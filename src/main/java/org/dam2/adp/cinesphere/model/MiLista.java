@@ -136,6 +136,6 @@ public class MiLista {
      */
     @Override
     public String toString() {
-        return pelicula.getTituloPelicula() + " (" + (estado != null ? estado.getEstado() : "Sin estado") + ")";
+        return pelicula.getTituloPelicula() + " (" + (estado != null ? estado.getEstadoValor() : "Sin estado") + ")";
     }
 }
