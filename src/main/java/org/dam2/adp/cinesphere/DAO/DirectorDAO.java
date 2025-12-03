@@ -19,22 +19,22 @@ public class DirectorDAO {
 
     /**
      * Inserta un nuevo director en la base de datos.
-     * @param d el director a insertar.
+     * @param director el director a insertar.
      * @return el director insertado con su ID generado.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
-    public Director insert(Director d) throws SQLException {
+    public Director insert(Director director) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-            st.setString(1, d.getNombreDirector());
+            st.setString(1, director.getNombreDirector());
             st.executeUpdate();
             try (ResultSet keys = st.getGeneratedKeys()) {
                 if (keys.next()) {
-                    d.setIdDirector(keys.getInt(1));
+                    director.setIdDirector(keys.getInt(1));
                 }
             }
         }
-        return d;
+        return director;
     }
 
     /**
@@ -63,14 +63,14 @@ public class DirectorDAO {
      */
     public List<Director> findAll() throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
-        List<Director> list = new ArrayList<>();
+        List<Director> listaDirectores = new ArrayList<>();
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
             while (rs.next()) {
-                list.add(mapeoDirector(rs));
+                listaDirectores.add(mapeoDirector(rs));
             }
         }
-        return list;
+        return listaDirectores;
     }
 
     /**

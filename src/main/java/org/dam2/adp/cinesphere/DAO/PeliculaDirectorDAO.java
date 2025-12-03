@@ -43,15 +43,15 @@ public class PeliculaDirectorDAO {
      */
     public List<Director> findByPelicula(int idPelicula) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
-        List<Director> list = new ArrayList<>();
+        List<Director> listaPeliculaDirector = new ArrayList<>();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_PELICULA)) {
             st.setInt(1, idPelicula);
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
-                    list.add(new Director(rs.getInt(1), rs.getString(2)));
+                    listaPeliculaDirector.add(new Director(rs.getInt(1), rs.getString(2)));
                 }
             }
         }
-        return list;
+        return listaPeliculaDirector;
     }
 }

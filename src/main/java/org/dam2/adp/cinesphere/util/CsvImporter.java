@@ -113,16 +113,16 @@ public class CsvImporter {
      */
     private static void procesarFila(CSVRecord row) throws SQLException {
         String titulo = row.get("Title").trim();
-        Integer year = tryParseInt(row.get("ReleaseYear"));
+        Integer year = pasarAEntero(row.get("ReleaseYear"));
 
 
         if (year == null) return;
         if (peliculaDAO.findByTituloAndYear(titulo, year) != null) return;
 
 
-        Double rating = tryParseDouble(row.get("IMDb-Rating"));
+        Double rating = pasarADouble(row.get("IMDb-Rating"));
         String duracionStr = row.get("Duration").replace("min", "").trim();
-        Integer duracion = tryParseInt(duracionStr);
+        Integer duracion = pasarAEntero(duracionStr);
         String clasifStr = row.get("Censor-board-rating");
 
         Clasificacion clasificacion = obtenerClasificacion(clasifStr);
@@ -279,7 +279,7 @@ public class CsvImporter {
      * @param value la cadena a convertir.
      * @return el entero, o null si no se puede convertir.
      */
-    private static Integer tryParseInt(String value) {
+    private static Integer pasarAEntero(String value) {
         try {
             if (value == null) return null;
             return Integer.parseInt(value.trim());
@@ -293,7 +293,7 @@ public class CsvImporter {
      * @param value la cadena a convertir.
      * @return el doble, o null si no se puede convertir.
      */
-    private static Double tryParseDouble(String value) {
+    private static Double pasarADouble(String value) {
         try {
             if (value == null) return null;
             return Double.parseDouble(value.trim());

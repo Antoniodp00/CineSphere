@@ -55,13 +55,13 @@ public class ClasificacionDAO {
      */
     public List<Clasificacion> findAll() throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
-        List<Clasificacion> list = new ArrayList<>();
+        List<Clasificacion> listaClasificacion = new ArrayList<>();
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
             while (rs.next()) {
-                list.add(new Clasificacion(rs.getString(1)));
+                listaClasificacion.add(new Clasificacion(rs.getString(1)));
             }
         }
-        return list;
+        return listaClasificacion;
     }
 }

@@ -67,7 +67,7 @@ public class MiListaDAO {
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT)) {
             st.setInt(1, miLista.getUsuario().getIdUsuario());
             st.setInt(2, miLista.getPelicula().getIdPelicula());
-            st.setString(3, miLista.getEstado() != null ? miLista.getEstado().getDisplayValue() : null);
+            st.setString(3, miLista.getEstado() != null ? miLista.getEstado().getEstado() : null);
             st.setObject(4, miLista.getPuntuacion());
             st.setString(5, miLista.getUrlImg());
             st.setObject(6, miLista.getFechaAnadido());
@@ -132,7 +132,6 @@ public class MiListaDAO {
 
     /**
      * Busca películas EN LA LISTA DEL USUARIO aplicando filtros dinámicos y paginación.
-     * Reutiliza métodos públicos de PeliculaDAO para evitar código duplicado.
      * @param idUsuario el ID del usuario.
      * @param year el año de la película.
      * @param ratingMin el rating mínimo de la película.
@@ -145,36 +144,33 @@ public class MiListaDAO {
      */
     public List<Pelicula> findFiltered(int idUsuario, Integer year, Double ratingMin, Integer idGenero, String searchQuery, int page, int pageSize) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
-        List<Pelicula> lista = new ArrayList<>();
+        List<Pelicula> peliculasFiltradas = new ArrayList<>();
+        List<Object> parametros = new ArrayList<>();
 
-        StringBuilder sql = new StringBuilder(SQL_FILTER_BASE);
-        List<Object> params = new ArrayList<>();
+        String sqlPart = construirCondicionesFiltro(idUsuario, year, ratingMin, idGenero, searchQuery, parametros);
+        String sql = SQL_FILTER_BASE + sqlPart + " ORDER BY p.idpelicula LIMIT ? OFFSET ?";
 
-        construirFiltrosComunes(sql, params, idUsuario, year, ratingMin, idGenero, searchQuery);
+        parametros.add(pageSize);
+        parametros.add((page - 1) * pageSize);
 
-        sql.append(" ORDER BY p.idpelicula LIMIT ? OFFSET ?");
-        params.add(pageSize);
-        params.add((page - 1) * pageSize);
-
-        try (PreparedStatement st = conn.prepareStatement(sql.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                st.setObject(i + 1, params.get(i));
+        try (PreparedStatement st = conn.prepareStatement(sql)) {
+            for (int i = 0; i < parametros.size(); i++) {
+                st.setObject(i + 1, parametros.get(i));
             }
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
-                    lista.add(peliculaDAO.mapeoPelicula(rs));
+                    peliculasFiltradas.add(peliculaDAO.mapeoPelicula(rs));
                 }
             }
         }
 
-        peliculaDAO.cargarGenerosEnLote(lista);
+        peliculaDAO.cargarGenerosEnLote(peliculasFiltradas);
 
-        return lista;
+        return peliculasFiltradas;
     }
 
     /**
      * Cuenta películas EN LA LISTA DEL USUARIO con filtros dinámicos.
-     * Usado para calcular el total de páginas en la vista de lista.
      * @param idUsuario el ID del usuario.
      * @param year el año de la película.
      * @param ratingMin el rating mínimo de la película.
@@ -185,11 +181,10 @@ public class MiListaDAO {
      */
     public int countPeliculas(int idUsuario, Integer year, Double ratingMin, Integer idGenero, String searchQuery) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
-
-        StringBuilder sql = new StringBuilder(SQL_COUNT_FILTER_BASE);
         List<Object> params = new ArrayList<>();
 
-        construirFiltrosComunes(sql, params, idUsuario, year, ratingMin, idGenero, searchQuery);
+        String sqlPart = construirCondicionesFiltro(idUsuario, year, ratingMin, idGenero, searchQuery, params);
+        String sql = SQL_COUNT_FILTER_BASE + sqlPart;
 
         try (PreparedStatement st = conn.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) {
@@ -205,42 +200,49 @@ public class MiListaDAO {
     }
 
     /**
-     * Método helper privado para evitar duplicar la lógica de construcción SQL de filtros.
-     * Centraliza la lógica de "WHERE" para búsqueda y conteo.
-     * @param sql el StringBuilder con la consulta SQL.
-     * @param params la lista de parámetros para la consulta.
+     * Construye las condiciones de filtro para las consultas de MiLista.
      * @param idUsuario el ID del usuario.
      * @param year el año de la película.
      * @param ratingMin el rating mínimo de la película.
      * @param idGenero el ID del género de la película.
      * @param searchQuery la consulta de búsqueda por título.
+     * @param parametros la lista de parámetros a llenar.
+     * @return el fragmento de SQL con las condiciones.
      */
-    private void construirFiltrosComunes(StringBuilder sql, List<Object> params, int idUsuario, Integer year, Double ratingMin, Integer idGenero, String searchQuery) {
+    private String construirCondicionesFiltro(int idUsuario, Integer year, Double ratingMin, Integer idGenero, String searchQuery, List<Object> parametros) {
+        StringBuilder consultaConstruida = new StringBuilder();
 
         if (idGenero != null) {
-            sql.append("INNER JOIN peliculagenero pg ON p.idpelicula = pg.idpelicula ");
+            consultaConstruida.append("INNER JOIN peliculagenero pg ON p.idpelicula = pg.idpelicula ");
         }
 
-        sql.append("WHERE ml.idusuario = ? ");
-        params.add(idUsuario);
+        List<String> conditions = new ArrayList<>();
+        
+        conditions.add("ml.idusuario = ?");
+        parametros.add(idUsuario);
 
         if (year != null) {
-            sql.append("AND p.yearpelicula = ? ");
-            params.add(year);
+            conditions.add("p.yearpelicula = ?");
+            parametros.add(year);
         }
         if (ratingMin != null) {
-            sql.append("AND p.ratingpelicula >= ? ");
-            params.add(ratingMin);
+            conditions.add("p.ratingpelicula >= ?");
+            parametros.add(ratingMin);
         }
         if (idGenero != null) {
-            sql.append("AND pg.idgenero = ? ");
-            params.add(idGenero);
+            conditions.add("pg.idgenero = ?");
+            parametros.add(idGenero);
         }
         if (searchQuery != null && !searchQuery.isBlank()) {
-
-            sql.append("AND p.titulopelicula ILIKE ? ");
-            params.add("%" + searchQuery + "%");
+            conditions.add("p.titulopelicula ILIKE ?");
+            parametros.add("%" + searchQuery + "%");
         }
+
+        if (!conditions.isEmpty()) {
+            consultaConstruida.append("WHERE ").append(String.join(" AND ", conditions));
+        }
+
+        return consultaConstruida.toString();
     }
 
     /**
@@ -253,7 +255,7 @@ public class MiListaDAO {
     public void updateEstado(int idUsuario, int idPelicula, PeliculaEstado estado) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_UPDATE_ESTADO)) {
-            st.setString(1, estado.getDisplayValue());
+            st.setString(1, estado.getEstado());
             st.setInt(2, idUsuario);
             st.setInt(3, idPelicula);
             st.executeUpdate();
@@ -300,7 +302,7 @@ public class MiListaDAO {
      */
     public Map<PeliculaEstado, Integer> getEstadisticasEstados(int idUsuario) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
-        Map<PeliculaEstado, Integer> mapa = new EnumMap<>(PeliculaEstado.class);
+        Map<PeliculaEstado, Integer> estadisticas = new EnumMap<>(PeliculaEstado.class);
         try (PreparedStatement st = conn.prepareStatement(SQL_COUNT_ALL_ESTADOS)) {
             st.setInt(1, idUsuario);
             try (ResultSet rs = st.executeQuery()) {
@@ -310,14 +312,14 @@ public class MiListaDAO {
                     if (estadoStr != null) {
                         try {
                             PeliculaEstado estado = PeliculaEstado.fromString(estadoStr);
-                            mapa.put(estado, total);
+                            estadisticas.put(estado, total);
                         } catch (IllegalArgumentException ex) {
                         }
                     }
                 }
             }
         }
-        return mapa;
+        return estadisticas;
     }
 
     /**
@@ -348,7 +350,7 @@ public class MiListaDAO {
         Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_COUNT_BY_ESTADOS)) {
             st.setInt(1, idUsuario);
-            st.setString(2, estado.getDisplayValue());
+            st.setString(2, estado.getEstado());
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) return rs.getInt(1);
             }
@@ -366,7 +368,7 @@ public class MiListaDAO {
         Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_COUNT_DURACION_TERMINADAS)) {
             st.setInt(1, idUsuario);
-            st.setString(2, PeliculaEstado.TERMINADA.getDisplayValue());
+            st.setString(2, PeliculaEstado.TERMINADA.getEstado());
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) return rs.getInt(1);
             }
@@ -382,15 +384,15 @@ public class MiListaDAO {
      */
     public Map<String, Integer> getConteoGenerosByUsuario(int idUsuario) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
-        Map<String, Integer> mapa = new LinkedHashMap<>();
+        Map<String, Integer> generos = new LinkedHashMap<>();
         try (PreparedStatement st = conn.prepareStatement(SQL_COUNT_GENEROS_BY_USER)) {
             st.setInt(1, idUsuario);
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
-                    mapa.put(rs.getString(1), rs.getInt(2));
+                    generos.put(rs.getString(1), rs.getInt(2));
                 }
             }
         }
-        return mapa;
+        return generos;
     }
 }

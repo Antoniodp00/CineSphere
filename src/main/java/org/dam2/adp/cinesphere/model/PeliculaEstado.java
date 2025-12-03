@@ -13,23 +13,23 @@ public enum PeliculaEstado {
     TERMINADA("Terminada"),
     ABANDONADA("Abandonada");
 
-    private final String displayValue;
+    private final String estado;
     private static final Logger logger = Logger.getLogger(PeliculaEstado.class.getName());
 
     /**
      * Constructor del enum.
-     * @param displayValue el valor a mostrar en la interfaz.
+     * @param estado el valor a mostrar en la interfaz.
      */
-    PeliculaEstado(String displayValue) {
-        this.displayValue = displayValue;
+    PeliculaEstado(String estado) {
+        this.estado = estado;
     }
 
     /**
      * Obtiene el valor a mostrar en la interfaz.
      * @return el valor a mostrar.
      */
-    public String getDisplayValue() {
-        return displayValue;
+    public String getEstado() {
+        return estado;
     }
 
     /**
@@ -44,7 +44,7 @@ public enum PeliculaEstado {
             return null;
         }
         for (PeliculaEstado estado : PeliculaEstado.values()) {
-            if (estado.displayValue.equalsIgnoreCase(text)) {
+            if (estado.estado.equalsIgnoreCase(text)) {
                 return estado;
             }
         }

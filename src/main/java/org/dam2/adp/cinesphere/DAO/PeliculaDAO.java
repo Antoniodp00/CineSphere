@@ -36,11 +36,13 @@ public class PeliculaDAO {
             """;
     private static final String SQL_DELETE =
             "DELETE FROM pelicula WHERE idpelicula=?";
+
+    //(%s) es para añadir los placeholders (?)
     private static final String SQL_FIND_GENEROS_LOTE = """
             SELECT pg.idpelicula, g.idgenero, g.nombregenero
             FROM peliculagenero pg
             JOIN genero g ON pg.idgenero = g.idgenero
-            WHERE pg.idpelicula IN (%s)
+            WHERE pg.idpelicula IN (%s) 
             """;
     private static final String SQL_COUNT_BASE = "SELECT COUNT(DISTINCT p.idpelicula) FROM pelicula p ";
     private static final String SQL_FILTER_SELECT = "SELECT DISTINCT p.* FROM pelicula p ";
@@ -55,27 +57,27 @@ public class PeliculaDAO {
     /**
      * Inserta una nueva película en la base de datos.
      *
-     * @param p la película a insertar.
+     * @param pelicula la película a insertar.
      * @return la película insertada con su ID generado.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
-    public Pelicula insert(Pelicula p) throws SQLException {
+    public Pelicula insert(Pelicula pelicula) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-            st.setString(1, p.getTituloPelicula());
-            st.setObject(2, p.getYearPelicula());
-            st.setObject(3, p.getRatingPelicula());
-            st.setObject(4, p.getDuracionPelicula());
-            st.setString(5, p.getClasificacion().getNombreClasificacion());
+            st.setString(1, pelicula.getTituloPelicula());
+            st.setObject(2, pelicula.getYearPelicula());
+            st.setObject(3, pelicula.getRatingPelicula());
+            st.setObject(4, pelicula.getDuracionPelicula());
+            st.setString(5, pelicula.getClasificacion().getNombreClasificacion());
             st.executeUpdate();
 
             try (ResultSet keys = st.getGeneratedKeys()) {
                 if (keys.next()) {
-                    p.setIdPelicula(keys.getInt(1));
+                    pelicula.setIdPelicula(keys.getInt(1));
                 }
             }
         }
-        return p;
+        return pelicula;
     }
 
     /**
@@ -100,15 +102,15 @@ public class PeliculaDAO {
      */
     public List<Pelicula> findAllLazy() throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
-        List<Pelicula> list = new ArrayList<>();
+        List<Pelicula> listaPelicula = new ArrayList<>();
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
             while (rs.next()) {
                 Pelicula p = mapeoPelicula(rs);
-                list.add(p);
+                listaPelicula.add(p);
             }
         }
-        return list;
+        return listaPelicula;
     }
 
     /**
@@ -163,14 +165,14 @@ public class PeliculaDAO {
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
     public Pelicula findByIdEager(int idPelicula) throws SQLException {
-        Pelicula p = findByIdLazy(idPelicula);
-        if (p == null) return null;
+        Pelicula Pelicula = findByIdLazy(idPelicula);
+        if (Pelicula == null) return null;
 
-        p.setGeneros(peliculaGeneroDAO.findByPelicula(idPelicula));
-        p.setActores(peliculaActorDAO.findByPelicula(idPelicula));
-        p.setDirectores(peliculaDirectorDAO.findByPelicula(idPelicula));
+        Pelicula.setGeneros(peliculaGeneroDAO.findByPelicula(idPelicula));
+        Pelicula.setActores(peliculaActorDAO.findByPelicula(idPelicula));
+        Pelicula.setDirectores(peliculaDirectorDAO.findByPelicula(idPelicula));
 
-        return p;
+        return Pelicula;
     }
 
     /**
@@ -183,7 +185,7 @@ public class PeliculaDAO {
      */
     public List<Pelicula> findPage(int page, int pageSize) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
-        List<Pelicula> lista = new ArrayList<>();
+        List<Pelicula> listaPelicula = new ArrayList<>();
         int offset = (page - 1) * pageSize;
 
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_PAGE)) {
@@ -191,14 +193,14 @@ public class PeliculaDAO {
             st.setInt(2, offset);
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
-                    Pelicula p = mapeoPelicula(rs);
-                    lista.add(p);
+                    Pelicula pelicula = mapeoPelicula(rs);
+                    listaPelicula.add(pelicula);
                 }
             }
         }
-        cargarGenerosEnLote(lista);
+        cargarGenerosEnLote(listaPelicula);
 
-        return lista;
+        return listaPelicula;
     }
 
     /**
@@ -213,12 +215,18 @@ public class PeliculaDAO {
      */
     public int countPeliculas(Integer year, Double ratingMin, Integer idGenero, String filtroTitulo) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
-
-        FiltroContexto contexto = construirCondicionesFiltro(year, ratingMin, idGenero, filtroTitulo);
-        String sql = SQL_COUNT_BASE + contexto.sqlPart;
+        // 1. Se crea una lista para almacenar los parámetros que se usarán en la consulta.
+        List<Object> parametros = new ArrayList<>();
+        // 2. Se construye el fragmento de SQL dinámico (JOINs y WHERE) y se llena la lista de parámetros.
+        String sqlPart = construirCondicionesFiltro(year, ratingMin, idGenero, filtroTitulo, parametros);
+        // 3. Se combina el SQL base con el fragmento dinámico.
+        String sql = SQL_COUNT_BASE + sqlPart;
 
         try (PreparedStatement st = conn.prepareStatement(sql)) {
-            asignarParametros(st, contexto.params);
+            // 4. Se asignan los parámetros a la consulta preparada.
+            for (int i = 0; i < parametros.size(); i++) {
+                st.setObject(i + 1, parametros.get(i));
+            }
 
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
@@ -243,26 +251,34 @@ public class PeliculaDAO {
      */
     public List<Pelicula> findFiltered(Integer year, Double ratingMin, Integer idGenero, String filtroTitulo, int page, int pageSize) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
-        List<Pelicula> lista = new ArrayList<>();
+        List<Pelicula> listaPelicula = new ArrayList<>();
+        // 1. Se crea una lista para almacenar los parámetros que se usarán en la consulta.
+        List<Object> parametros = new ArrayList<>();
 
-        FiltroContexto contexto = construirCondicionesFiltro(year, ratingMin, idGenero, filtroTitulo);
-        String sql = SQL_FILTER_SELECT + contexto.sqlPart + SQL_FILTER_PAGINATION;
+        // 2. Se construye el fragmento de SQL dinámico (JOINs y WHERE) y se llena la lista de parámetros.
+        String sqlPart = construirCondicionesFiltro(year, ratingMin, idGenero, filtroTitulo, parametros);
+        // 3. Se combina el SQL base, el fragmento dinámico y la paginación.
+        String sql = SQL_FILTER_SELECT + sqlPart + SQL_FILTER_PAGINATION;
 
-        contexto.params.add(pageSize);
-        contexto.params.add((page - 1) * pageSize);
+        // 4. Se añaden los parámetros de paginación a la lista.
+        parametros.add(pageSize);
+        parametros.add((page - 1) * pageSize);
 
         try (PreparedStatement st = conn.prepareStatement(sql)) {
-            asignarParametros(st, contexto.params);
+            // 5. Se asignan todos los parámetros (filtros + paginación) a la consulta preparada.
+            for (int i = 0; i < parametros.size(); i++) {
+                st.setObject(i + 1, parametros.get(i));
+            }
 
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
-                    lista.add(mapeoPelicula(rs));
+                    listaPelicula.add(mapeoPelicula(rs));
                 }
             }
         }
 
-        cargarGenerosEnLote(lista);
-        return lista;
+        cargarGenerosEnLote(listaPelicula);
+        return listaPelicula;
     }
 
     /**
@@ -272,67 +288,44 @@ public class PeliculaDAO {
      * @param ratingMin    El rating mínimo para filtrar.
      * @param idGenero     El ID del género para filtrar.
      * @param filtroTitulo El término de búsqueda para el título.
-     * @return Un objeto {@link FiltroContexto} que contiene el fragmento de SQL y la lista de parámetros.
+     * @param parametros       La lista de parámetros que se llenará.
+     * @return Un String que contiene el fragmento de SQL generado.
      */
-    private FiltroContexto construirCondicionesFiltro(Integer year, Double ratingMin, Integer idGenero, String filtroTitulo) {
-        StringBuilder sqlBuilder = new StringBuilder();
-        List<Object> params = new ArrayList<>();
+    private String construirCondicionesFiltro(Integer year, Double ratingMin, Integer idGenero, String filtroTitulo, List<Object> parametros) {
+        StringBuilder consultaConstruida = new StringBuilder();
 
+        // Si se filtra por género, se necesita hacer un JOIN con la tabla de relación.
         if (idGenero != null) {
-            sqlBuilder.append("JOIN peliculagenero pg ON p.idpelicula = pg.idpelicula ");
+            consultaConstruida.append("JOIN peliculagenero pg ON p.idpelicula = pg.idpelicula ");
         }
 
-        List<String> conditions = new ArrayList<>();
+        List<String> condiciones = new ArrayList<>();
 
+        // Para cada filtro que no sea nulo, se añade la condición SQL a una lista
+        // y el valor del filtro a la lista de parámetros.
         if (year != null) {
-            conditions.add("p.yearpelicula = ?");
-            params.add(year);
+            condiciones.add("p.yearpelicula = ?");
+            parametros.add(year);
         }
         if (ratingMin != null) {
-            conditions.add("p.ratingpelicula >= ?");
-            params.add(ratingMin);
+            condiciones.add("p.ratingpelicula >= ?");
+            parametros.add(ratingMin);
         }
         if (idGenero != null) {
-            conditions.add("pg.idgenero = ?");
-            params.add(idGenero);
+            condiciones.add("pg.idgenero = ?");
+            parametros.add(idGenero);
         }
         if (filtroTitulo != null && !filtroTitulo.isBlank()) {
-            conditions.add("p.titulopelicula ILIKE ?");
-            params.add("%" + filtroTitulo + "%");
+            condiciones.add("p.titulopelicula ILIKE ?");
+            parametros.add("%" + filtroTitulo + "%");//Uso de % para que filtre por similitud
         }
 
-        if (!conditions.isEmpty()) {
-            sqlBuilder.append("WHERE ").append(String.join(" AND ", conditions));
+        // Si hay condiciones, se unen con el uso de join que recorre la lista añadiendo AND de separacion entre condiciones.
+        if (!condiciones.isEmpty()) {
+            consultaConstruida.append("WHERE ").append(String.join(" AND ", condiciones));
         }
 
-        return new FiltroContexto(sqlBuilder.toString(), params);
-    }
-
-    /**
-     * Asigna una lista de parámetros a un PreparedStatement.
-     *
-     * @param st     El PreparedStatement al que se le asignarán los parámetros.
-     * @param params La lista de parámetros a asignar.
-     * @throws SQLException si ocurre un error al asignar un parámetro.
-     */
-    private void asignarParametros(PreparedStatement st, List<Object> params) throws SQLException {
-        for (int i = 0; i < params.size(); i++) {
-            st.setObject(i + 1, params.get(i));
-        }
-    }
-
-    /**
-     * Clase interna para encapsular el resultado de la construcción de filtros:
-     * el fragmento de SQL y la lista de parámetros correspondiente.
-     */
-    private static class FiltroContexto {
-        String sqlPart;
-        List<Object> params;
-
-        public FiltroContexto(String sqlPart, List<Object> params) {
-            this.sqlPart = sqlPart;
-            this.params = params;
-        }
+        return consultaConstruida.toString();
     }
 
     /**
@@ -349,8 +342,8 @@ public class PeliculaDAO {
 
         List<Integer> ids = new ArrayList<>(peliculasPorId.keySet());
 
-        String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
-        String sqlFinal = String.format(SQL_FIND_GENEROS_LOTE, placeholders);
+        String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));// crea tantos "?," como tamaño de ids tenga
+        String sqlFinal = String.format(SQL_FIND_GENEROS_LOTE, placeholders); //se une el placeholders ("?,?,?") con el SQL base
 
         try {
 

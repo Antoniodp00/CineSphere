@@ -24,7 +24,7 @@ public class AlertUtils {
      * Aplica la hoja de estilos global a la escena de la alerta.
      * @param alert La alerta a la que aplicar el estilo.
      */
-    private static void applyGlobalStyle(Alert alert) {
+    private static void aplicarEstilo(Alert alert) {
         Scene scene = alert.getDialogPane().getScene();
         if (scene != null) {
             String cssPath = AlertUtils.class.getResource("/css/style.css").toExternalForm();
@@ -56,7 +56,7 @@ public class AlertUtils {
         alert.setContentText(mensaje);
         alert.setResizable(true);
 
-        applyGlobalStyle(alert);
+        aplicarEstilo(alert);
 
         alert.showAndWait();
     }
@@ -91,7 +91,7 @@ public class AlertUtils {
 
         alert.getDialogPane().setContent(expContent);
 
-        applyGlobalStyle(alert);
+        aplicarEstilo(alert);
 
         Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
         stage.setAlwaysOnTop(true);
@@ -106,14 +106,14 @@ public class AlertUtils {
      * @param content El mensaje principal del diálogo.
      * @return true si el usuario presiona OK, false en caso contrario.
      */
-    public static boolean confirmation(String title, String header, String content) {
+    public static boolean confirmacion(String title, String header, String content) {
         logger.log(Level.INFO, "Mostrando alerta de confirmación: " + header);
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
 
-        applyGlobalStyle(alert);
+        aplicarEstilo(alert);
 
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == ButtonType.OK;

@@ -79,7 +79,7 @@ public class MiListaController {
         }
 
         scroll.widthProperty().addListener((obs, oldVal, newVal) -> {
-            ajustarPageSize(newVal.doubleValue());
+            ajustarTamanoPagina(newVal.doubleValue());
             actualizarTotalPaginas();
             cargarPagina(page);
         });
@@ -101,7 +101,7 @@ public class MiListaController {
         btnNext.setOnAction(e -> cambiarPagina(page + 1));
         btnLast.setOnAction(e -> cambiarPagina(totalPages));
 
-        ajustarPageSize(scroll.getWidth());
+        ajustarTamanoPagina(scroll.getWidth());
         actualizarTotalPaginas();
         cargarPagina(1);
         logger.log(Level.INFO, "MiListaController inicializado correctamente.");
@@ -124,7 +124,7 @@ public class MiListaController {
      *
      * @param scrollWidth El ancho actual del ScrollPane.
      */
-    private void ajustarPageSize(double scrollWidth) {
+    private void ajustarTamanoPagina(double scrollWidth) {
         if (scrollWidth <= 0) {
             pageSize = 18;
             return;

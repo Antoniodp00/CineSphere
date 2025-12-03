@@ -108,7 +108,7 @@ public class EstadisticasController {
         ObservableList<PieChart.Data> datos = FXCollections.observableArrayList();
         int suma = 0;
         for (Map.Entry<PeliculaEstado, Integer> e : mapa.entrySet()) {
-            datos.add(new PieChart.Data(e.getKey().getDisplayValue(), e.getValue()));
+            datos.add(new PieChart.Data(e.getKey().getEstado(), e.getValue()));//añade los datos a la tarta
             suma += e.getValue();
         }
 
@@ -130,7 +130,7 @@ public class EstadisticasController {
         series.setName("Cantidad por género");
 
         for (Map.Entry<String, Integer> e : miListaDAO.getConteoGenerosByUsuario(idUsuario).entrySet()) {
-            series.getData().add(new XYChart.Data<>(e.getKey(), e.getValue()));
+            series.getData().add(new XYChart.Data<>(e.getKey(), e.getValue())); //añade texto eje x cantidad eje y
         }
 
         barGeneros.getData().clear();

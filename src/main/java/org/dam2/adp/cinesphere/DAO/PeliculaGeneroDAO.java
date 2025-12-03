@@ -42,15 +42,15 @@ public class PeliculaGeneroDAO {
      */
     public List<Genero> findByPelicula(int idPelicula) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
-        List<Genero> list = new ArrayList<>();
+        List<Genero> listaPeliculaGenero = new ArrayList<>();
         try (PreparedStatement st = conn.prepareStatement(SQL_FIND_BY_PELICULA)) {
             st.setInt(1, idPelicula);
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
-                    list.add(new Genero(rs.getInt(1), rs.getString(2)));
+                    listaPeliculaGenero.add(new Genero(rs.getInt(1), rs.getString(2)));
                 }
             }
         }
-        return list;
+        return listaPeliculaGenero;
     }
 }

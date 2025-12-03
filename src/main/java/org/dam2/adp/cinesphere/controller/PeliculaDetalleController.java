@@ -267,7 +267,7 @@ public class PeliculaDetalleController {
      * Ejecuta el proceso de eliminación física de la película de la base de datos.
      */
     private void eliminarPelicula() {
-        if (AlertUtils.confirmation("Eliminar Película", "¿Borrar '" + pelicula.getTituloPelicula() + "'?", "Esta acción es irreversible y la eliminará de las listas de todos los usuarios.")) {
+        if (AlertUtils.confirmacion("Eliminar Película", "¿Borrar '" + pelicula.getTituloPelicula() + "'?", "Esta acción es irreversible y la eliminará de las listas de todos los usuarios.")) {
             try {
                 peliculaDAO.delete(pelicula.getIdPelicula());
                 AlertUtils.info("Película eliminada.");

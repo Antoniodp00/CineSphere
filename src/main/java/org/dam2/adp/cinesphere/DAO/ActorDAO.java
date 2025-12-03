@@ -21,22 +21,22 @@ public class ActorDAO {
 
     /**
      * Inserta un nuevo actor en la base de datos.
-     * @param a el actor a insertar.
+     * @param actor el actor a insertar.
      * @return el actor insertado con su ID generado.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
-    public Actor insert(Actor a) throws SQLException {
+    public Actor insert(Actor actor) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-            st.setString(1, a.getNombreActor());
+            st.setString(1, actor.getNombreActor());
             st.executeUpdate();
             try (ResultSet keys = st.getGeneratedKeys()) {
                 if (keys.next()) {
-                    a.setIdActor(keys.getInt(1));
+                    actor.setIdActor(keys.getInt(1));
                 }
             }
         }
-        return a;
+        return actor;
     }
 
     /**
@@ -65,14 +65,14 @@ public class ActorDAO {
      */
     public List<Actor> findAll() throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
-        List<Actor> list = new ArrayList<>();
+        List<Actor> listaActores = new ArrayList<>();
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
             while (rs.next()) {
-                list.add(mapeoActor(rs));
+                listaActores.add(mapeoActor(rs));
             }
         }
-        return list;
+        return listaActores;
     }
 
     /**

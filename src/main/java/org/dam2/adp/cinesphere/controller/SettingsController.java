@@ -318,7 +318,7 @@ public class SettingsController {
             return;
         }
 
-        if (AlertUtils.confirmation("Eliminar Usuario", "¿Estás seguro?", "Esta acción es irreversible.")) {
+        if (AlertUtils.confirmacion("Eliminar Usuario", "¿Estás seguro?", "Esta acción es irreversible.")) {
             try {
                 usuarioDAO.delete(seleccionado);
                 tablaUsuarios.getItems().remove(seleccionado);

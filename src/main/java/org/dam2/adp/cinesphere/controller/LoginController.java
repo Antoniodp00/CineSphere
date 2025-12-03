@@ -58,7 +58,7 @@ public class LoginController {
         cbBaseDatos.getItems().addAll("PostgreSQL (Online)", "SQLite (Local)");
         cbBaseDatos.getSelectionModel().selectFirst();
 
-        // Si cambia la selección, se fuerza la desconexión visual y lógica
+        // Si cambia la selección, se fuerza la desconexión
         cbBaseDatos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
                 resetearEstadoConexion();

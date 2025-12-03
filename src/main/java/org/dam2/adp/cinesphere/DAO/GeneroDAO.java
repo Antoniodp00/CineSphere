@@ -20,22 +20,22 @@ public class GeneroDAO {
 
     /**
      * Inserta un nuevo género en la base de datos.
-     * @param g el género a insertar.
+     * @param genero el género a insertar.
      * @return el género insertado con su ID generado.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
-    public Genero insert(Genero g) throws SQLException {
+    public Genero insert(Genero genero) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-            st.setString(1, g.getNombreGenero());
+            st.setString(1, genero.getNombreGenero());
             st.executeUpdate();
             try (ResultSet keys = st.getGeneratedKeys()) {
                 if (keys.next()) {
-                    g.setIdGenero(keys.getInt(1));
+                    genero.setIdGenero(keys.getInt(1));
                 }
             }
         }
-        return g;
+        return genero;
     }
 
     /**
@@ -64,14 +64,14 @@ public class GeneroDAO {
      */
     public List<Genero> findAll() throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
-        List<Genero> list = new ArrayList<>();
+        List<Genero> listaGenero = new ArrayList<>();
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(SQL_FIND_ALL)) {
             while (rs.next()) {
-                list.add(mapeoGenero(rs));
+                listaGenero.add(mapeoGenero(rs));
             }
         }
-        return list;
+        return listaGenero;
     }
 
     /**

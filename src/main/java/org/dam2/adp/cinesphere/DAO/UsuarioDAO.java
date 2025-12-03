@@ -39,49 +39,49 @@ public class UsuarioDAO {
 
     /**
      * Inserta un nuevo usuario en la base de datos.
-     * @param u el usuario a insertar.
+     * @param usuario el usuario a insertar.
      * @return el usuario insertado con su ID generado.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
-    public Usuario insert(Usuario u) throws SQLException {
+    public Usuario insert(Usuario usuario) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-            st.setString(1, u.getNombreUsuario());
-            st.setString(2, u.getEmail());
-            st.setString(3, u.getPassw());
-            st.setDate(4, u.getBornDate() != null ? Date.valueOf(u.getBornDate()) : null);
-            if (u.getRol() == null) {
-                u.setRol(Rol.USER);
+            st.setString(1, usuario.getNombreUsuario());
+            st.setString(2, usuario.getEmail());
+            st.setString(3, usuario.getPassw());
+            st.setDate(4, usuario.getBornDate() != null ? Date.valueOf(usuario.getBornDate()) : null);
+            if (usuario.getRol() == null) {
+                usuario.setRol(Rol.USER);
             }
-            st.setString(5, u.getRol().name());
+            st.setString(5, usuario.getRol().name());
             st.executeUpdate();
             try (ResultSet keys = st.getGeneratedKeys()) {
                 if (keys.next()) {
-                    u.setIdUsuario(keys.getInt(1));
+                    usuario.setIdUsuario(keys.getInt(1));
                 }
             }
         }
-        return u;
+        return usuario;
     }
 
     /**
      * Actualiza un usuario existente en la base de datos.
-     * @param u el usuario a actualizar.
+     * @param usuario el usuario a actualizar.
      * @return el usuario actualizado.
      * @throws SQLException si ocurre un error al acceder a la base de datos.
      */
-    public Usuario update(Usuario u) throws SQLException {
+    public Usuario update(Usuario usuario) throws SQLException {
         Connection conn = Conexion.getInstance().getConnection();
         try (PreparedStatement st = conn.prepareStatement(SQL_UPDATE)) {
-            st.setString(1, u.getNombreUsuario());
-            st.setString(2, u.getEmail());
-            st.setString(3, u.getPassw());
-            st.setDate(4, u.getBornDate() != null ? Date.valueOf(u.getBornDate()) : null);
-            st.setString(5, u.getRol().name());
-            st.setInt(6, u.getIdUsuario());
+            st.setString(1, usuario.getNombreUsuario());
+            st.setString(2, usuario.getEmail());
+            st.setString(3, usuario.getPassw());
+            st.setDate(4, usuario.getBornDate() != null ? Date.valueOf(usuario.getBornDate()) : null);
+            st.setString(5, usuario.getRol().name());
+            st.setInt(6, usuario.getIdUsuario());
             st.executeUpdate();
         }
-        return u;
+        return usuario;
     }
 
     /**
@@ -195,16 +195,16 @@ public class UsuarioDAO {
      * @throws SQLException si ocurre un error al acceder a los datos del ResultSet.
      */
     private Usuario mapeoUsuario(ResultSet rs) throws SQLException {
-        Usuario u = new Usuario();
-        u.setIdUsuario(rs.getInt("idusuario"));
-        u.setNombreUsuario(rs.getString("nombreusuario"));
-        u.setEmail(rs.getString("email"));
-        u.setPassw(rs.getString("passw"));
+        Usuario usuario = new Usuario();
+        usuario.setIdUsuario(rs.getInt("idusuario"));
+        usuario.setNombreUsuario(rs.getString("nombreusuario"));
+        usuario.setEmail(rs.getString("email"));
+        usuario.setPassw(rs.getString("passw"));
         Date bornDate = rs.getDate("borndate");
         if (bornDate != null) {
-            u.setBornDate(bornDate.toLocalDate());
+            usuario.setBornDate(bornDate.toLocalDate());
         }
-        u.setRol(Rol.fromString(rs.getString("rol")));
-        return u;
+        usuario.setRol(Rol.fromString(rs.getString("rol")));
+        return usuario;
     }
 }
